@@ -40,6 +40,7 @@ def test_no_overrides_and_default_overrides_are_the_same_selection():
         RequirementOverrides(exclude_leaders=2),
         RequirementOverrides(require_paid=True),
         RequirementOverrides(max_credits=5),
+        RequirementOverrides(level_delta=1),
         RequirementOverrides(exclude_models=frozenset({QWEN})),
     ],
 )

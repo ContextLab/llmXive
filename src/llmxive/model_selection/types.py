@@ -7,14 +7,23 @@ credits (see ``worst_case_credits``).
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field, fields
-from datetime import datetime
+from datetime import date, datetime
+from math import isfinite
 from types import MappingProxyType
 from typing import Literal
 
 Capability = Literal["cheap", "standard", "deep", "vision"]
 IndependenceDim = Literal["model", "family", "vendor", "serving_endpoint"]
 SnapshotSource = Literal["live", "last_known_good", "unavailable"]
+CostClass = Literal["free", "funded", "paid"]
+Track = Literal["reasoning", "coding"]
+StrengthLevel = Literal["economy", "balanced", "strong", "strongest"]
+
+STRENGTH_LEVELS: tuple[StrengthLevel, ...] = ("economy", "balanced", "strong", "strongest")
+#: Backends whose spend is drawn from a funded USD budget (never "free", whatever the price).
+FUNDED_BACKENDS: frozenset[str] = frozenset({"huggingface"})
 
 #: USD → credits conversion (1 credit == $0.001), so credits = usd * 1000.
 USD_TO_CREDITS = 1000.0
@@ -172,6 +181,12 @@ class ModelRequirement:
     #: low-risk calls leave it False (they may proceed on a bounded LKG snapshot and
     #: never consult credit freshness unless admitting paid).
     require_fresh_snapshot: bool = False
+    #: Funded-provider selection (spec 027 5.10). A requirement with ``track`` or
+    #: ``strength`` None gets no funded candidate.
+    profile: str | None = None
+    track: Track | None = None
+    strength: StrengthLevel | None = None
+    budget_step_down: bool = False
 
 
 @dataclass(frozen=True)
@@ -199,8 +214,13 @@ class RequirementOverrides:
     #: nothing; the effective count is ``max(int(exclude_leader), exclude_leaders)``,
     #: so ``exclude_leader=True`` keeps meaning exactly one.
     exclude_leaders: int = 0
+    #: Shift the requirement's strength level by this many steps (any sign;
+    #: clamped by ``shift_level``). Part of the selection identity.
+    level_delta: int = 0
 
     def __post_init__(self) -> None:
+        if isinstance(self.level_delta, bool) or not isinstance(self.level_delta, int):
+            raise TypeError("level_delta must be an int")
         if isinstance(self.exclude_leaders, bool) or not isinstance(self.exclude_leaders, int):
             raise TypeError("exclude_leaders must be an int")
         if self.exclude_leaders < 0:
@@ -240,6 +260,56 @@ def canonical_overrides(overrides: RequirementOverrides | None) -> str:
 
 
 @dataclass(frozen=True)
+class ArenaScore:
+    """One leaderboard rating with its confidence bounds."""
+
+    rating: float
+    rating_lower: float
+    rating_upper: float
+    publish_date: date
+
+    def __post_init__(self) -> None:
+        vals = (self.rating, self.rating_lower, self.rating_upper)
+        if not all(isfinite(v) for v in vals):
+            raise ValueError("ArenaScore values must be finite")
+        if not self.rating_lower <= self.rating <= self.rating_upper:
+            raise ValueError("ArenaScore requires rating_lower <= rating <= rating_upper")
+
+
+@dataclass(frozen=True)
+class ModelScores:
+    reasoning: ArenaScore | None = None
+    coding: ArenaScore | None = None
+
+    def for_track(self, track: Track) -> ArenaScore | None:
+        return self.reasoning if track == "reasoning" else self.coding
+
+
+@dataclass(frozen=True)
+class ObservedModel:
+    """Provider-observed facts; ``features`` is a subset of structured/tools/vision."""
+
+    context_length: int | None
+    features: frozenset[str]
+
+
+@dataclass(frozen=True)
+class FundedGuardSnapshot:
+    """Funded-spend guard state, in USD."""
+
+    monthly_usd: float
+    spent_month_usd: float
+    spent_before_today_usd: float
+    outstanding_usd: float
+    org_balance_usd: float | None
+    effective_cap_usd: float
+    available_usd: float
+    epoch: str
+    observed_at: datetime
+    source: SnapshotSource
+
+
+@dataclass(frozen=True)
 class RuntimeSnapshot:
     """Composite over EVERY configured backend + the credit-guard state. The
     pure selector's world: ``select`` reads nothing else (no network, no env).
@@ -257,8 +327,13 @@ class RuntimeSnapshot:
     observed_at: datetime
     sources: dict[str, SnapshotProvenance]  # component ("catalog"/"local"/"credit") -> provenance
     digest: str = ""
+    funded: FundedGuardSnapshot | None = None
+    scores: Mapping[str, ModelScores] = field(default_factory=dict)  # keyed by model_id
+    observed: Mapping[str, ObservedModel] = field(default_factory=dict)  # keyed by model_id
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "scores", MappingProxyType(dict(self.scores)))
+        object.__setattr__(self, "observed", MappingProxyType(dict(self.observed)))
         # frozen=True freezes the ATTRIBUTES, not the dicts they point at (#5): wrap
         # the mappings so a caller cannot mutate pricing/health/sources after the
         # snapshot (and its digest) are fixed.
@@ -275,6 +350,10 @@ class Candidate:
     pricing: ModelPricing
     worst_case_credits: float
     approved_ceiling_credits: float
+
+    @property
+    def cost_class(self) -> CostClass:
+        return cost_class_of(self.model_ref.backend, self.pricing)
 
 
 @dataclass(frozen=True)
@@ -309,3 +388,22 @@ def worst_case_credits(pricing: ModelPricing, budget: CallBudget) -> float | Non
         budget.max_input_tokens * (pricing.input_usd_per_token or 0.0)
         + budget.max_output_tokens * (pricing.output_usd_per_token or 0.0)
     )
+
+
+def worst_case_usd(pricing: ModelPricing, budget: CallBudget) -> float | None:
+    """``worst_case_credits`` expressed in USD, or ``None`` if pricing is unknown."""
+    credits = worst_case_credits(pricing, budget)
+    return None if credits is None else credits / USD_TO_CREDITS
+
+
+def cost_class_of(backend: str, pricing: ModelPricing) -> CostClass:
+    """Funded iff the backend is funded, whatever the price; else free iff priced zero."""
+    if backend in FUNDED_BACKENDS:
+        return "funded"
+    return "free" if pricing.is_free else "paid"
+
+
+def shift_level(level: StrengthLevel, delta: int) -> StrengthLevel:
+    """Move ``level`` by ``delta`` steps, clamped to [economy, strongest]."""
+    i = STRENGTH_LEVELS.index(level) + delta
+    return STRENGTH_LEVELS[max(0, min(len(STRENGTH_LEVELS) - 1, i))]
