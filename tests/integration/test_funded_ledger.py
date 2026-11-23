@@ -4,14 +4,25 @@ monthly epoch, and a recorded charge at reconcile. Real git repos and refs."""
 from __future__ import annotations
 
 import subprocess
+import threading
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
+from llmxive.backends.hf_budget import (
+    FundedSpend,
+    FundedUnavailable,
+    funded_guard,
+    funded_observer,
+    funded_spend,
+    settle_funded,
+)
 from llmxive.model_selection.ledger_transport import (
+    FUNDED_LEDGER_ANCHOR_ENV,
     FUNDED_LEDGER_REF,
     LedgerConfig,
+    LedgerDenied,
     bootstrap_ledger,
     read_events,
 )
@@ -178,3 +189,145 @@ def test_funded_ledger_bootstrap_cli_prints_the_anchor_of_the_ref_it_created(rep
 # --------------------------------------------------------------------------- #
 # Allowance guard (backends/hf_budget.py, spec 027 section 5.6) over real refs.
 # --------------------------------------------------------------------------- #
+
+
+def U(s: str) -> datetime:
+    return datetime.fromisoformat(s).replace(tzinfo=UTC)
+
+
+@pytest.fixture
+def remote_and_two_clones(tmp_path: Path):
+    remote = tmp_path / "remote.git"
+    _git(["init", "--bare", "-b", "main", str(remote)], tmp_path)
+    a = tmp_path / "clone_A"
+    b = tmp_path / "clone_B"
+    _git(["clone", "--quiet", str(remote), str(a)], tmp_path)
+    _git(["clone", "--quiet", str(remote), str(b)], tmp_path)
+    bootstrap_ledger(a, remote="origin", ref=FUNDED_LEDGER_REF)
+    return remote, a, b
+
+
+def test_funded_spend_and_guard_from_real_events(repo, monkeypatch):
+    monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
+    for rid, usd, day, charged in [("a", 4.0, "2026-11-20", 4.0), ("b", 2.0, "2026-11-23", 1.5),
+                                   ("c", 0.5, "2026-11-23", None), ("d", 0.25, "2026-11-21", None)]:
+        _reserve(repo, rid, usd, cap=1e9, now=U(day + "T09:00:00"))
+        if charged is not None:
+            reconcile(repo, rid, charged=charged, now=U(day + "T09:01:00"), config=CFG)
+    now = U("2026-11-23T12:00:00")
+    assert funded_spend(project(read_events(repo, ref=FUNDED_LEDGER_REF)).values(), now=now) == FundedSpend(5.5, 4.25, 0.75)
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    g = funded_guard(repo, now=now, config=CFG, org_balance_fetch=lambda: None)
+    assert g.effective_cap_usd == pytest.approx(27.125) and g.available_usd == pytest.approx(20.875)
+    assert (g.epoch, g.source, g.monthly_usd) == ("2026-11", "live", 50.0)
+    assert g.org_balance_usd is None  # cross-check unavailable is recorded, never "unlimited"
+    # a reported org balance below the remaining allowance wins
+    g2 = funded_guard(repo, now=now, config=CFG, org_balance_fetch=lambda: 2.0)
+    assert g2.org_balance_usd == 2.0
+    assert g2.effective_cap_usd == pytest.approx(7.5) and g2.available_usd == pytest.approx(1.25)
+
+
+def test_guard_fails_closed_without_bill_to(repo, monkeypatch):
+    monkeypatch.delenv("LLMXIVE_HF_BILL_TO", raising=False)
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with pytest.raises(FundedUnavailable, match="LLMXIVE_HF_BILL_TO"):
+        funded_guard(repo, now=T0, config=CFG, org_balance_fetch=lambda: None)
+
+
+def test_guard_fails_closed_without_token(repo, monkeypatch):
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.delenv("HF_TOKEN", raising=False)
+    monkeypatch.setenv("PATH", "/nonexistent")  # no Keychain CLI either; the guard stops before git
+    with pytest.raises(FundedUnavailable, match="HF_TOKEN"):
+        funded_guard(repo, now=T0, config=CFG, org_balance_fetch=lambda: None)
+
+
+def test_guard_fails_closed_without_anchor(repo, monkeypatch):
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    monkeypatch.delenv(FUNDED_LEDGER_ANCHOR_ENV, raising=False)
+    with pytest.raises(FundedUnavailable, match=FUNDED_LEDGER_ANCHOR_ENV):
+        funded_guard(repo, now=T0, org_balance_fetch=lambda: None)  # config from env
+
+
+def test_guard_fails_closed_when_ledger_sync_fails(remote_and_clone, monkeypatch):
+    _remote, a = remote_and_clone  # remote exists but the funded ref was never bootstrapped
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with pytest.raises(FundedUnavailable, match="ledger"):
+        funded_guard(a, now=T0, config=LedgerConfig(remote="origin", ref=FUNDED_LEDGER_REF),
+                     org_balance_fetch=lambda: None)
+
+
+def test_guard_syncs_the_authoritative_ref_before_projecting(remote_and_two_clones, monkeypatch):
+    _remote, a, b = remote_and_two_clones
+    cfg = LedgerConfig(remote="origin", ref=FUNDED_LEDGER_REF)
+    _reserve(a, "ra", 5.0, cap=1e9, config=cfg)
+    monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    g = funded_guard(b, now=T0, config=cfg, org_balance_fetch=lambda: None)  # b never saw "ra" locally
+    assert g.outstanding_usd == 5.0
+
+
+def test_guard_rejects_the_credit_ledger_config(repo, monkeypatch):
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with pytest.raises(ValueError, match="funded"):
+        funded_guard(repo, now=T0, config=LedgerConfig(remote=None), org_balance_fetch=lambda: None)
+
+
+def test_prior_month_hold_does_not_count(repo):
+    _reserve(repo, "old", 30.0, cap=1e9, now=U("2026-11-30T23:59:00"))          # epoch 2026-11, never settled
+    obs = funded_observer(repo, config=CFG, now_fn=lambda: U("2026-12-01T00:01:00"))()
+    assert (obs.budget_epoch, obs.spend) == ("2026-12", 0.0)
+    assert funded_spend(project(read_events(repo, ref=FUNDED_LEDGER_REF)).values(), now=U("2026-12-01T00:01:00")).outstanding_usd == 0.0
+
+
+def test_two_runners_cannot_overspend_the_allowance(remote_and_two_clones, monkeypatch):
+    monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
+    _remote, a, b = remote_and_two_clones
+    cfg = LedgerConfig(remote="origin", ref=FUNDED_LEDGER_REF)
+    now = U("2026-11-30T12:00:00")
+    barrier = threading.Barrier(2)
+    results: list[str] = []
+
+    def run(clone, rid):
+        try:
+            barrier.wait(timeout=10)
+            reserve(clone, reservation_id=rid, worst_case_credits=30.0, model="m",
+                    lease_expires_at=now + timedelta(seconds=420),
+                    credit_observer=funded_observer(clone, config=cfg, now_fn=lambda: now), now=now, config=cfg)
+            results.append("ok")
+        except LedgerDenied:
+            results.append("denied")
+        except BaseException as exc:  # surfaced in the assertion
+            results.append(f"error: {exc!r}")
+
+    ts = [threading.Thread(target=run, args=(a, "ra")), threading.Thread(target=run, args=(b, "rb"))]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join(30)
+    assert sorted(results) == ["denied", "ok"]                                   # $50 month, two $30 holds
+
+
+def test_settle_funded_charges_full_reservation_when_usage_is_missing(repo):
+    _reserve(repo, "f1", 0.25, cap=1.0)
+    assert settle_funded(repo, "f1", charged_usd=None, now=T0, config=CFG) == 0.25
+    assert project(read_events(repo, ref=FUNDED_LEDGER_REF))["f1"].charged == 0.25
+
+
+def test_settle_funded_records_the_usage_charge_and_first_writer_wins(repo):
+    _reserve(repo, "f1", 0.25, cap=1.0)
+    assert settle_funded(repo, "f1", charged_usd=0.0031, now=T0, config=CFG) == 0.0031
+    assert settle_funded(repo, "f1", charged_usd=None, now=T0, config=CFG) == 0.0031  # recorded value
+
+
+def test_settle_funded_unknown_reservation_fails(repo):
+    from llmxive.model_selection.ledger_transport import LedgerError
+
+    _reserve(repo, "f1", 0.25, cap=1.0)
+    with pytest.raises(LedgerError, match="nope"):
+        settle_funded(repo, "nope", charged_usd=None, now=T0, config=CFG)
