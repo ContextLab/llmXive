@@ -12,8 +12,10 @@ name: Pipeline — Reprocess ingested code papers (autonomous drain)
 # inline, with Paper Compile providing a later recovery sweep.
 
 on:
-  schedule:
-    - cron: '7,27,47 * * * *'   # retain 20-minute intake latency; empty ticks probe only
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '7,27,47 * * * *'   # retain 20-minute intake latency; empty ticks probe only
   workflow_dispatch:
     inputs:
       migrate_limit:

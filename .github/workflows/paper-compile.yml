@@ -16,8 +16,10 @@ name: Paper Compile
 # by Python's argparse before reaching any subprocess.
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: "*/30 * * * *"
   push:
     branches: [main]
     paths:
