@@ -1,7 +1,9 @@
 # Hugging Face pilot
 
 The `contextlab` Academia subscription supplies optional storage and burst compute
-for llmXive. Dartmouth remains the production model backend. These explicit pilot
+for llmXive. Dartmouth remains the primary model backend; Hugging Face Inference
+Providers is now a routed fallback backend (`llmxive.backends.huggingface`, billed
+to the resource group below via `LLMXIVE_HF_BILL_TO`). These explicit pilot
 commands do not change automatic model selection or upload project directories.
 
 ## Provisioned resources

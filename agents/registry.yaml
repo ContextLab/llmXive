@@ -6,6 +6,12 @@ backends:
   - DARTMOUTH_CHAT_API_KEY
   daily_quota_estimate: 100
   is_paid: false
+- name: huggingface
+  kind: openai_compatible
+  auth_env_vars:
+  - HF_TOKEN
+  - LLMXIVE_HF_BILL_TO
+  is_paid: false
 - name: local
   kind: local_transformers
   auth_env_vars: []

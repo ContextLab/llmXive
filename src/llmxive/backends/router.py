@@ -28,6 +28,7 @@ from llmxive.backends.base import (
     UnsupportedFeatureError,
 )
 from llmxive.backends.dartmouth import DartmouthBackend
+from llmxive.backends.huggingface import HuggingFaceBackend
 from llmxive.backends.local import LocalBackend
 
 if TYPE_CHECKING:
@@ -45,6 +46,7 @@ if TYPE_CHECKING:
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
     "local": LocalBackend,
+    "huggingface": HuggingFaceBackend,
 }
 
 

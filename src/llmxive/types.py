@@ -184,8 +184,10 @@ class ArtifactKind(StrEnum):
 
 class BackendName(StrEnum):
     DARTMOUTH = "dartmouth"
-    # The HF Inference-API backend was removed (2026-05-29): HF models run
-    # LOCALLY via the `local`/transformers backend, with no API token.
+    # HF *models* also run LOCALLY via the `local`/transformers backend. The
+    # Hugging Face router (Inference Providers) is a separate funded backend
+    # (spec 027); an earlier HF Inference-API backend was removed 2026-05-29.
+    HUGGINGFACE = "huggingface"
     LOCAL = "local"
 
 
