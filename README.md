@@ -129,8 +129,25 @@ returned-model identity are checked separately from configuration. A fallback
 response is recorded as that model; primary-model acceptance tests do not let a
 peer impersonate the primary.
 
-Backend fallback is part of the same chain: the local transformers model is a
-candidate like any other. Local transformers requires installed dependencies,
+Backend fallback is part of the same chain, ordered by cost class: free hosted
+models (Dartmouth) first, then Hugging Face Inference Providers (funded, within
+`LLMXIVE_HF_MONTHLY_USD`, default 50 USD a month), then the local transformers
+model, then paid models. The funded model is the cheapest one whose LMArena score
+falls in the profile's strength level among the models the Hugging Face router
+offers that day. Scores come from the LMArena leaderboard dataset
+([`lmarena-ai/leaderboard-dataset`](https://huggingface.co/datasets/lmarena-ai/leaderboard-dataset),
+CC-BY-4.0, by LMArena); they are used for internal ranking only and are never
+committed. A funded call needs neither `allow_paid` nor the paid opt-in. Before it
+is sent, its worst-case cost is reserved on the funded ledger
+(`refs/llmxive/funded-ledger`, USD, monthly epoch); it is sent once, and afterwards
+the ledger records its real cost (reported token usage times the catalog price;
+zero for an HTTP 401/402/403 rejection or a request never sent; the full
+reservation when no usage is reported). When the allowance is exhausted the funded
+candidates are skipped and the chain moves on. Settings: `HF_TOKEN` (CI secret or
+macOS Keychain), `LLMXIVE_HF_BILL_TO` (the billed resource group),
+`LLMXIVE_HF_MONTHLY_USD`, `LLMXIVE_HF_DEADLINE_S`, and the funded ledger's
+`LLMXIVE_FUNDED_LEDGER_REMOTE` / `LLMXIVE_FUNDED_LEDGER_ANCHOR` (without the anchor,
+funded spend stays disabled). Local transformers requires installed dependencies,
 suitable hardware and a compatible available model; it is not a guarantee that
 a large Dartmouth model can run on a laptop. A model the capability policy does
 not list is never selected, whatever the catalog offers.

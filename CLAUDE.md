@@ -18,7 +18,7 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
 ## Repository Architecture
 
 - **`src/llmxive/`**: the Python package — agents, backends (Dartmouth Chat +
-  local transformers), pipeline/state machinery, claims verification layer
+  Hugging Face Inference Providers + local transformers), pipeline/state machinery, claims verification layer
   (specs 016–020), librarian, convergence engine, audits. Installable via
   `pip install -e ".[dev]"` (Python ≥ 3.11).
 - **`agents/registry.yaml`**: the SINGLE source of truth for agent → prompt /

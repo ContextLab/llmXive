@@ -49,6 +49,7 @@ from llmxive.model_selection.attempt_hooks import (
 )
 from llmxive.model_selection.execute import execute
 from llmxive.model_selection.ledger_transport import LedgerConfig
+from llmxive.model_selection.policy import FundedPolicy
 from llmxive.model_selection.profiles import build_requirement
 from llmxive.model_selection.select import select
 from llmxive.model_selection.snapshot import runtime_snapshot
@@ -230,15 +231,17 @@ def _select_audited(
     snap: RuntimeSnapshot,
     route_audit: RouteAudit | None,
     route_id: str,
+    funded_policy: FundedPolicy | None = None,
 ) -> ModelChain:
     """Run select; on ModelUnavailable emit a SelectionFailure audit event (so the
     proposal reroute's failed first leg is auditable, FR-002/F3) and RE-RAISE — the
     caller's fail-closed / reroute logic is unchanged. The emit itself goes through
     ``emit_audit`` (F4) so a sink failure here is normalized to ``RouteAuditError``
     and takes precedence over the ``ModelUnavailable`` being reported — an
-    audit-system failure is route-fatal."""
+    audit-system failure is route-fatal. ``funded_policy`` is forwarded to
+    ``select`` (``None`` → the production ``FUNDED_POLICY``)."""
     try:
-        return select(requirement, snap)
+        return select(requirement, snap, funded_policy=funded_policy)
     except ModelUnavailable as exc:
         emit_audit(route_audit, SelectionFailure(
             route_id=route_id,
@@ -259,6 +262,7 @@ def resolve_chain(
     overrides: RequirementOverrides | None = None,
     route_audit: RouteAudit | None = None,
     route_id: str = "",
+    funded_policy: FundedPolicy | None = None,
 ) -> tuple[ModelRequirement, ModelChain]:
     """THE selection decision for one call: acquire the (bounded-cache) snapshot,
     build the profile's requirement priced against ``messages``, compose
@@ -269,6 +273,9 @@ def resolve_chain(
     :func:`route_chat` calls it and then executes the result; a caller that only
     needs to know what the selector WOULD offer (:func:`free_peer_ids`) calls it
     too, so a preview can never disagree with the real decision.
+
+    ``funded_policy`` is an injection seam beside ``snapshot`` (forwarded to every
+    ``select`` pass; ``None`` → the production ``FUNDED_POLICY``).
 
     Raises :class:`ModelUnavailable` when no candidate is eligible (including
     from the leader-resolving passes) and ``ValueError`` when ``allow_paid`` is
@@ -313,11 +320,13 @@ def resolve_chain(
         # If a pass raises ModelUnavailable it propagates immediately — there is
         # no leader left to exclude and the deciding pass never runs.
         for _ in range(max(int(overrides.exclude_leader), overrides.exclude_leaders)):
-            leader = _select_audited(requirement, snap, route_audit, route_id).candidates[0].model_ref.model_id
+            leader = _select_audited(
+                requirement, snap, route_audit, route_id, funded_policy=funded_policy
+            ).candidates[0].model_ref.model_id
             requirement = replace(
                 requirement, exclude_models=requirement.exclude_models | {leader}
             )
-    chain = _select_audited(requirement, snap, route_audit, route_id)   # THE decision
+    chain = _select_audited(requirement, snap, route_audit, route_id, funded_policy=funded_policy)   # THE decision
     return requirement, chain
 
 
@@ -372,6 +381,8 @@ def route_chat(
     prompt_digest: str | None = None,
     context_digest: str | None = None,
     route_id: str | None = None,
+    funded_ledger_config: LedgerConfig | None = None,
+    funded_policy: FundedPolicy | None = None,
 ) -> ChatResponse:
     """Route one chat call through select()→execute() and return its response.
 
@@ -423,6 +434,13 @@ def route_chat(
     MUST NOT be retried as a transient backend failure — reconcile from durable
     dispatch state (an unresolved ``dispatch_started`` → ``dispatch_unknown``),
     never re-dispatch (FR-033a).
+
+    **Funded (Hugging Face) candidates (spec 027).** ``funded_policy`` is forwarded
+    to :func:`resolve_chain` (``None`` → ``FUNDED_POLICY``); ``funded_ledger_config``
+    to :func:`execute` (``None`` → the production funded ledger from the env, failing
+    closed without its anchor). The snapshot's funded guard prices each funded hold,
+    which needs neither ``allow_paid`` nor the paid opt-in; an exhausted allowance
+    skips the funded candidates (outage path, never a human escalation).
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
@@ -442,22 +460,27 @@ def route_chat(
     # authoritative reservation instead of being skipped with "no ledger configured".
     # Default to it when the caller doesn't inject one; tests pass an explicit
     # ledger_repo (e.g. a tmp git ledger) as the injection seam. Free-only chains
-    # never read it (execute touches the ledger ONLY when a paid candidate exists),
+    # never read it (execute touches a ledger ONLY when a paid or funded candidate
+    # exists; funded holds live on their own ref, refs/llmxive/funded-ledger),
     # and execute still fails CLOSED on an unbootstrapped anchor.
     if ledger_repo is None:
         from llmxive.config import repo_root
 
         ledger_repo = repo_root()
+    # Acquired here (not only inside resolve_chain) so the SAME snapshot's funded
+    # guard prices any funded hold execute opens.
+    snap = snapshot if snapshot is not None else _acquire_snapshot()
     requirement, chain = resolve_chain(
         msg_list,
         profile=profile,
         max_tokens=max_tokens,
         allow_paid=allow_paid,
         independence_against=independence_against,
-        snapshot=snapshot,
+        snapshot=snap,
         overrides=overrides,
         route_audit=route_audit,
         route_id=route_id,
+        funded_policy=funded_policy,
     )
     chain = _promote_primary(chain, caller_model)
 
@@ -499,5 +522,7 @@ def route_chat(
         route_id=route_id,
         reservation_authority=reservation_authority,
         route_audit=route_audit,
+        funded_ledger_config=funded_ledger_config,
+        funded_guard=snap.funded,
     )
     return result.response

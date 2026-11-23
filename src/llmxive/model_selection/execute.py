@@ -29,6 +29,10 @@ the chain's credit snapshot was not ``live`` (C6), then RESERVES
 background heartbeat lease. The hold is RETAINED (``settle`` → ``settling``) on
 return — success OR failure — never released at call-return (the reconciler /
 sweeper finalizes it against observed spend). Free candidates touch none of this.
+
+**Funded (spec 027):** a Hugging Face candidate reserves ``worst_case x 1`` (USD) on
+the funded ledger, is dispatched once, and is reconciled with its real charge before
+``execute`` moves on — see :func:`execute`.
 """
 
 from __future__ import annotations
@@ -39,11 +43,13 @@ import re
 import uuid
 from collections.abc import Callable, Iterable
 from contextlib import nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse
+from llmxive.backends.hf_budget import reserve_funded, settle_funded
+from llmxive.backends.huggingface import PreInferenceRejection
 from llmxive.backends.router import (
     CandidateDisposition,
     chat_one_candidate,
@@ -63,7 +69,9 @@ from llmxive.model_selection.attempt_hooks import (
 )
 from llmxive.model_selection.ledger_transport import (
     LedgerConfig,
+    LedgerDenied,
     LedgerError,
+    funded_ledger_config_from_env,
     ledger_config_from_env,
 )
 from llmxive.model_selection.reservations import (
@@ -75,7 +83,14 @@ from llmxive.model_selection.reservations import (
     settle,
 )
 from llmxive.model_selection.tokens import fits_budget
-from llmxive.model_selection.types import Candidate, ExecutionOptions, ModelChain, ModelRef
+from llmxive.model_selection.types import (
+    USD_TO_CREDITS,
+    Candidate,
+    ExecutionOptions,
+    FundedGuardSnapshot,
+    ModelChain,
+    ModelRef,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -97,13 +112,17 @@ class ExecutionResult:
     ``model_ref`` that produced it, the credits ``reserved`` for it (0 for free),
     per-candidate ``notes`` (skips / advances that preceded success), and the
     winning candidate's ledger ``reservation_id`` (``None`` for a free winner —
-    FR-033a: the lane attributes settled Attempt cost by this id)."""
+    FR-033a: the lane attributes settled Attempt cost by this id; a funded winner's
+    id names a hold on the funded ledger, not the Dartmouth credit ledger).
+    ``charged_usd`` is the real USD charge settled for a funded winner (also set as
+    ``response.cost_estimate_usd``); ``None`` for a free or paid winner."""
 
     response: ChatResponse
     model_ref: ModelRef
     reserved_credits: float
     notes: tuple[str, ...]
     reservation_id: str | None = None
+    charged_usd: float | None = None
 
 
 def _sanitize_reservation_id(model_id: str, call_id: str) -> str:
@@ -246,6 +265,116 @@ def _open_paid_reservation(
     return rid, reserve_credits, None
 
 
+def _settle_funded_hold(
+    ledger_repo: Path,
+    reservation_id: str,
+    *,
+    charged_usd: float | None,
+    now: datetime,
+    config: LedgerConfig,
+    notes: list[str],
+) -> float | None:
+    """Reconcile a funded hold (spec 5.9.2) and return the charge the ledger records,
+    or ``None`` when settling failed. Never raises: a failed settle must not turn a
+    reply into a failed call, so it is logged (exception type only — no ledger or
+    remote text that could carry a credential) and noted; the hold then expires
+    through the ledger's own sweep."""
+    try:
+        return settle_funded(ledger_repo, reservation_id, charged_usd=charged_usd, now=now, config=config)
+    except Exception as exc:
+        msg = (
+            f"funded settle_funded({reservation_id}) failed ({type(exc).__name__}); the hold "
+            "stays open until the funded ledger's sweep expires it"
+        )
+        logger.warning("execute: %s", msg)
+        notes.append(msg)
+        return None
+
+
+def _open_funded_reservation(
+    candidate: Candidate,
+    chain: ModelChain,
+    *,
+    options: ExecutionOptions,
+    ledger_repo: Path | None,
+    config: LedgerConfig | None,
+    funded_observer: Callable[[], CreditObservation] | None,
+    funded_guard: FundedGuardSnapshot | None,
+    now: datetime,
+    call_id: str,
+    owns_call_id: bool,
+    notes: list[str],
+) -> tuple[str | None, float, str | None]:
+    """Reserve a funded (Hugging Face) candidate's worst case x 1, in USD, on the funded
+    ledger. Returns ``(reservation_id, reserved_usd, skip_reason)`` — exactly one of
+    ``reservation_id`` / ``skip_reason`` is non-None. ANY failure (a denial, a ledger
+    error, a refused guard, or an unexpected exception from the observer) is a skip:
+    a funded candidate is never dispatched without a successful reservation.
+
+    The hold is priced by ``funded_observer`` when one is injected (FR-015 seam),
+    else by :func:`hf_budget.reserve_funded` against the runtime snapshot's live
+    ``funded_guard`` (one clock for pricing and ``created_at``; refuses a guard that is
+    not live or is from another month). ``reservation_authority`` (Dartmouth credits)
+    is not consulted. Only ``worst_case x 1`` is held: the candidate is dispatched once.
+
+    If the reserve raised unexpectedly AFTER its event may have landed, a hold this
+    call owns (``owns_call_id`` — a freshly minted ``call_id``, so the id cannot name
+    another dispatch's hold) is released at zero; otherwise its lease expiry and the
+    ledger's sweep end it."""
+    ref = candidate.model_ref
+    fprov = chain.snapshot_provenance.get("funded")
+    if fprov is None or fprov.source != "live":
+        src = fprov.source if fprov is not None else "missing"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'"
+    if ledger_repo is None or config is None:
+        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)"
+    if funded_observer is None and funded_guard is None:
+        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)"
+
+    reserve_usd = candidate.worst_case_credits / USD_TO_CREDITS
+    rid = _sanitize_reservation_id(ref.model_id, call_id)
+    lease_expires = now + timedelta(seconds=lease_duration_for(options.deadline_s))
+    try:
+        if funded_observer is not None:
+            reserve(
+                ledger_repo, reservation_id=rid, worst_case_credits=reserve_usd, model=ref.model_id,
+                credit_observer=funded_observer, lease_expires_at=lease_expires, now=now, config=config,
+            )
+        else:
+            reserve_funded(
+                ledger_repo, reservation_id=rid, worst_case_usd=reserve_usd, model=ref.model_id,
+                lease_expires_at=lease_expires, now=now, config=config,
+                guard=funded_guard,  # type: ignore[arg-type]  # non-None: checked above
+            )
+    except LedgerDenied as exc:  # no allowance headroom, or an id collision: nothing written
+        return None, 0.0, f"funded {ref.model_id!r} skipped: reservation denied ({exc})"
+    except Exception as exc:
+        if owns_call_id:
+            try:
+                from llmxive.model_selection.ledger_transport import read_events
+                from llmxive.model_selection.reservations import project
+
+                if rid in project(read_events(ledger_repo, ref=config.ref)):
+                    _settle_funded_hold(ledger_repo, rid, charged_usd=0.0, now=now, config=config, notes=notes)
+            except Exception as read_exc:  # best-effort; the lease expiry backstops it
+                logger.warning("execute: post-failure ledger read for %s failed (%s)", rid, type(read_exc).__name__)
+        return None, 0.0, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})"
+    return rid, reserve_usd, None
+
+
+def _usage_charge_usd(candidate: Candidate, response: ChatResponse) -> float | None:
+    """The real USD cost of a funded reply: ``input_tokens x input rate + output_tokens x
+    output rate`` from the catalog price, or ``None`` (charge the full reservation)
+    when the reply does not report BOTH counts as non-negative integers."""
+    tin, tout = response.input_tokens, response.output_tokens
+    p = candidate.pricing
+    if not all(isinstance(t, int) and not isinstance(t, bool) and t >= 0 for t in (tin, tout)):
+        return None
+    if not p.is_known:
+        return None
+    return tin * p.input_usd_per_token + tout * p.output_usd_per_token  # type: ignore[operator]
+
+
 def execute(
     chain: ModelChain,
     messages: Iterable[ChatMessage],
@@ -262,12 +391,33 @@ def execute(
     reservation_authority: ReservationAuthority | None = None,
     route_audit: RouteAudit | None = None,
     route_id: str | None = None,
+    funded_ledger_config: LedgerConfig | None = None,
+    funded_observer: Callable[[], CreditObservation] | None = None,
+    funded_guard: FundedGuardSnapshot | None = None,
 ) -> ExecutionResult:
     """Execute ``chain`` against ``messages`` and return the first successful
     :class:`ExecutionResult`.
 
-    ``backend_factory`` / ``credit_observer`` / ``balance_fetch`` are the supported
-    injection seams (FR-015). Paid candidates require ``ledger_repo``.
+    ``backend_factory`` / ``credit_observer`` / ``balance_fetch`` /
+    ``funded_observer`` are the supported injection seams (FR-015). Paid and funded
+    candidates require ``ledger_repo``.
+
+    **Funded candidates (spec 027 5.6 / 5.9.2 / 5.9.6).** A candidate whose
+    ``cost_class`` is ``"funded"`` (Hugging Face) needs neither ``allow_paid`` nor the
+    paid opt-in. It is skipped (advance, nothing sent) unless the chain's ``funded``
+    snapshot component was ``live`` at selection AND a hold of ``worst_case x 1`` (USD)
+    opens on the funded ledger (``funded_ledger_config``; ``None`` →
+    ``funded_ledger_config_from_env()``, failing closed on a missing anchor). The hold
+    is priced by ``funded_observer`` when injected, else by
+    ``hf_budget.reserve_funded`` against ``funded_guard`` (the runtime snapshot's
+    guard; ``route_chat`` passes it). It is dispatched ONCE (``retries=1``) and ALWAYS
+    reconciled before ``execute`` leaves the candidate: the charge is ``usage`` x the
+    catalog price (capped at the reservation, the excess noted and logged), ``0.0`` for
+    a definitive pre-inference rejection (``PreInferenceRejection``: HTTP 401/402/403,
+    or a request never sent), and the full reservation for every other failure or a
+    reply without both token counts. A successful reply carries the charge as
+    ``response.cost_estimate_usd`` and ``ExecutionResult.charged_usd``; a failed settle
+    is logged + noted and never fails the reply.
 
     **Attempt budget (FR-033b).** An optional ``reservation_authority`` is consulted
     per paid candidate, BEFORE the 026 daily reserve: a refusal (``False``) skips the
@@ -345,6 +495,9 @@ def execute(
     # Slice-0 audit fix #6 (HIGH finding #1): the call_id derivation is CONDITIONAL
     # on whether the dispatch-idempotency gate (the atomic claim_dispatch below) is
     # active — i.e. on whether a route_audit sink was injected.
+    # A freshly minted (random) call_id cannot name another dispatch's reservation,
+    # so only then may a failed funded reserve release a hold under that id.
+    owns_call_id = call_id is None and route_audit is None
     if call_id is None:
         if route_audit is not None:
             # AUDITED path: claim_dispatch() gates the real backend dispatch, so a
@@ -383,24 +536,53 @@ def execute(
     # a missing anchor); an explicit LedgerConfig (incl. remote=None) is the opt-in
     # local/test mode. Only touched when the chain actually contains a paid candidate
     # (a free-only chain never reads the env and never fails closed on the anchor).
+    # The funded ledger is resolved the same way, on its own ref/anchor, only when a
+    # funded candidate is present.
     ledger_config_error: str | None = None
     if (
         ledger_config is None
         and ledger_repo is not None
-        and any(not c.pricing.is_free for c in chain.candidates)
+        and any(c.cost_class == "paid" for c in chain.candidates)
     ):
         try:
             ledger_config = ledger_config_from_env()
         except LedgerError as exc:
             ledger_config_error = str(exc)  # paid candidates fail closed (skip) below
+    funded_config_error: str | None = None
+    if (
+        funded_ledger_config is None
+        and ledger_repo is not None
+        and any(c.cost_class == "funded" for c in chain.candidates)
+    ):
+        try:
+            funded_ledger_config = funded_ledger_config_from_env()
+        except LedgerError as exc:
+            funded_config_error = str(exc)  # funded candidates fail closed (skip) below
 
     notes: list[str] = []
     for candidate_index, candidate in enumerate(chain.candidates):
         ref = candidate.model_ref
         reservation_id: str | None = None
         reserved_credits = 0.0
+        funded = candidate.cost_class == "funded"
+        reserved_usd = 0.0
 
-        if not candidate.pricing.is_free:
+        if funded:
+            if funded_config_error is not None:
+                skip = f"funded {ref.model_id!r} skipped: funded ledger not configured ({funded_config_error}) — fail closed"
+            else:
+                reservation_id, reserved_usd, skip = _open_funded_reservation(
+                    candidate, chain, options=options, ledger_repo=ledger_repo,
+                    config=funded_ledger_config, funded_observer=funded_observer,
+                    funded_guard=funded_guard, now=now, call_id=call_id,
+                    owns_call_id=owns_call_id, notes=notes,
+                )
+            if skip is not None:
+                notes.append(skip)
+                emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", skip))
+                continue
+            reserved_credits = candidate.worst_case_credits
+        elif candidate.cost_class == "paid":
             if ledger_config_error is not None:
                 notes.append(
                     f"paid {ref.model_id!r} skipped: production ledger not configured "
@@ -449,7 +631,13 @@ def execute(
             else:
                 claimed = True  # no audit sink → no idempotency (compat path, unchanged behavior)
         except RouteAuditError:
-            if reservation_id is not None:
+            if reservation_id is not None and funded:
+                # Definitively not dispatched → the funded hold is released at zero.
+                _settle_funded_hold(
+                    ledger_repo, reservation_id, charged_usd=0.0, now=now,  # type: ignore[arg-type]
+                    config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                )
+            elif reservation_id is not None:
                 # F3: run BOTH cleanups independently — a failing release() must not
                 # suppress settle(), and neither must mask the primary RouteAuditError.
                 if reservation_authority is not None:
@@ -471,8 +659,10 @@ def execute(
             # (e.g. a DispatchStarted with no DispatchCompleted → DispatchUnknown).
             # No CandidateOutcome is emitted here — the original run already
             # emitted the outcome for this event_id; a differing outcome would
-            # collide under F2's collision semantics.
-            if reservation_id is not None:
+            # collide under F2's collision semantics. A FUNDED hold under this id is
+            # the original dispatch's: it reconciles it (first writer wins), so the
+            # replay writes nothing that could pre-empt the real charge.
+            if reservation_id is not None and not funded:
                 try:
                     settle(ledger_repo, reservation_id, now=now, config=ledger_config)  # type: ignore[arg-type]
                 except Exception as exc:
@@ -493,14 +683,21 @@ def execute(
                 reservation_id,
                 interval_s=max(5.0, lease_duration_for(options.deadline_s) / 3.0),
                 lease_duration_s=lease_duration_for(options.deadline_s),
-                config=ledger_config,
+                config=funded_ledger_config if funded else ledger_config,
             )
             if reservation_id is not None
             else nullcontext()
         )
+        # Funded settlement state: ``sent`` flips just before the request can leave;
+        # ``funded_settled`` guarantees exactly one reconcile per hold (the finally
+        # settles anything a path below did not).
+        sent = False
+        funded_settled = False
+        charged_usd: float | None = None
         try:
             backend = backend_factory(ref.backend)
             with lease:
+                sent = True
                 response = chat_one_candidate(
                     backend,
                     msg_list,
@@ -508,8 +705,27 @@ def execute(
                     max_tokens=options.max_tokens,
                     temperature=options.temperature,
                     deadline_s=options.deadline_s,
-                    retries=retries,
+                    # A funded hold covers ONE call's worst case: never retry under it.
+                    retries=1 if funded else retries,
                 )
+            if funded and reservation_id is not None:
+                usage_usd = _usage_charge_usd(candidate, response)
+                charge = usage_usd
+                if usage_usd is not None and usage_usd > reserved_usd:
+                    msg = (
+                        f"funded {ref.model_id!r}: usage cost ${usage_usd:.6f} exceeds its reservation "
+                        f"${reserved_usd:.6f}; charged the reservation"
+                    )
+                    logger.warning("execute: %s", msg)
+                    notes.append(msg)
+                    charge = reserved_usd
+                funded_settled = True
+                recorded = _settle_funded_hold(
+                    ledger_repo, reservation_id, charged_usd=charge, now=now,  # type: ignore[arg-type]
+                    config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                )
+                charged_usd = recorded if recorded is not None else (charge if charge is not None else reserved_usd)
+                response = replace(response, cost_estimate_usd=charged_usd)
             # Post-dispatch (FR-033a/F2): a failure here fails the call CLOSED, but the
             # reservation stays RETAINED (the finally settles/marks it) — the backend
             # already ran, so we never advance.
@@ -521,10 +737,22 @@ def execute(
                 reserved_credits=reserved_credits,
                 notes=tuple(notes),
                 reservation_id=reservation_id,
+                charged_usd=charged_usd,
             )
         except RouteAuditError:
             raise  # route-fatal — never a candidate disposition
         except Exception as exc:
+            if funded and reservation_id is not None and not funded_settled:
+                # spec 5.9.2: a request never sent, or a definitive pre-inference
+                # rejection (HTTP 401/402/403), charges zero; anything else that may
+                # have reached inference (timeout, 5xx, malformed 200, ...) charges the
+                # full reservation.
+                funded_settled = True
+                _settle_funded_hold(
+                    ledger_repo, reservation_id,  # type: ignore[arg-type]
+                    charged_usd=0.0 if (not sent or isinstance(exc, PreInferenceRejection)) else None,
+                    now=now, config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                )
             disp = disposition_of(exc)
             if disp is CandidateDisposition.ABORT:
                 # Request-level permanent refusal — stop the chain and re-raise.
@@ -539,7 +767,17 @@ def execute(
                 CandidateOutcome(route_id, candidate_index, ref, "advance", f"{disp.value}: {type(exc).__name__}"),
             )
         finally:
-            if reservation_id is not None:
+            if reservation_id is not None and funded:
+                if not funded_settled:
+                    # A path above left the hold open (e.g. a BaseException such as
+                    # KeyboardInterrupt): reconcile it here — zero if nothing was sent,
+                    # else the full reservation.
+                    _settle_funded_hold(
+                        ledger_repo, reservation_id,  # type: ignore[arg-type]
+                        charged_usd=None if sent else 0.0, now=now,
+                        config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                    )
+            elif reservation_id is not None:
                 # Retain the hold (settle → settling) on ANY outcome — never
                 # release at call-return (FR-016); the reconciler/sweeper finalizes
                 # it against observed spend. A settle failure must not mask the call.
