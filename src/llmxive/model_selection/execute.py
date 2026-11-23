@@ -375,6 +375,9 @@ class _FundedHold:
     reservation_id: str | None
     reserved_usd: float
     reason: str
+    #: The funded allowance refused the hold (``LedgerDenied`` with nothing under the
+    #: id): spec 5.10 — paid candidates after it are skipped as well.
+    allowance_denied: bool = False
 
 
 def _foreign_state(hold: Reservation, now: datetime) -> _Hold:
@@ -519,9 +522,11 @@ def _open_funded_reservation(
         )
         if state in (_Hold.FOREIGN_LIVE, _Hold.FOREIGN_ENDED):
             return _FundedHold(state, rid, 0.0, _foreign_skip(ref.model_id, rid))
-        verb = "reservation denied" if isinstance(exc, LedgerDenied) else "could not reserve"
+        denied = isinstance(exc, LedgerDenied)
+        verb = "reservation denied" if denied else "could not reserve"
         return _FundedHold(
-            state, rid, 0.0, f"funded {ref.model_id!r} skipped: {verb} ({type(exc).__name__})"
+            state, rid, 0.0, f"funded {ref.model_id!r} skipped: {verb} ({type(exc).__name__})",
+            allowance_denied=denied and state is _Hold.ABSENT,
         )
     if hold.owner != owner:
         return _FundedHold(_foreign_state(hold, now), rid, 0.0, _foreign_skip(ref.model_id, rid))
@@ -647,7 +652,9 @@ def execute(
       whose original crashed recovers. With an EXPLICIT ``call_id`` an unclaimed foreign
       hold is always just skipped;
     - otherwise the candidate is skipped and the chain goes on (an exhausted allowance
-      or an unreachable ledger with no claim is not a replay);
+      or an unreachable ledger with no claim is not a replay). When the skip is the
+      allowance denying the hold (``LedgerDenied``, nothing under the id), every later
+      PAID candidate is skipped too (spec 5.10); free and local candidates still run;
     - a hold this call created whose atomic ``claim_dispatch`` is refused (``False``) is
       released at zero before ``RouteReplayError``; a claim or ``ReservationOpened`` the
       sink rejects (a conflicting payload — e.g. the same route under a different
@@ -802,6 +809,7 @@ def execute(
             funded_config_error = str(exc)  # funded candidates fail closed (skip) below
 
     notes: list[str] = []
+    allowance_denied = False  # a funded hold was refused by the allowance (see paid below)
     for candidate_index, candidate in enumerate(chain.candidates):
         ref = candidate.model_ref
         reservation_id: str | None = None
@@ -855,6 +863,7 @@ def execute(
             if action is _FundedAction.SKIP:
                 notes.append(held.reason)
                 emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", held.reason))
+                allowance_denied = allowance_denied or held.allowance_denied
                 continue
             # DISPATCH. Invariant: `reservation_id` is set for a funded candidate only
             # here, so it always names a hold THIS call created — every settle/release
@@ -862,6 +871,19 @@ def execute(
             reservation_id, reserved_usd = held.reservation_id, held.reserved_usd
             reserved_credits = candidate.worst_case_credits
         elif candidate.cost_class == "paid":
+            if allowance_denied:
+                # Spec 5.10: when the funded allowance removed the funded class, paid
+                # is not reached. ``select`` applies this at selection time; this is
+                # the same rule for an allowance exhausted between the snapshot and
+                # the call. (A ``require_paid`` chain never carries a funded candidate,
+                # so this never fires on one.) Free and local candidates still run.
+                reason = (
+                    f"paid {ref.model_id!r} skipped: the funded allowance denied a reservation "
+                    "for this call — paid not reached (Constitution IV)"
+                )
+                notes.append(reason)
+                emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", reason))
+                continue
             if ledger_config_error is not None:
                 notes.append(
                     f"paid {ref.model_id!r} skipped: production ledger not configured "

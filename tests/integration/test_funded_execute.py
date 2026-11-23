@@ -960,3 +960,50 @@ def test_missing_dartmouth_key_skips_to_the_funded_candidate(repo, monkeypatch, 
         assert [r["json"]["model"] for r in srv.requests] == [B]
     assert res.model_ref.model_id == B and res.charged_usd == pytest.approx(B_COST)
     assert any("BackendCredentialError" in n for n in res.notes)
+
+
+# --- an allowance denied at execute time does not fall through to paid (final review A7) ---
+
+def _paid_after_funded_chain():
+    from tests.helpers.funded import CLAUDE
+
+    snap = snapshot(claude=True, paid_opt_in=True, local=False, prices={CLAUDE: (1e-8, 1e-8)})
+    chain = sel("cheap_structured", snap, allow_paid=True)
+    assert [c.cost_class for c in chain.candidates] == ["funded", "funded", "paid"]
+    return chain, CLAUDE
+
+
+def _paid_kwargs(monkeypatch):
+    from llmxive.backends.credits import CreditBalance, reset_balance_cache
+
+    reset_balance_cache()
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    return dict(
+        ledger_config=LedgerConfig(remote=None),
+        credit_observer=lambda: CreditObservation(spend=100.0, effective_cap=1500.0, budget_epoch="2026-11-24"),
+        balance_fetch=lambda: CreditBalance(account="P", spend=100.0, max_budget=2000.0,
+                                            budget_duration="1d", budget_reset_at="2026-11-24"),
+    )
+
+
+def test_allowance_denied_at_execute_time_skips_paid_too(repo, monkeypatch):
+    chain, claude = _paid_after_funded_chain()
+    hf, paid = _HF({}), _Local({})
+    with pytest.raises(ChainExhausted) as ei:
+        execute(chain, MSG, options=ExecutionOptions(max_tokens=512), ledger_repo=repo,
+                backend_factory=lambda n: hf if n == "huggingface" else paid,
+                funded_ledger_config=CFG, funded_observer=OBS(cap=0.0), now=NOW, **_paid_kwargs(monkeypatch))
+    assert hf.calls == [] and paid.calls == []
+    assert f"paid {claude!r} skipped" in str(ei.value) and "allowance" in str(ei.value)
+    assert events(repo) == [] and read_events(repo) == []  # no funded hold, no paid hold
+
+
+def test_paid_still_runs_when_funded_was_skipped_for_another_reason(repo, monkeypatch):
+    # Control: a funded skip that is not an allowance denial (no funded ledger here)
+    # leaves the paid candidate in play, so the A7 rule is keyed to the denial only.
+    chain, claude = _paid_after_funded_chain()
+    hf, paid = _HF({}), _Local({})
+    res = execute(chain, MSG, options=ExecutionOptions(max_tokens=512), ledger_repo=repo,
+                  backend_factory=lambda n: hf if n == "huggingface" else paid,
+                  funded_ledger_config=CFG, funded_observer=None, now=NOW, **_paid_kwargs(monkeypatch))
+    assert hf.calls == [] and paid.calls == [claude] and res.model_ref.model_id == claude
