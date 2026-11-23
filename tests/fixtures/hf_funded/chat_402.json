@@ -1,9 +1,9 @@
 {
-  "captured_at": "2026-11-23",
-  "payload": {
-    "error": "Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get monthly included credits."
-  },
-  "provenance": "recorded (no X-HF-Bill-To header)",
-  "source_url": "https://router.huggingface.co/v1/chat/completions",
-  "status": 402
+ "captured_at": "2026-11-23",
+ "source_url": "https://router.huggingface.co/v1/chat/completions",
+ "status": 402,
+ "provenance": "recorded (no X-HF-Bill-To header)",
+ "payload": {
+  "error": "Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get monthly included credits."
+ }
 }

@@ -28,7 +28,7 @@ ARENA = ("lmarena_text_overall.json", "lmarena_text_coding.json")
 
 
 def test_every_fixture_states_its_capture_date_and_source():
-    for name in ("router_models.json", *ARENA, "chat_200.json", "chat_402.json"):
+    for name in ("router_models.json", *ARENA, "chat_200.json", "chat_402.json", "chat_403.json"):
         fx = _load(name)
         assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", fx["captured_at"]) and fx["source_url"].startswith("https://")
 
@@ -58,3 +58,15 @@ def test_arena_fixture_is_complete_real_shaped_and_synthetic(name, category):
 def test_chat_fixtures_carry_usage_and_the_402():
     assert {"prompt_tokens", "completion_tokens"} <= set(_load("chat_200.json")["payload"]["usage"])
     assert _load("chat_402.json")["status"] == 402
+
+
+@pytest.mark.parametrize("name,status", [("chat_402.json", 402), ("chat_403.json", 403)])
+def test_error_chat_fixtures_carry_status_and_error_string(name, status):
+    fx = _load(name)
+    assert fx["status"] == status
+    assert isinstance(fx["payload"]["error"], str) and fx["payload"]["error"]
+
+
+def test_chat_fixtures_are_recordings_not_hand_shaped():
+    for name in ("chat_200.json", "chat_402.json", "chat_403.json"):
+        assert _load(name)["provenance"].startswith("recorded")

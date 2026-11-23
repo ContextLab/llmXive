@@ -1,6 +1,6 @@
 """Capture the recorded Hugging Face fixtures used by the spec 027 tests.
 
-Writes five files under ``tests/fixtures/hf_funded/``, each shaped
+Writes six files under ``tests/fixtures/hf_funded/``, each shaped
 ``{"captured_at", "source_url", "status", "payload"}``:
 
 - ``router_models.json``: keyless GET of the router catalog (free).
@@ -9,13 +9,13 @@ Writes five files under ``tests/fixtures/hf_funded/``, each shaped
   organizations, licenses, vote counts and publish dates are kept; every rating
   field is replaced by :func:`synthetic_rating` and ``rank`` is recomputed from
   it, so no real leaderboard rating is committed. Rows are sorted by name.
-- ``chat_200.json`` / ``chat_402.json`` / ``chat_403.json``: only with ``--with-chat`` (one billed
-  call of at most 64 tokens, plus one unbilled 402). Needs ``HF_TOKEN``/Keychain
+- ``chat_200.json`` / ``chat_402.json`` / ``chat_403.json``: only with ``--with-chat``
+  (one billed call of at most 64 tokens; the 402 is a request with no bill-to header and
+  the 403 one naming an unknown resource group, neither billed). Needs ``HF_TOKEN``/Keychain
   (via ``credentials.load_hf_token``) and ``LLMXIVE_HF_BILL_TO``; neither value is
-  written anywhere. ``--hand-shaped-chat`` instead writes both from the documented
-  OpenAI-compatible shape, with provenance saying so (no network, no cost).
+  written anywhere.
 
-Usage: ``python scripts/hf/capture_fixtures.py [--with-chat | --hand-shaped-chat]``
+Usage: ``python scripts/hf/capture_fixtures.py [--with-chat]``
 """
 
 from __future__ import annotations
@@ -139,23 +139,9 @@ def capture_chat(client: httpx.Client, catalog: dict) -> None:
         _write(name, url, r.status_code, payload, provenance="recorded")
 
 
-def write_hand_shaped_chat() -> None:
-    url = f"{ROUTER}/chat/completions"
-    note = "hand-shaped from the documented OpenAI-compatible response shape; NOT recorded from the live endpoint"
-    _write("chat_200.json", url, 200, {
-        "object": "chat.completion", "created": 1700000000, "model": "example/model",
-        "choices": [{"index": 0, "message": {"role": "assistant", "content": "ok"}, "finish_reason": "stop"}],
-        "usage": {"prompt_tokens": 14, "completion_tokens": 2, "total_tokens": 16}}, provenance=note)
-    _write("chat_402.json", url, 402, {
-        "error": {"message": "Payment required: insufficient credits for the selected billing account.",
-                  "type": "payment_required"}}, provenance=note)
-
-
 def main() -> None:
     ap = argparse.ArgumentParser()
-    g = ap.add_mutually_exclusive_group()
-    g.add_argument("--with-chat", action="store_true")
-    g.add_argument("--hand-shaped-chat", action="store_true")
+    ap.add_argument("--with-chat", action="store_true")
     args = ap.parse_args()
     with httpx.Client(headers=UA, timeout=60) as client:
         catalog = capture_router(client)
@@ -163,8 +149,6 @@ def main() -> None:
             capture_arena(client, cat)
         if args.with_chat:
             capture_chat(client, catalog)
-    if args.hand_shaped_chat:
-        write_hand_shaped_chat()
 
 
 if __name__ == "__main__":
