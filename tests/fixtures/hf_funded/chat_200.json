@@ -1,0 +1,26 @@
+{
+ "captured_at": "2026-11-23",
+ "source_url": "https://router.huggingface.co/v1/chat/completions",
+ "status": 200,
+ "provenance": "hand-shaped from the documented OpenAI-compatible response shape; NOT recorded from the live endpoint",
+ "payload": {
+  "object": "chat.completion",
+  "created": 1700000000,
+  "model": "example/model",
+  "choices": [
+   {
+    "index": 0,
+    "message": {
+     "role": "assistant",
+     "content": "ok"
+    },
+    "finish_reason": "stop"
+   }
+  ],
+  "usage": {
+   "prompt_tokens": 14,
+   "completion_tokens": 2,
+   "total_tokens": 16
+  }
+ }
+}
