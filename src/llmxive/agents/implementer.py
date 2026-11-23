@@ -1071,6 +1071,8 @@ class LLMXiveImplementer(Agent):
         model_used = "unknown"
         self._last_model_used: str | None = None
         self._last_backend_used: str | None = None
+        # Sum of the settled cost of every response received this run.
+        self._last_cost_usd: float = 0.0
         repo = _repo_root()
 
         try:
@@ -1729,6 +1731,7 @@ class LLMXiveImplementer(Agent):
             # per-agent default).
             self._last_model_used = response.model
             self._last_backend_used = response.backend
+            self._last_cost_usd += response.cost_estimate_usd
         except Exception as exc:
             return ImplementerLogEntry(
                 task_id=task_id,
@@ -2036,6 +2039,11 @@ class LLMXiveImplementer(Agent):
         model_used: str,
     ) -> RunLogEntry:
         ended = datetime.now(UTC)
+        # Once a response exists, record the backend/model that really served the
+        # last one instead of the pre-response placeholders.
+        if getattr(self, "_last_backend_used", None):
+            backend_used = BackendName(self._last_backend_used)
+            model_used = getattr(self, "_last_model_used", None) or model_used
         entry = RunLogEntry(
             run_id=ctx.run_id,
             entry_id=str(uuid4()),
@@ -2051,7 +2059,7 @@ class LLMXiveImplementer(Agent):
             ended_at=ended,
             outcome=outcome,
             failure_reason=failure_reason,
-            cost_estimate_usd=0.0,
+            cost_estimate_usd=getattr(self, "_last_cost_usd", 0.0),
         )
         runlog.append_entry(entry)
         return entry

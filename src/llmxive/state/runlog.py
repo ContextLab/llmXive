@@ -18,7 +18,7 @@ from pydantic import ValidationError as PydanticValidationError
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
 from llmxive.state._io import atomic_write_text
-from llmxive.types import Outcome, RunLogEntry
+from llmxive.types import BackendName, Outcome, RunLogEntry
 
 
 def _state_root() -> Path:
@@ -30,7 +30,7 @@ def _state_root() -> Path:
 
 
 class CostInvariantError(RuntimeError):
-    """Raised when an agent logs a non-zero cost without paid opt-in.
+    """Raised when an agent logs a non-zero cost it is not entitled to.
 
     Per FR-020 + Constitution Principle IV (Free First), runs default to
     free models only (``cost_estimate_usd == 0.0``). The ONLY sanctioned
@@ -39,11 +39,20 @@ class CostInvariantError(RuntimeError):
     see :mod:`llmxive.backends.credits`. A non-zero cost WITHOUT that
     switch indicates either (a) a backend implementation bug or (b) a
     registry compromise — both warrant a hard failure.
+
+    The one exemption is a FUNDED call (backend ``huggingface``): spend on
+    the maintainer-funded Hugging Face allowance needs no opt-in
+    (Constitution 1.4.0, "Funded services"); the funded reserve/settle
+    ledger (:mod:`llmxive.model_selection.execute`) is what caps it, and the
+    run log records the settled cost honestly.
     """
 
 
 def _check_cost_invariant(entry: RunLogEntry) -> None:
-    """T103: hard-block any non-zero cost unless paid opt-in is active.
+    """T103: hard-block any non-zero cost unless funded or paid opt-in is active.
+
+    A funded entry (``BackendName.HUGGINGFACE``) may carry a non-zero cost
+    without the paid opt-in; the allowance guard lives in the funded ledger.
 
     When ``LLMXIVE_PAID_OPT_IN`` is enabled, opted-in paid calls log
     their real list-price estimate (honest accounting of credit
@@ -52,6 +61,8 @@ def _check_cost_invariant(entry: RunLogEntry) -> None:
     daily-budget cap before any such call is made.
     """
     if entry.cost_estimate_usd > 0:
+        if entry.backend is BackendName.HUGGINGFACE:
+            return
         from llmxive.backends.credits import paid_opt_in_enabled
 
         if paid_opt_in_enabled():

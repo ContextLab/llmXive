@@ -157,6 +157,9 @@ class Agent(abc.ABC):
         # neither (spec 026 slice 7 / D4).
         backend_used: BackendName | None = None
         model_used: str | None = None
+        # Sum of the settled cost of every response received this run (a funded
+        # call is metered; free/paid-opt-in responses carry their own estimate).
+        cost_usd = 0.0
         # Spec 015 T080: capture verbatim I/O for inspection-record audit
         # when LLMXIVE_INSPECTION_DIR is set. Mirrors the speckit
         # SlashCommandAgent's inspection-capture flow so flesh_out /
@@ -181,6 +184,7 @@ class Agent(abc.ABC):
                 captured_response = response
                 backend_used = BackendName(response.backend)
                 model_used = response.model
+                cost_usd += response.cost_estimate_usd
                 try:
                     outputs = self.handle_response(ctx, response)
                     break
@@ -232,7 +236,7 @@ class Agent(abc.ABC):
                 ended_at=ended,
                 outcome=outcome,
                 failure_reason=failure_reason,
-                cost_estimate_usd=0.0,
+                cost_estimate_usd=cost_usd,
             )
             runlog.append_entry(entry)
             # Inspection-record capture (spec 015 T080 — closes design §9
