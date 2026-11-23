@@ -96,8 +96,15 @@ the production funded ledger, makes a short real chat (`max_tokens=1024`, `retri
 token counts, dollar amounts and counts only, never a rating, the token or the bill-to id.
 
 Prerequisites, once: `llmxive funded-ledger-bootstrap --remote origin`; set the Actions
-variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`; protect
-`refs/llmxive/funded-ledger` fast-forward-only.
+variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`.
+
+`refs/llmxive/funded-ledger` lies outside `refs/heads` and `refs/tags`, which is all
+that GitHub branch and tag rulesets cover (not verified by a test here), so the ref
+has no server-side protection. It is guarded by the code's pinned-anchor ancestry
+check and compare-and-swap writes, the budget guard's cross-check against the
+organization's credit balance, and the resource group's spend limit at Hugging Face.
+A party with repository write access could reset the ref to an earlier point that
+still descends from the anchor, and the code would accept it.
 
 Run: `LLMXIVE_REAL_TESTS=1 pytest tests/real_call/test_hf_funded_real.py tests/real_call/test_model_selection_snapshot_real.py -q -s`
 

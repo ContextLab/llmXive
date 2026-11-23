@@ -98,8 +98,17 @@ credit ledger (`LedgerConfig(ref=...)`). Differences:
 - Configuration: `LLMXIVE_FUNDED_LEDGER_REMOTE` (default `origin`) and
   `LLMXIVE_FUNDED_LEDGER_ANCHOR` (required; fail closed when unset), read by
   `funded_ledger_config_from_env()`.
-- Protection: the same server-side rule as the credit ledger — fast-forward-only, writable
-  only by the ledger identity (see "Server-side ref protection" above).
+- Protection: GitHub branch and tag rulesets apply to refs under `refs/heads` and
+  `refs/tags`; they do not cover a ref outside those namespaces such as
+  `refs/llmxive/funded-ledger` (not verified by a test in this repository), so this
+  ref has no server-side protection. What guards it: the code checks that the fetched
+  tip descends from the pinned `LLMXIVE_FUNDED_LEDGER_ANCHOR` before reading or
+  writing (`git_event_log`, failing closed otherwise) and appends with
+  compare-and-swap fast-forward pushes; the budget guard cross-checks the allowance
+  against the organization's credit balance and uses the lower figure; and the
+  Hugging Face resource group's spend limit applies on the provider side. A party with
+  write access to the repository could reset the ref to an earlier commit that still
+  descends from the anchor; the code would accept that state.
 - No sweep: a crashed `open` hold keeps counting at its full reservation until the month
   ends, which is exactly the charge for a call without `usage` (spec 5.9.2).
 - 401/402/403 responses are reconciled at zero (`reconcile(..., charged=0.0)`); the first

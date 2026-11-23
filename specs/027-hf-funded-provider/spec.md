@@ -187,7 +187,7 @@ where only the maintainer can decide.
    reached for them. Proposed: order is free *remote* → funded → local → paid, i.e. the
    local model becomes the last free resort (used when the allowance is exhausted or
    Hugging Face is unreachable). The amendment in section 6 is worded for this.
-2. **[call] Ledger.** A new protected ref `refs/llmxive/funded-ledger` (USD, monthly
+2. **[call] Ledger.** A new ref `refs/llmxive/funded-ledger` (USD, monthly
    epoch, own bootstrap anchor) using the existing transport and reserve → settle code;
    the Dartmouth credit ledger is not reused because its unit and epoch differ. A call
    that dies without a `usage` block is charged its full reservation, except a
