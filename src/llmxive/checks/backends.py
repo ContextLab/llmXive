@@ -11,10 +11,17 @@ the Dartmouth key, or HF_TOKEN plus LLMXIVE_HF_BILL_TO). Exits 1 only when NO
 remote provider is both configured and reachable; a provider that is down or not
 configured while another one is usable is reported as info. ``local`` is an
 advisory fallback (its failure is a soft warning).
+
+``--read-only-gate`` answers a narrower question for CI jobs that run pull-request
+code (they cannot push the funded ledger): is a FREE hosted provider (Dartmouth)
+configured and reachable? It writes ``usable=true|false`` to ``$GITHUB_OUTPUT`` and
+exits 0 either way, so such a job can skip its model steps cleanly during an outage;
+a registry load failure or an unexpected error still exits 1.
 """
 
 from __future__ import annotations
 
+import os
 import sys
 import time
 
@@ -45,7 +52,84 @@ def _probe_models(backend: object) -> tuple[list[object] | None, Exception | Non
     return None, last
 
 
-def main() -> int:
+def _check_backend(name: str) -> tuple[int | None, str, str]:
+    """Probe one registry backend by the shared rule: a remote provider must first be
+    configured (``PROVIDER_CONFIGURED``), then answer its model catalog.
+
+    Returns ``(model count, "", "")`` when usable, else ``(None, detail, kind)`` where
+    ``detail`` is the full message and ``kind`` is safe to print anywhere (a fixed
+    phrase or an exception TYPE name, never exception text)."""
+    if name in PROVIDER_CONFIGURED:
+        configured, problems = PROVIDER_CONFIGURED[name]()
+        if not configured:
+            return None, f"{name}: not configured ({'; '.join(problems) or 'credential unset'})", "not configured"
+    try:
+        backend = backend_router.make_backend(name)
+    except BackendError as exc:
+        return None, f"{name} unreachable: {exc}", type(exc).__name__
+    models, err = _probe_models(backend)
+    if err is not None:
+        return None, f"{name} unreachable after {_PROBE_ATTEMPTS} attempts: {err}", type(err).__name__
+    if not models:
+        return None, f"{name}: list_models() returned empty list", "empty model list"
+    return len(models), "", ""
+
+
+#: Providers a READ-ONLY run (pull-request code: no push to the funded ledger) can
+#: call: the free hosted ones. Hugging Face is funded — a call needs a hold pushed to
+#: the ledger first, so it fails closed in such a run and does not count here.
+READ_ONLY_PROVIDERS = ("dartmouth",)
+
+
+def read_only_gate() -> int:
+    """``--read-only-gate``: can a run that cannot write the funded ledger call a model?
+
+    Writes ``usable=true|false`` to ``$GITHUB_OUTPUT`` (when set), prints one line
+    saying which and why, and exits 0 either way. A registry load failure or any
+    unexpected error exits 1: a broken checkout must not look like an outage."""
+    try:
+        reg = registry_loader.load(repo_root=_repo_root())
+    except Exception as exc:
+        print(f"backends-check: registry load failed: {type(exc).__name__}", file=sys.stderr)
+        return 1
+    try:
+        registered = {entry.name.value for entry in reg.backends}
+        usable: list[str] = []
+        reasons: list[str] = []
+        for name in READ_ONLY_PROVIDERS:
+            if name not in registered:
+                reasons.append(f"{name}: not in the registry")
+                continue
+            count, _detail, kind = _check_backend(name)
+            if count is None:
+                reasons.append(f"{name}: {kind}")
+            else:
+                usable.append(name)
+        ok = bool(usable)
+        out = os.environ.get("GITHUB_OUTPUT")
+        if out:
+            with open(out, "a", encoding="utf-8") as fh:
+                fh.write(f"usable={'true' if ok else 'false'}\n")
+    except Exception as exc:
+        print(f"backends-check: read-only gate failed unexpectedly: {type(exc).__name__}", file=sys.stderr)
+        return 1
+    if ok:
+        print(f"backends-check: read-only gate: usable=true ({', '.join(usable)} reachable)")
+    else:
+        print(
+            f"backends-check: read-only gate: usable=false ({'; '.join(reasons)}; "
+            "huggingface not counted: a read-only run cannot reserve on the funded ledger)"
+        )
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = argv or []
+    if args == ["--read-only-gate"]:
+        return read_only_gate()
+    if args:
+        print(f"backends-check: unknown arguments {args!r} (only --read-only-gate)", file=sys.stderr)
+        return 2
     repo = _repo_root()
     try:
         reg = registry_loader.load(repo_root=repo)
@@ -59,27 +143,11 @@ def main() -> int:
     for backend_entry in reg.backends:
         name = backend_entry.name.value
         remote = name in PROVIDER_CONFIGURED
-        if remote:
-            configured, problems = PROVIDER_CONFIGURED[name]()
-            if not configured:
-                down.append(f"{name}: not configured ({'; '.join(problems) or 'credential unset'})")
-                continue
-
-        try:
-            backend = backend_router.make_backend(name)
-        except BackendError as exc:
-            (down if remote else warnings).append(f"{name} unreachable: {exc}")
+        count, detail, _kind = _check_backend(name)
+        if count is None:
+            (down if remote else warnings).append(detail)
             continue
-
-        models, err = _probe_models(backend)
-        if err is not None:
-            msg = f"{name} unreachable after {_PROBE_ATTEMPTS} attempts: {err}"
-            (down if remote else warnings).append(msg)
-            continue
-        if not models:
-            (down if remote else warnings).append(f"{name}: list_models() returned empty list")
-            continue
-        print(f"backends-check: {name} OK ({len(models)} models reachable)")
+        print(f"backends-check: {name} OK ({count} models reachable)")
         if remote:
             usable.append(name)
 
@@ -96,4 +164,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

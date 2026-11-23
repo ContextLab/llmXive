@@ -28,10 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
+      # Read-only (pull-request code cannot push the funded ledger), so Hugging Face
+      # can never serve here and its settings are not passed.
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
-      HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
-      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -62,7 +61,20 @@ jobs:
       - name: Install llmxive (provider + assertions import it)
         run: pip install -e .
 
+      # Dartmouth is the only provider a read-only run can call. When it is not
+      # usable the job reports a clean, visible skip instead of failing.
+      - name: Is a model provider usable in this read-only run?
+        id: providers
+        run: python -m llmxive.checks.backends --read-only-gate
+
+      - name: Report the skip
+        if: steps.providers.outputs.usable != 'true'
+        run: |
+          echo "::notice title=Skipped::no model provider usable in a read-only run (Dartmouth unreachable; Hugging Face needs a write-capable run)"
+          echo "no model provider usable in a read-only run (Dartmouth unreachable; Hugging Face needs a write-capable run)" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Run prompt eval (3 repeats — instability also fails)
+        if: steps.providers.outputs.usable == 'true'
         run: |
           npx promptfoo@latest eval \
             -c eval/promptfoo/promptfooconfig.yaml \
@@ -71,7 +83,7 @@ jobs:
             -o prompt-eval-results.json
 
       - name: Upload results
-        if: always()
+        if: always() && steps.providers.outputs.usable == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: prompt-eval-results

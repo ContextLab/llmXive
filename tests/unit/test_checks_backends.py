@@ -125,3 +125,81 @@ def test_dartmouth_down_but_huggingface_usable_passes(monkeypatch, tmp_path, cap
     out = capsys.readouterr()
     assert "huggingface OK" in out.out
     assert "dartmouth" in out.err and "FAIL" not in out.err
+
+
+# --- --read-only-gate: a run that cannot write the funded ledger skips cleanly -------
+
+def _dartmouth_at(monkeypatch, srv) -> None:
+    from llmxive.backends import dartmouth
+
+    monkeypatch.setattr(dartmouth, "_cloud_models_url", lambda: srv.base_url + "/models")
+
+
+def _gate(monkeypatch, tmp_path, capsys):
+    out_file = tmp_path / "github_output"
+    out_file.write_text("earlier=1\n")
+    monkeypatch.setenv("GITHUB_OUTPUT", str(out_file))
+    code = chk.main(["--read-only-gate"])
+    return code, out_file.read_text(), capsys.readouterr()
+
+
+def test_gate_with_dartmouth_unreachable_exits_zero_and_reports_unusable(monkeypatch, tmp_path, capsys):
+    """Dartmouth down; Hugging Face configured AND reachable still does not count: a
+    read-only run cannot reserve on the funded ledger."""
+    from tests.helpers.replay_server import ReplayServer
+
+    _env(monkeypatch, tmp_path, dartmouth=True, hf=True)
+    with ReplayServer({("GET", "/models"): [(503, {"error": "down"})]}) as down, \
+         ReplayServer({("GET", "/models"): [(200, {"data": [{"id": "acme/alpha"}]})]}) as up:
+        _dartmouth_at(monkeypatch, down)
+        _hf_at(monkeypatch, up)
+        code, written, out = _gate(monkeypatch, tmp_path, capsys)
+        assert len(down.requests) == chk._PROBE_ATTEMPTS and up.requests == []
+    assert code == 0
+    assert written == "earlier=1\nusable=false\n"           # appended, never clobbering
+    line = out.out.strip()
+    assert "\n" not in line and "usable=false" in line
+    assert "dartmouth" in line and "TransientBackendError" in line and "huggingface" in line
+    assert "503" not in line                                # exception TYPE only, never its text
+
+
+def test_gate_with_dartmouth_unconfigured_reports_unusable(monkeypatch, tmp_path, capsys):
+    _env(monkeypatch, tmp_path, dartmouth=False, hf=True)
+    code, written, out = _gate(monkeypatch, tmp_path, capsys)
+    assert code == 0 and written.endswith("usable=false\n")
+    assert "dartmouth: not configured" in out.out
+
+
+def test_gate_with_a_reachable_dartmouth_reports_usable(monkeypatch, tmp_path, capsys):
+    from tests.helpers.replay_server import ReplayServer
+
+    _env(monkeypatch, tmp_path, dartmouth=True, hf=False)
+    with ReplayServer({("GET", "/models"): [(200, {"data": [{"id": "acme/alpha"}]})]}) as up:
+        _dartmouth_at(monkeypatch, up)
+        code, written, out = _gate(monkeypatch, tmp_path, capsys)
+        assert up.requests and up.requests[0]["headers"]["authorization"] == "Bearer placeholder-not-a-key"
+    assert code == 0 and written.endswith("usable=true\n")
+    assert "usable=true" in out.out and "dartmouth" in out.out
+
+
+def test_gate_without_github_output_still_prints_and_exits_zero(monkeypatch, tmp_path, capsys):
+    _env(monkeypatch, tmp_path, dartmouth=False, hf=False)
+    monkeypatch.delenv("GITHUB_OUTPUT", raising=False)
+    assert chk.main(["--read-only-gate"]) == 0
+    assert "usable=false" in capsys.readouterr().out
+
+
+def test_gate_registry_load_failure_exits_nonzero(monkeypatch, tmp_path, capsys):
+    """A broken checkout must not look like an outage."""
+    _env(monkeypatch, tmp_path, dartmouth=True, hf=False)
+    (tmp_path / "not-a-checkout").mkdir()
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path / "not-a-checkout"))
+    out_file = tmp_path / "github_output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(out_file))
+    assert chk.main(["--read-only-gate"]) != 0
+    assert not out_file.exists()                            # no usable= verdict at all
+    assert "registry load failed" in capsys.readouterr().err
+
+
+def test_unknown_arguments_are_refused():
+    assert chk.main(["--readonly-gate"]) == 2

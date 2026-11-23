@@ -54,14 +54,114 @@ def test_workflow_has_no_duplicate_mapping_keys(path):
     _load(path)
 
 
-def test_every_model_calling_env_block_carries_the_hf_settings():
-    seen = 0
+#: Read-only jobs (``contents: read``: they cannot push the funded ledger, so Hugging
+#: Face can never serve them) that still pass the funded settings. Any other read-only
+#: job must NOT receive them (least privilege); listing a job here is a decision.
+_READ_ONLY_WITH_HF = {
+    ("llmxive-real-call-tests.yml", "dartmouth"):
+        "its real-call suite runs with the settings present and the funded class failing closed",
+    ("repair.yml", "candidate"): "passed before the prompt-eval cleanup; not revisited there",
+}
+
+
+def _passes_dartmouth_key(env: dict) -> bool:
+    return "secrets.DARTMOUTH_CHAT_API_KEY" in str(env.get("DARTMOUTH_CHAT_API_KEY", ""))
+
+
+def _job_contents(wf: dict, job: dict) -> str | None:
+    """The job's effective ``contents`` permission (job block, else workflow default)."""
+    perms = job.get("permissions", wf.get("permissions"))
+    return perms.get("contents") if isinstance(perms, dict) else perms
+
+
+def test_every_model_calling_env_block_carries_the_hf_settings_where_it_can_use_them():
+    """Every env mapping passing the Dartmouth key in a job that can write the ledger,
+    or in a documented read-only exception, carries the Hugging Face settings; every
+    other read-only job carries none of them."""
+    seen, exceptions_seen = 0, set()
     for path in sorted(WF.glob("*.yml")):
-        for env in _env_blocks(_load(path)):
-            if "secrets.DARTMOUTH_CHAT_API_KEY" in str(env.get("DARTMOUTH_CHAT_API_KEY", "")):
+        wf = _load(path)
+        top = wf.get("env") if isinstance(wf.get("env"), dict) else {}
+        assert not _passes_dartmouth_key(top), path.name  # keys are scoped to jobs
+        for job, body in (wf.get("jobs") or {}).items():
+            can_write = _job_contents(wf, body) not in ("read", "none")
+            excepted = (path.name, job) in _READ_ONLY_WITH_HF
+            for env in _env_blocks(body):
+                if not _passes_dartmouth_key(env):
+                    continue
                 seen += 1
-                assert {k: env.get(k) for k in WANT} == WANT, path.name
+                if excepted:
+                    exceptions_seen.add((path.name, job))
+                if can_write or excepted:
+                    assert {k: env.get(k) for k in WANT} == WANT, (path.name, job)
+                else:
+                    assert not set(WANT) & set(env), (path.name, job)  # read-only: none of them
     assert seen >= 12
+    assert exceptions_seen == set(_READ_ONLY_WITH_HF)  # no stale exception entries
+    for (name, job) in _READ_ONLY_WITH_HF:              # an exception is a READ-ONLY job
+        wf = _load(WF / name)
+        assert _job_contents(wf, wf["jobs"][job]) == "read", (name, job)
+
+
+def test_prompt_eval_does_not_receive_the_funded_settings():
+    env = _load(WF / "prompt-eval.yml")["jobs"]["eval"]["env"]
+    assert _passes_dartmouth_key(env) and not set(WANT) & set(env)
+
+
+# --- read-only model jobs skip cleanly when no provider is usable -----------------
+
+_GATE_JOBS = (("llmxive-real-call-tests.yml", "dartmouth"), ("prompt-eval.yml", "eval"))
+_USABLE = "steps.providers.outputs.usable == 'true'"
+_SKIP_LINE = ("no model provider usable in a read-only run "
+              "(Dartmouth unreachable; Hugging Face needs a write-capable run)")
+
+
+@pytest.mark.parametrize("name,job", _GATE_JOBS, ids=lambda v: v)
+def test_read_only_model_job_gates_every_model_step_on_a_usable_provider(name, job):
+    wf = _load(WF / name)
+    body = wf["jobs"][job]
+    assert _job_contents(wf, body) == "read"
+    steps = body["steps"]
+    gate_at = [i for i, s in enumerate(steps) if s.get("id") == "providers"]
+    assert len(gate_at) == 1, "exactly one gate step"
+    gate = steps[gate_at[0]]
+    assert gate["run"].strip() == "python -m llmxive.checks.backends --read-only-gate"
+    assert "if" not in gate and not gate.get("continue-on-error")
+    before = steps[: gate_at[0]]
+    assert any("pip install -e" in s.get("run", "") for s in before)  # the gate needs the package
+    assert not any(k in s.get("run", "") for s in before for k in ("pytest", "promptfoo", "checks.backends"))
+    after = steps[gate_at[0] + 1:]
+    skip = [s for s in after if "!= 'true'" in str(s.get("if", ""))]
+    assert len(skip) == 1 and skip[0]["if"] == "steps.providers.outputs.usable != 'true'"
+    run = skip[0]["run"]
+    assert f'echo "::notice title=Skipped::{_SKIP_LINE}"' in run
+    assert f'echo "{_SKIP_LINE}" >> "$GITHUB_STEP_SUMMARY"' in run
+    model_steps = [s for s in after if s is not skip[0]]
+    assert model_steps
+    for step in model_steps:
+        assert _USABLE in str(step.get("if", "")), step.get("name")
+        assert not step.get("continue-on-error"), step.get("name")
+
+
+def test_the_gated_steps_are_the_model_steps_that_ran_before():
+    steps = _load(WF / "llmxive-real-call-tests.yml")["jobs"]["dartmouth"]["steps"]
+    gated = {s["run"] for s in steps if _USABLE in str(s.get("if", ""))}
+    assert "python -m llmxive.checks.backends" in gated
+    assert "pytest tests/contract -v" in gated
+    assert any(r.startswith("pytest tests/real_call") and "--ignore=tests/real_call/test_hf_funded_real.py" in r
+               for r in gated)
+    eval_steps = _load(WF / "prompt-eval.yml")["jobs"]["eval"]["steps"]
+    gated = [s for s in eval_steps if _USABLE in str(s.get("if", ""))]
+    assert any("promptfoo" in s.get("run", "") for s in gated)
+    upload = next(s for s in eval_steps if s.get("uses", "").startswith("actions/upload-artifact"))
+    assert upload in gated and "always()" in upload["if"]
+
+
+def test_the_dartmouth_job_still_must_succeed_in_the_final_gate():
+    """A skip ends the job green, so the gate's 'dartmouth must be success when live'
+    rule holds in both cases; the rule itself is unchanged."""
+    script = _load(WF / "llmxive-real-call-tests.yml")["jobs"]["real-call"]["steps"][0]["run"]
+    assert "('dartmouth', 'live')" in script and "expected = 'success' if required else 'skipped'" in script
 
 
 def test_bill_to_is_a_variable_never_a_secret():

@@ -232,13 +232,27 @@ jobs:
         run: pip install -e ".[dev]"
       # No TeX installation: all compile-dependent live modules remain in the
       # unchanged nightly full suite. Offline PDF tests have their own toolchain.
+      # Dartmouth is the only provider this read-only job can call. When it is not
+      # usable the job reports a clean, visible skip instead of failing; when it
+      # is, every step below runs exactly as before.
+      - name: Is a model provider usable in this read-only run?
+        id: providers
+        run: python -m llmxive.checks.backends --read-only-gate
+      - name: Report the skip
+        if: steps.providers.outputs.usable != 'true'
+        run: |
+          echo "::notice title=Skipped::no model provider usable in a read-only run (Dartmouth unreachable; Hugging Face needs a write-capable run)"
+          echo "no model provider usable in a read-only run (Dartmouth unreachable; Hugging Face needs a write-capable run)" >> "$GITHUB_STEP_SUMMARY"
       - name: Backend reachability check
+        if: steps.providers.outputs.usable == 'true'
         run: python -m llmxive.checks.backends
       # Two contract tests make live source calls and are gated by this env.
       # Keep them here as well as the deterministic contract pass above.
       - name: Contracts including live source channels
+        if: steps.providers.outputs.usable == 'true'
         run: pytest tests/contract -v
       - name: Fast runtime real-call tests
+        if: steps.providers.outputs.usable == 'true'
         run: pytest tests/real_call -v -m "not slow and not external_references" --durations=25 --ignore=tests/real_call/test_hf_funded_real.py
 
   huggingface:
