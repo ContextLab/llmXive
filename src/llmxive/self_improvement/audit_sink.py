@@ -199,6 +199,13 @@ class EventStoreRouteAudit:
         return append(self._repo, self._lane_event(event), expected_revision=None,
                       config=self._config).created
 
+    def dispatch_claimed(self, event: DispatchStarted) -> bool:
+        """READ-ONLY: whether this Attempt's stream already holds the ``DispatchStarted``
+        for ``event.event_id`` (the same storage key ``claim_dispatch`` writes). Reads
+        the synchronized stream; records nothing."""
+        lane_id = self._lane_event(event).event_id
+        return any(e.event_id == lane_id for e in read(self._repo, self._problem_id, config=self._config))
+
 
 def _require_instant(value: str, label: str) -> datetime:
     parsed = datetime.fromisoformat(value)

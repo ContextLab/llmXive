@@ -28,13 +28,19 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.hf_budget import FundedUnavailable
 from llmxive.backends.huggingface import HFCredentialRejected, HFPaymentRequired, HuggingFaceBackend
-from llmxive.model_selection.attempt_hooks import ReservationOpened, RouteAuditError
+from llmxive.model_selection.attempt_hooks import (
+    ReservationOpened,
+    RouteAuditError,
+    RouteReplayError,
+)
 from llmxive.model_selection.execute import ChainExhausted, _release_unsent_hold_if_created, execute
 from llmxive.model_selection.ledger_transport import FUNDED_LEDGER_REF, LedgerConfig, read_events
 from llmxive.model_selection.reservations import STATE_OPEN, CreditObservation, project, reserve
 from llmxive.model_selection.route import route_chat
 from llmxive.model_selection.types import ExecutionOptions, SnapshotProvenance
-from tests.helpers.audit_sinks import FailingRecorder
+from llmxive.self_improvement.audit_sink import EventStoreRouteAudit
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
+from tests.helpers.audit_sinks import ClaimOnceRecorder, FailingRecorder
 from tests.helpers.funded import NOW, B, E, policy_with, sel, snapshot
 from tests.helpers.replay_server import ReplayServer
 
@@ -469,3 +475,97 @@ def test_reservation_opened_states_both_units(repo):
     opened = next(e for e in sink.events if isinstance(e, ReservationOpened))
     assert opened.reserved_usd == pytest.approx(0.0018) and opened.reserved_credits == pytest.approx(1.8)
     assert res.reserved_usd == pytest.approx(0.0018) and res.reserved_credits == pytest.approx(1.8)
+
+
+# --- replay on the audited path (fix round 3) ---
+
+@pytest.fixture
+def lane_repo(repo):
+    """The same real git repo, also carrying the spec-025 lane log the real sink writes."""
+    for args in (["config", "user.email", "t@t"], ["config", "user.name", "t"]):
+        subprocess.run(["git", *args], cwd=str(repo), check=True, capture_output=True, text=True)
+    bootstrap_lane_log(repo, config=LaneLogConfig())
+    return repo
+
+
+def _sink(repo):
+    return EventStoreRouteAudit(repo=repo, problem_id="P1", attempt_id="A1", actor="exec",
+                                clock=lambda: "2026-11-23T12:00:00+00:00")
+
+
+def test_replayed_route_raises_replay_and_tries_no_later_candidate(lane_repo):
+    """(i) Same audited route replayed after a completed funded dispatch: the replay finds
+    the original's hold, sees the dispatch already claimed, and raises RouteReplayError —
+    no request reaches the provider, the local model after it is never called, and the
+    original settlement is unchanged."""
+    local = _Local({})
+    with ReplayServer({("POST", "/chat/completions"): lambda req: (200, _chat_ok(req["json"]["model"]))}) as srv:
+        def run():
+            return execute(sel("cheap_structured", snapshot()), MSG, options=ExecutionOptions(max_tokens=512),
+                           backend_factory=lambda n: local if n == "local" else _hf(srv), ledger_repo=lane_repo,
+                           funded_ledger_config=CFG, funded_observer=OBS(), now=NOW, route_id="route-R",
+                           route_audit=_sink(lane_repo))
+
+        first = run()
+        assert first.model_ref.model_id == B and len(srv.requests) == 1
+        before = list(events(lane_repo))
+        with pytest.raises(RouteReplayError):
+            run()
+        assert len(srv.requests) == 1                                           # nothing sent on the replay
+    assert local.calls == []                                                    # no fall-through
+    assert events(lane_repo) == before                                          # ledger untouched
+    assert list(charged(lane_repo).values()) == [pytest.approx(B_COST)]
+
+
+def test_replay_meeting_its_own_fresh_hold_releases_it_at_zero(repo):
+    """(ii) Audited, explicit call ids, the same route id twice: the second call opens
+    its OWN hold, the sink reports the dispatch boundary already claimed, and the hold it
+    created is settled at zero before RouteReplayError — none is left open."""
+    sink, hf = ClaimOnceRecorder(), _HF({})
+    _run(repo, hf, sel("cheap_structured", snapshot(local=False)), route_audit=sink, route_id="R",
+         call_id="c1")
+    with pytest.raises(RouteReplayError):
+        _run(repo, hf, sel("cheap_structured", snapshot(local=False)), route_audit=sink, route_id="R",
+             call_id="c2")
+    assert hf.calls == [B]
+    assert charged(repo) == {_rid(B, "c1"): pytest.approx(B_COST), _rid(B, "c2"): 0.0}
+    assert not [r for r in project(events(repo)).values() if r.state == STATE_OPEN]
+
+
+def test_different_audited_call_meeting_a_hold_just_skips(repo):
+    """(iii) A different route (same call id) meets the first call's completed hold: the
+    dispatch is not claimed for ITS route, so the funded candidate is skipped and the
+    chain goes on; the first hold is unchanged."""
+    sink = ClaimOnceRecorder()
+    _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)), route_audit=sink, route_id="R1",
+         call_id="shared")
+    before = charged(repo)
+    hf = _HF({})
+    res = _run(repo, hf, sel("cheap_structured", snapshot(local=False)), route_audit=sink, route_id="R2",
+               call_id="shared")
+    assert hf.calls == [E] and res.model_ref.model_id == E
+    assert charged(repo)[_rid(B, "shared")] == before[_rid(B, "shared")] == pytest.approx(B_COST)
+
+
+class _NoLookupSink:
+    """A real sink that cannot answer ``dispatch_claimed``."""
+
+    def __init__(self):
+        self.events: list = []
+
+    def record(self, event) -> None:
+        self.events.append(event)
+
+    def claim_dispatch(self, event) -> bool:
+        self.events.append(event)
+        return True
+
+
+def test_sink_that_cannot_tell_a_replay_fails_closed(repo):
+    _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)), call_id="shared")
+    hf = _HF({})
+    with pytest.raises(RouteAuditError):
+        _run(repo, hf, sel("cheap_structured", snapshot(local=False)), route_audit=_NoLookupSink(),
+             call_id="shared")
+    assert hf.calls == []
+    assert list(charged(repo).values()) == [pytest.approx(B_COST)]

@@ -76,6 +76,7 @@ from llmxive.model_selection.ledger_transport import (
 )
 from llmxive.model_selection.reservations import (
     CreditObservation,
+    Reservation,
     ReservationLease,
     lease_duration_for,
     outstanding_headroom_consumption,
@@ -303,8 +304,11 @@ def _release_unsent_hold_if_created(
     now: datetime,
     config: LedgerConfig,
     notes: list[str],
-) -> None:
-    """Release (reconcile at zero) a funded hold that THIS call opened and never sent.
+    cause: BaseException | None = None,
+) -> Reservation | None:
+    """Release (reconcile at zero) a funded hold that THIS call opened and never sent,
+    and return the hold as read from the ledger (``None`` when absent or unreadable).
+    ``cause`` is the exception that made the reserve fail; only its TYPE is logged.
 
     Creation is decided from the ledger itself: the hold's ``open`` event carries the
     ``owner`` token of the call that wrote it, so a hold another call opened under the
@@ -315,28 +319,29 @@ def _release_unsent_hold_if_created(
     from llmxive.model_selection.ledger_transport import read_events
     from llmxive.model_selection.reservations import STATE_RECONCILED, project
 
+    failed = f" after a failed reserve ({type(cause).__name__})" if cause is not None else ""
     try:
         hold = project(read_events(ledger_repo, ref=config.ref)).get(reservation_id)
     except Exception as exc:
         msg = (
-            f"funded hold {reservation_id}: ownership unknown ({type(exc).__name__} reading the "
-            "ledger); left for the lease expiry and the funded ledger's sweep"
+            f"funded hold {reservation_id}: ownership unknown{failed} ({type(exc).__name__} reading "
+            "the ledger); left for the lease expiry and the funded ledger's sweep"
         )
         logger.warning("execute: %s", msg)
         notes.append(msg)
-        return
+        return None
     if hold is None:
         msg = (
-            f"funded hold {reservation_id}: ownership unknown (not on the local ledger ref after a "
-            "failed reserve); if it landed remotely it is left for the lease expiry and the funded "
-            "ledger's sweep"
+            f"funded hold {reservation_id}: ownership unknown{failed} (not on the local ledger "
+            "ref); if it landed remotely it is left for the lease expiry and the funded ledger's sweep"
         )
         logger.warning("execute: %s", msg)
         notes.append(msg)
-        return
+        return None
     if hold.owner != owner or hold.state == STATE_RECONCILED:
-        return
+        return hold
     _settle_funded_hold(ledger_repo, reservation_id, charged_usd=0.0, now=now, config=config, notes=notes)
+    return hold
 
 
 def _open_funded_reservation(
@@ -352,10 +357,13 @@ def _open_funded_reservation(
     call_id: str,
     owner: str,
     notes: list[str],
-) -> tuple[str | None, float, str | None]:
+) -> tuple[str | None, float, str | None, str | None]:
     """Reserve a funded (Hugging Face) candidate's worst case x 1, in USD, on the funded
-    ledger. Returns ``(reservation_id, reserved_usd, skip_reason)`` — exactly one of
-    ``reservation_id`` / ``skip_reason`` is non-None, and a ``reservation_id`` is
+    ledger. Returns ``(reservation_id, reserved_usd, skip_reason, foreign_hold_id)`` —
+    exactly one of ``reservation_id`` / ``skip_reason`` is non-None;
+    ``foreign_hold_id`` is set (with a ``skip_reason``) when the reserve found ANOTHER
+    call's hold under this id, so the caller can tell a replay of this route from a
+    different call (see :func:`execute`). A ``reservation_id`` is
     returned ONLY for a hold THIS call created (its ``owner`` token is on the hold's
     ``open`` event). ANY failure (a denial, a ledger error, a refused guard, or an
     unexpected exception from the observer) is a skip: a funded candidate is never
@@ -379,11 +387,11 @@ def _open_funded_reservation(
     fprov = chain.snapshot_provenance.get("funded")
     if fprov is None or fprov.source != "live":
         src = fprov.source if fprov is not None else "missing"
-        return None, 0.0, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'", None
     if ledger_repo is None or config is None:
-        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)", None
     if funded_observer is None and funded_guard is None:
-        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)", None
 
     reserve_usd = candidate.worst_case_credits / USD_TO_CREDITS
     rid = _sanitize_reservation_id(ref.model_id, call_id)
@@ -403,16 +411,70 @@ def _open_funded_reservation(
                 owner=owner,
             )
     except LedgerDenied as exc:  # no allowance headroom, or an id collision: nothing written
-        return None, 0.0, f"funded {ref.model_id!r} skipped: reservation denied ({exc})"
+        existing = _quiet_hold(ledger_repo, rid, config)
+        if existing is not None and existing.owner != owner:
+            return None, 0.0, _foreign_skip(ref.model_id, rid), rid
+        return None, 0.0, f"funded {ref.model_id!r} skipped: reservation denied ({exc})", None
     except Exception as exc:
-        _release_unsent_hold_if_created(ledger_repo, rid, owner=owner, now=now, config=config, notes=notes)
-        return None, 0.0, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})"
-    if hold.owner != owner:
-        return None, 0.0, (
-            f"funded {ref.model_id!r} skipped: hold {rid} already exists for another call "
-            "(only the call that created a funded hold may send under or settle it)"
+        # A failed reserve may still have met (or, for a hold already reconciled,
+        # collided with) another call's hold under this id: that is a foreign hold,
+        # to be told from a replay like any other.
+        existing = _release_unsent_hold_if_created(
+            ledger_repo, rid, owner=owner, now=now, config=config, notes=notes, cause=exc
         )
-    return rid, reserve_usd, None
+        if existing is not None and existing.owner != owner:
+            return None, 0.0, _foreign_skip(ref.model_id, rid), rid
+        return None, 0.0, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})", None
+    if hold.owner != owner:
+        return None, 0.0, _foreign_skip(ref.model_id, rid), rid
+    return rid, reserve_usd, None, None
+
+
+def _foreign_skip(model_id: str, rid: str) -> str:
+    return (
+        f"funded {model_id!r} skipped: hold {rid} already exists for another call "
+        "(only the call that created a funded hold may send under or settle it)"
+    )
+
+
+def _quiet_hold(ledger_repo: Path, reservation_id: str, config: LedgerConfig) -> Reservation | None:
+    """The hold under ``reservation_id`` on the local funded ref, or ``None`` (absent or
+    unreadable — the caller then treats the id as not another call's)."""
+    from llmxive.model_selection.ledger_transport import read_events
+    from llmxive.model_selection.reservations import project
+
+    try:
+        return project(read_events(ledger_repo, ref=config.ref)).get(reservation_id)
+    except Exception:
+        return None
+
+
+def _raise_if_replay(
+    route_audit: RouteAudit, route_id: str, candidate_index: int, ref: ModelRef, hold_id: str
+) -> None:
+    """For a funded candidate whose hold belongs to another call: raise
+    ``RouteReplayError`` when this route's dispatch boundary for the candidate is already
+    claimed (a replay); return when it is not (a different call met the hold). A sink
+    that cannot answer (no ``dispatch_claimed``) or fails to fails CLOSED with
+    ``RouteAuditError`` — a replay must never fall through to a later candidate."""
+    probe = DispatchStarted(route_id, candidate_index, ref, hold_id)
+    check = getattr(route_audit, "dispatch_claimed", None)
+    if check is None:
+        raise RouteAuditError(
+            f"route_audit sink cannot report whether {ref.model_id!r} was already dispatched "
+            "(no dispatch_claimed); a funded hold owned by another call cannot be told from a replay"
+        )
+    try:
+        claimed = check(probe)
+    except RouteAuditError:
+        raise
+    except Exception as exc:
+        raise RouteAuditError(f"dispatch_claimed({ref.model_id!r}) failed: {type(exc).__name__}") from exc
+    if claimed:
+        raise RouteReplayError(
+            f"route {route_id!r} candidate {candidate_index} ({ref.model_id!r}) already dispatched "
+            "— not re-dispatching (replay); the funded hold belongs to the original dispatch"
+        )
 
 
 def _provably_no_inference(exc: BaseException, *, sent: bool) -> bool:
@@ -483,9 +545,12 @@ def execute(
     charge as ``response.cost_estimate_usd`` and ``ExecutionResult.charged_usd``; a
     failed settle is logged + noted and never fails the reply. Every funded hold
     carries this call's ``owner`` token: a hold found under the same id (a replay, a
-    shared ``call_id``, two Attempts on one route) is another call's, so that candidate
-    is skipped — never sent, settled or released by this call, with or without
-    ``route_audit``.
+    shared ``call_id``, two Attempts on one route) is another call's: it is never sent
+    under, settled or released by this call. With a ``route_audit`` sink whose
+    ``dispatch_claimed`` reports this route + candidate already claimed, that is a
+    replay → ``RouteReplayError`` (no later candidate is tried); otherwise the candidate
+    is skipped. A replayed route whose OWN fresh hold meets a claimed boundary releases
+    that hold at zero before raising ``RouteReplayError``.
 
     **Attempt budget (FR-033b).** An optional ``reservation_authority`` is consulted
     per paid candidate, BEFORE the 026 daily reserve: a refusal (``False``) skips the
@@ -636,17 +701,26 @@ def execute(
         reserved_usd = 0.0
 
         if funded:
+            foreign_hold: str | None = None
             if funded_config_error is not None:
                 skip = f"funded {ref.model_id!r} skipped: funded ledger not configured ({funded_config_error}) — fail closed"
             else:
                 # Invariant: a funded reservation_id below is always a hold THIS call
                 # created, so every settle/release of it on any path is this call's own.
-                reservation_id, reserved_usd, skip = _open_funded_reservation(
+                reservation_id, reserved_usd, skip, foreign_hold = _open_funded_reservation(
                     candidate, chain, options=options, ledger_repo=ledger_repo,
                     config=funded_ledger_config, funded_observer=funded_observer,
                     funded_guard=funded_guard, now=now, call_id=call_id,
                     owner=funded_owner, notes=notes,
                 )
+            if foreign_hold is not None and route_audit is not None:
+                # Another call's hold under this id. On the audited path that may be THIS
+                # route replayed: if its dispatch boundary was already claimed, it is a
+                # replay — raise exactly as a claimed paid/free replay does (nothing sent,
+                # nothing settled, no later candidate tried, no CandidateOutcome that would
+                # collide with the original's). Unclaimed → a different call met the
+                # hold: fall through to the plain skip below.
+                _raise_if_replay(route_audit, route_id, candidate_index, ref, foreign_hold)
             if skip is not None:
                 notes.append(skip)
                 emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", skip))
@@ -733,10 +807,15 @@ def execute(
             # (e.g. a DispatchStarted with no DispatchCompleted → DispatchUnknown).
             # No CandidateOutcome is emitted here — the original run already
             # emitted the outcome for this event_id; a differing outcome would
-            # collide under F2's collision semantics. A FUNDED hold under this id is
-            # the original dispatch's: it reconciles it (first writer wins), so the
-            # replay writes nothing that could pre-empt the real charge.
-            if reservation_id is not None and not funded:
+            # collide under F2's collision semantics. A FUNDED reservation_id here
+            # is always a hold THIS call created (a foreign hold never gets this far),
+            # and nothing was sent under it, so it is released at zero below.
+            if reservation_id is not None and funded:
+                _settle_funded_hold(
+                    ledger_repo, reservation_id, charged_usd=0.0, now=now,  # type: ignore[arg-type]
+                    config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                )
+            elif reservation_id is not None:
                 try:
                     settle(ledger_repo, reservation_id, now=now, config=ledger_config)  # type: ignore[arg-type]
                 except Exception as exc:

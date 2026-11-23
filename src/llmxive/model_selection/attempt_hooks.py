@@ -277,6 +277,15 @@ class RouteAudit(Protocol):
     merely refuses to re-dispatch) would need a future lookup method and is out of
     scope for slice 0 — slice 0's guarantee is "never re-dispatch", NOT "resume
     the prior result".
+
+    **Optional read-only capability: ``dispatch_claimed(event: DispatchStarted) ->
+    bool``** — ``True`` when a ``DispatchStarted`` with ``event.event_id`` is already
+    durably recorded (this route + candidate's dispatch boundary was claimed); never
+    records or claims. It is deliberately NOT a protocol member (existing sinks stay
+    structurally valid). ``execute`` asks it when a funded candidate's hold belongs to
+    another call: claimed → a REPLAY (``RouteReplayError``, no later candidate tried);
+    unclaimed → a different call met the hold (skip the candidate). A sink without it
+    makes that case fail closed (``RouteAuditError``, nothing sent).
     """
 
     def record(self, event: RouteAuditEvent) -> None: ...
@@ -306,6 +315,7 @@ class RouteAudit(Protocol):
         silently swallowed as a ``False`` replay. A sink infrastructure failure
         likewise RAISES — distinct from a ``False`` replay result."""
         ...
+
 
 
 def emit_audit(route_audit: RouteAudit | None, event: RouteAuditEvent) -> None:
