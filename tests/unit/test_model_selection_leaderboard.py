@@ -96,13 +96,19 @@ def test_join_ignores_shared_names_the_arena_does_not_list():
     assert join_scores(["a/same", "b/same"], arena) == ({}, ())
 
 
+def _split_idx(n):
+    """Realistic whole-split index of the n-th filtered row: starts at 505, irregular gaps."""
+    return 505 + 2 * n + n // 7
+
+
 def _pager(rows, *, total=None, stop_after=None):
     def respond(req):
         off, ln = int(req["query"]["offset"]), int(req["query"]["length"])
         page = [] if stop_after is not None and off >= stop_after else rows[off:off + ln]
         return 200, {
             "features": [],
-            "rows": [{"row_idx": off + i, "row": r, "truncated_cells": []} for i, r in enumerate(page)],
+            # filtered query: row_idx indexes the whole split (starts mid-way, has gaps)
+            "rows": [{"row_idx": _split_idx(off + i), "row": r, "truncated_cells": []} for i, r in enumerate(page)],
             "num_rows_total": len(rows) if total is None else total,
             "num_rows_per_page": 100,
             "partial": False,
@@ -139,9 +145,26 @@ def test_short_or_inconsistent_paging_fails_closed():
 
 def _envelope(rows, start, total):
     return 200, {
-        "rows": [{"row_idx": start + i, "row": r, "truncated_cells": []} for i, r in enumerate(rows)],
+        "rows": [{"row_idx": _split_idx(start + i), "row": r, "truncated_cells": []} for i, r in enumerate(rows)],
         "num_rows_total": total, "partial": False,
     }
+
+
+def test_filtered_numbering_with_gaps_passes_but_non_integer_or_backwards_idx_fails():
+    rows = [_row(f"M{i}", 1000.0 + i, "coding") for i in range(120)]
+    with ReplayServer({("GET", "/filter"): _pager(rows)}) as srv:
+        assert fetch_arena_category("coding", base_url=srv.base_url + "/filter") == rows
+    def bad(idx_for):
+        def route(req):
+            status, body = _pager(rows)(req)
+            for i, item in enumerate(body["rows"]):
+                item["row_idx"] = idx_for(int(req["query"]["offset"]) + i)
+            return status, body
+        return route
+    for idx_for in (lambda n: "x", lambda n: None, lambda n: 1000 - n):
+        with ReplayServer({("GET", "/filter"): bad(idx_for)}) as srv:
+            with pytest.raises(LeaderboardError):
+                fetch_arena_category("coding", base_url=srv.base_url + "/filter")
 
 
 def test_inconsistent_pages_fail_closed():

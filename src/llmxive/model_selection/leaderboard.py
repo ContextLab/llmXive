@@ -136,6 +136,7 @@ def fetch_arena_category(
     rows: list[dict] = []
     offset = 0
     total: int | None = None
+    last_idx = -1
     with httpx.Client(timeout=timeout) as client:
         while total is None or offset < total:
             body = _get_page(
@@ -168,14 +169,20 @@ def fetch_arena_category(
                 raise LeaderboardError(f"empty page at offset {offset} before total {total}")
             if len(page) > PAGE_LENGTH:
                 raise LeaderboardError(f"page at offset {offset} has {len(page)} rows > {PAGE_LENGTH}")
-            for i, item in enumerate(page):
+            for item in page:
                 row = item.get("row") if isinstance(item, dict) else None
                 if not isinstance(row, dict):
                     raise LeaderboardError("datasets server row has no 'row' object")
-                if item.get("row_idx") != offset + i:
+                idx = item.get("row_idx")
+                if isinstance(idx, bool) or not isinstance(idx, int):
+                    raise LeaderboardError(f"page at offset {offset} has a row without an integer row_idx")
+                # In a filtered query row_idx indexes the whole split (gaps are normal), so
+                # a repeated or overlapping page shows up as a non-increasing sequence.
+                if idx <= last_idx:
                     raise LeaderboardError(
-                        f"page at offset {offset} returned row_idx {item.get('row_idx')!r}, expected {offset + i}"
+                        f"page at offset {offset} repeats or reorders rows (row_idx {idx} after {last_idx})"
                     )
+                last_idx = idx
                 rows.append(row)
             offset += len(page)
     if len(rows) != total:
