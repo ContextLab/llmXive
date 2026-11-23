@@ -569,3 +569,374 @@ def test_sink_that_cannot_tell_a_replay_fails_closed(repo):
              call_id="shared")
     assert hf.calls == []
     assert list(charged(repo).values()) == [pytest.approx(B_COST)]
+
+
+# --- fix round 4: one decision function, every (state) -> (action) row covered ---
+
+_Hold, _Act, _funded_action = execute_mod._Hold, execute_mod._FundedAction, execute_mod._funded_action
+_D, _S, _R = _Act.DISPATCH, _Act.SKIP, _Act.REPLAY
+
+#: The whole table, literally: (audited, call id derived from the route, hold) ->
+#: (action with no dispatch claim, action with the boundary already claimed). "Derived"
+#: on the unaudited path is the fresh random id an unaudited call mints.
+_DECISIONS = {
+    (False, True, _Hold.ABSENT): (_S, _R),
+    (False, True, _Hold.OWN): (_D, _R),
+    (False, True, _Hold.OWN_RELEASED): (_S, _R),
+    (False, True, _Hold.FOREIGN_LIVE): (_S, _R),
+    (False, True, _Hold.FOREIGN_ENDED): (_S, _R),
+    (False, True, _Hold.UNKNOWN): (_S, _R),
+    (False, False, _Hold.ABSENT): (_S, _R),
+    (False, False, _Hold.OWN): (_D, _R),
+    (False, False, _Hold.OWN_RELEASED): (_S, _R),
+    (False, False, _Hold.FOREIGN_LIVE): (_S, _R),
+    (False, False, _Hold.FOREIGN_ENDED): (_S, _R),
+    (False, False, _Hold.UNKNOWN): (_S, _R),
+    (True, True, _Hold.ABSENT): (_S, _R),
+    (True, True, _Hold.OWN): (_D, _R),
+    (True, True, _Hold.OWN_RELEASED): (_S, _R),
+    (True, True, _Hold.FOREIGN_LIVE): (_R, _R),      # ruling A: the original is between reserve and claim
+    (True, True, _Hold.FOREIGN_ENDED): (_S, _R),
+    (True, True, _Hold.UNKNOWN): (_S, _R),
+    (True, False, _Hold.ABSENT): (_S, _R),
+    (True, False, _Hold.OWN): (_D, _R),
+    (True, False, _Hold.OWN_RELEASED): (_S, _R),
+    (True, False, _Hold.FOREIGN_LIVE): (_S, _R),
+    (True, False, _Hold.FOREIGN_ENDED): (_S, _R),
+    (True, False, _Hold.UNKNOWN): (_S, _R),
+}
+
+
+def test_funded_decision_table():
+    """Every combination has exactly one action, and it is the one the table states."""
+    assert set(_DECISIONS) == {(a, d, h) for a in (False, True) for d in (False, True) for h in _Hold}
+    for (audited, derived, hold), (unclaimed, claimed) in _DECISIONS.items():
+        assert _funded_action(audited=audited, derived_id=derived, hold=hold, claimed=False) is unclaimed
+        assert _funded_action(audited=audited, derived_id=derived, hold=hold, claimed=True) is claimed
+
+
+def _derived(route_id: str) -> str:
+    """The call id ``execute`` derives from a route id on the audited path."""
+    import hashlib
+
+    return hashlib.sha256(route_id.encode()).hexdigest()[:12]
+
+
+def _lane(repo):
+    from llmxive.self_improvement.lane_log import read
+
+    return read(repo, "P1", config=LaneLogConfig())
+
+
+def _outcomes(repo):
+    return [(e.payload["candidate_index"], e.payload["outcome"]) for e in _lane(repo)
+            if e.event_type == "CandidateOutcome"]
+
+
+@pytest.fixture
+def audit_repo(tmp_path):
+    """A second real git repo holding ONLY the lane log, so the funded ledger's repo can
+    become unreadable while the production audit sink keeps working."""
+    r = tmp_path / "audit"
+    subprocess.run(["git", "init", "-b", "main", str(r)], capture_output=True, text=True, check=True)
+    for args in (["config", "user.email", "t@t"], ["config", "user.name", "t"]):
+        subprocess.run(["git", *args], cwd=str(r), check=True, capture_output=True, text=True)
+    bootstrap_lane_log(r, config=LaneLogConfig())
+    return r
+
+
+def _audited(ledger, sink, hf, local, **kw):
+    """One audited call over funded B, funded E, then a local model."""
+    return execute(kw.pop("chain", None) or sel("cheap_structured", snapshot()), MSG,
+                   options=ExecutionOptions(max_tokens=512),
+                   backend_factory=lambda n: local if n == "local" else hf,
+                   ledger_repo=kw.pop("ledger_repo", ledger), funded_ledger_config=CFG,
+                   funded_observer=kw.pop("obs", OBS()), now=NOW, route_audit=sink,
+                   route_id=kw.pop("route_id", "route-R"), **kw)
+
+
+def _foreign(repo, rid, *, lease=timedelta(minutes=7)):
+    """Another call's hold for B under ``rid``, really on the funded ledger."""
+    return reserve(repo, reservation_id=rid, worst_case_credits=0.0018, model=B, credit_observer=OBS(),
+                   lease_expires_at=NOW + lease, now=NOW, config=CFG, owner="the-original-call")
+
+
+def _exploding():
+    raise RuntimeError("hf_SECRET-in-an-exception-message")
+
+
+class _ReplayBeforeClaim(EventStoreRouteAudit):
+    """The production sink; the first time it is handed a ``ReservationOpened`` — after
+    the original's reserve, before its dispatch claim — it first runs ``inner``."""
+
+    def __init__(self, inner, **kw):
+        super().__init__(**kw)
+        self._inner, self._ran = inner, False
+
+    def record(self, event) -> None:
+        if isinstance(event, ReservationOpened) and not self._ran:
+            self._ran = True
+            self._inner()
+        super().record(event)
+
+
+# A. audited, derived call id, the original's hold open and its dispatch not yet claimed
+
+def test_replay_in_the_gap_before_the_originals_claim_aborts_and_the_route_sends_once(lane_repo):
+    """A same-route replay arrives between the original's reserve and its dispatch claim
+    (real ledger, production sink): it raises RouteReplayError — no request, no later
+    candidate, no skip record — and the original then dispatches once and settles once."""
+    hf, local, seen = _HF({}), _Local({}), {}
+
+    def replay():
+        with pytest.raises(RouteReplayError) as err:
+            _audited(lane_repo, _sink(lane_repo), hf, local)
+        seen["msg"], seen["calls"], seen["outcomes"] = str(err.value), list(hf.calls + local.calls), _outcomes(lane_repo)
+
+    original = _ReplayBeforeClaim(replay, repo=lane_repo, problem_id="P1", attempt_id="A1", actor="exec",
+                                  clock=lambda: "2026-11-23T12:00:00+00:00")
+    res = _audited(lane_repo, original, hf, local)
+    assert seen["calls"] == [] and seen["outcomes"] == [] and "not yet claimed" in seen["msg"]
+    assert res.model_ref.model_id == B and hf.calls == [B] and local.calls == []    # one route, one dispatch
+    rid = _rid(B, _derived("route-R"))
+    assert charged(lane_repo) == {rid: pytest.approx(B_COST)}
+    assert sum(1 for e in events(lane_repo) if e["type"] == "reconciled") == 1
+    assert _outcomes(lane_repo) == [(0, "success")]
+
+
+def test_replay_meeting_the_originals_open_unclaimed_hold_touches_nothing(lane_repo):
+    rid = _rid(B, _derived("route-R"))
+    _foreign(lane_repo, rid)
+    before, hf, local = list(events(lane_repo)), _HF({}), _Local({})
+    with pytest.raises(RouteReplayError):
+        _audited(lane_repo, _sink(lane_repo), hf, local)
+    assert hf.calls == [] and local.calls == [] and events(lane_repo) == before and _outcomes(lane_repo) == []
+
+
+@pytest.mark.parametrize("ended", ["lease-expired", "settling", "reconciled"])
+def test_route_whose_original_crashed_before_claiming_recovers_once_the_hold_ended(lane_repo, ended):
+    """The original reserved and died before its claim. Once its hold's lease expired,
+    or the sweep settled / reconciled it, the same route skips that candidate and goes
+    on; the dead call's hold is left exactly as it was."""
+    rid = _rid(B, _derived("route-R"))
+    _foreign(lane_repo, rid, lease=timedelta(seconds=-1) if ended == "lease-expired" else timedelta(minutes=7))
+    if ended == "settling":
+        reservations_mod.settle(lane_repo, rid, now=NOW, config=CFG)
+    elif ended == "reconciled":
+        reservations_mod.reconcile(lane_repo, rid, charged=0.0018, now=NOW, config=CFG)
+    before = [e for e in events(lane_repo) if e["reservation_id"] == rid]
+    hf, local = _HF({}), _Local({})
+    res = _audited(lane_repo, _sink(lane_repo), hf, local)
+    assert res.model_ref.model_id == E and hf.calls == [E]
+    assert [e for e in events(lane_repo) if e["reservation_id"] == rid] == before
+    assert _outcomes(lane_repo) == [(0, "skip"), (1, "success")]
+
+
+@pytest.mark.parametrize("ended", [False, True])
+def test_explicit_call_id_meeting_another_calls_unclaimed_hold_skips(lane_repo, ended):
+    """An EXPLICIT call id says nothing about the route, so another call's hold with no
+    claim for this route — open or ended — is only a candidate to skip (production sink)."""
+    rid = _rid(B, "shared")
+    _foreign(lane_repo, rid)
+    if ended:
+        reservations_mod.reconcile(lane_repo, rid, charged=0.0018, now=NOW, config=CFG)
+    before = [e for e in events(lane_repo) if e["reservation_id"] == rid]
+    hf, local = _HF({}), _Local({})
+    res = _audited(lane_repo, _sink(lane_repo), hf, local, call_id="shared")
+    assert res.model_ref.model_id == E and hf.calls == [E]
+    assert [e for e in events(lane_repo) if e["reservation_id"] == rid] == before
+
+
+def test_explicit_call_id_replay_of_a_claimed_route_raises_replay(lane_repo):
+    hf, local = _HF({}), _Local({})
+    _audited(lane_repo, _sink(lane_repo), hf, local, call_id="shared")
+    before = list(events(lane_repo))
+    with pytest.raises(RouteReplayError):
+        _audited(lane_repo, _sink(lane_repo), hf, local, call_id="shared")
+    assert hf.calls == [B] and local.calls == [] and events(lane_repo) == before
+
+
+@pytest.mark.parametrize("call_id", [None, "explicit"])
+def test_replay_while_the_original_is_mid_dispatch_raises_replay(lane_repo, call_id):
+    """The original has claimed the boundary and is waiting on the provider (its hold is
+    still open) when the same route is replayed: RouteReplayError, nothing more is sent,
+    the open hold is untouched and ends at the original's real cost."""
+    local, seen = _Local({}), {}
+
+    def replay():
+        inner = _HF({})
+        with pytest.raises(RouteReplayError):
+            _audited(lane_repo, _sink(lane_repo), inner, local, call_id=call_id)
+        hold = project(events(lane_repo))[_rid(B, call_id or _derived("route-R"))]
+        seen["calls"], seen["hold"] = inner.calls + local.calls, (hold.state, hold.charged)
+        return "ok"
+
+    hf = _HF({B: replay})
+    res = _audited(lane_repo, _sink(lane_repo), hf, local, call_id=call_id)
+    assert seen == {"calls": [], "hold": (STATE_OPEN, None)}
+    assert res.model_ref.model_id == B and hf.calls == [B] and local.calls == []
+    assert list(charged(lane_repo).values()) == [pytest.approx(B_COST)]
+    assert _outcomes(lane_repo) == [(0, "success")]
+
+
+# B. audited: a claimed boundary is a replay whatever stopped the reserve
+
+@pytest.mark.parametrize("call_id", [None, "explicit"])
+def test_replay_that_cannot_read_the_ledger_raises_replay(repo, audit_repo, tmp_path, call_id):
+    """The replay's reserve raises and the ledger cannot be read (ownership unknown):
+    the boundary is claimed, so it is a replay — not a skip to the local model."""
+    hf, local = _HF({}), _Local({})
+    _audited(repo, _sink(audit_repo), hf, local, call_id=call_id)
+    before, parked = list(events(repo)), tmp_path / "parked-git"
+    shutil.move(str(repo / ".git"), str(parked))
+    try:
+        with pytest.raises(RouteReplayError):
+            _audited(repo, _sink(audit_repo), hf, local, call_id=call_id)
+    finally:
+        shutil.move(str(parked), str(repo / ".git"))
+    assert hf.calls == [B] and local.calls == [] and events(repo) == before
+
+
+@pytest.mark.parametrize("failure", ["denied", "observer-raises"])
+@pytest.mark.parametrize("call_id", [None, "explicit"])
+def test_replay_whose_hold_is_not_on_the_local_ref_raises_replay(lane_repo, failure, call_id):
+    """The original's hold is not on the local funded ref and the replay's reserve fails
+    (denied: nothing under the id; raising: ownership unknown). Claimed -> replay."""
+    hf, local = _HF({}), _Local({})
+    _audited(lane_repo, _sink(lane_repo), hf, local, call_id=call_id)
+    subprocess.run(["git", "update-ref", "-d", FUNDED_LEDGER_REF], cwd=str(lane_repo), check=True)
+    with pytest.raises(RouteReplayError):
+        _audited(lane_repo, _sink(lane_repo), hf, local, call_id=call_id,
+                 obs=OBS(cap=0.0) if failure == "denied" else _exploding)
+    assert hf.calls == [B] and local.calls == []
+    assert not [r for r in project(events(lane_repo)).values() if r.state == STATE_OPEN]
+
+
+@pytest.mark.parametrize("precondition", ["guard-not-live", "no-ledger"])
+def test_replay_that_fails_a_funded_precondition_raises_replay(lane_repo, precondition):
+    hf, local = _HF({}), _Local({})
+    _audited(lane_repo, _sink(lane_repo), hf, local)
+    before, kw = list(events(lane_repo)), {}
+    if precondition == "guard-not-live":
+        chain = sel("cheap_structured", snapshot())
+        kw["chain"] = replace(chain, snapshot_provenance={**chain.snapshot_provenance,
+                                                          "funded": SnapshotProvenance("unavailable", NOW, 0.0)})
+    with pytest.raises(RouteReplayError):
+        if precondition == "no-ledger":
+            execute(sel("cheap_structured", snapshot()), MSG, options=ExecutionOptions(max_tokens=512),
+                    backend_factory=lambda n: local if n == "local" else hf, ledger_repo=None,
+                    funded_ledger_config=CFG, funded_observer=OBS(), now=NOW, route_audit=_sink(lane_repo),
+                    route_id="route-R")
+        else:
+            _audited(lane_repo, _sink(lane_repo), hf, local, **kw)
+    assert hf.calls == [B] and local.calls == [] and events(lane_repo) == before
+
+
+@pytest.mark.parametrize("failure", ["denied", "observer-raises", "ledger-unreadable"])
+@pytest.mark.parametrize("call_id", [None, "explicit"])
+def test_genuine_reserve_failure_with_no_claim_still_skips_to_the_next_candidate(
+    repo, audit_repo, tmp_path, failure, call_id
+):
+    """Not a replay (nothing claimed): an exhausted allowance, a failing reserve or an
+    unreachable ledger skips the funded candidates and the local model serves — on the
+    audited path, with the production sink."""
+    hf, local, parked = _HF({}), _Local({}), tmp_path / "parked-git"
+    if failure == "ledger-unreadable":
+        subprocess.run(["git", "update-ref", "-d", "HEAD"], cwd=str(repo), capture_output=True)
+        shutil.move(str(repo / ".git"), str(parked))
+    try:
+        res = _audited(repo, _sink(audit_repo), hf, local, call_id=call_id,
+                       obs={"denied": OBS(cap=0.0), "observer-raises": _exploding}.get(failure, OBS()))
+    finally:
+        if parked.exists():
+            shutil.move(str(parked), str(repo / ".git"))
+    assert res.model_ref.backend == "local" and hf.calls == []
+    assert _outcomes(audit_repo) == [(0, "skip"), (1, "skip"), (2, "success")]
+    assert not [r for r in project(events(repo)).values() if r.state == STATE_OPEN]
+
+
+def test_sink_that_cannot_tell_a_replay_fails_closed_on_any_funded_skip(repo):
+    """Without ``dispatch_claimed`` a skipped funded candidate cannot be told from a
+    replay, so even a plain denial is route-fatal — nothing is sent anywhere."""
+    hf, local = _HF({}), _Local({})
+    with pytest.raises(RouteAuditError):
+        _audited(repo, _NoLookupSink(), hf, local, obs=OBS(cap=0.0))
+    assert hf.calls == [] and local.calls == [] and events(repo) == []
+
+
+# C. audited: a hold this call created meets a boundary that is already claimed (production sink)
+
+@pytest.mark.parametrize("call_id", [None, "explicit"])
+def test_replay_with_its_own_fresh_hold_is_refused_by_the_production_claim(lane_repo, call_id):
+    """The original's hold is gone from the funded ref, so the replay's reserve creates
+    a hold of its own under the same id. The production ``claim_dispatch`` finds the
+    byte-identical DispatchStarted: nothing is sent, the fresh hold is released at zero,
+    RouteReplayError."""
+    hf, local = _HF({}), _Local({})
+    _audited(lane_repo, _sink(lane_repo), hf, local, call_id=call_id)
+    subprocess.run(["git", "update-ref", "-d", FUNDED_LEDGER_REF], cwd=str(lane_repo), check=True)
+    with pytest.raises(RouteReplayError):
+        _audited(lane_repo, _sink(lane_repo), hf, local, call_id=call_id)
+    assert hf.calls == [B] and local.calls == []
+    assert charged(lane_repo) == {_rid(B, call_id or _derived("route-R")): 0.0}
+    assert not [r for r in project(events(lane_repo)).values() if r.state == STATE_OPEN]
+
+
+def test_same_route_under_a_different_explicit_call_id_is_an_audit_conflict_in_production(lane_repo):
+    """Explicit call ids c1 then c2 on ONE route: the second call's hold is its own, but
+    its ReservationOpened names another reservation id under the same audit event id.
+    The production sink refuses that as a conflicting payload: RouteAuditError (not
+    RouteReplayError) — route-fatal, nothing sent, no later candidate, and the second
+    call's own hold released at zero."""
+    hf, local = _HF({}), _Local({})
+    _audited(lane_repo, _sink(lane_repo), hf, local, call_id="c1")
+    with pytest.raises(RouteAuditError) as err:
+        _audited(lane_repo, _sink(lane_repo), hf, local, call_id="c2")
+    assert not isinstance(err.value, RouteReplayError)
+    assert hf.calls == [B] and local.calls == []
+    assert charged(lane_repo) == {_rid(B, "c1"): pytest.approx(B_COST), _rid(B, "c2"): 0.0}
+    assert _outcomes(lane_repo) == [(0, "success")]
+
+
+# Unaudited rows not covered above
+
+def test_unaudited_explicit_call_id_meeting_an_ended_hold_skips(repo):
+    _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)), call_id="shared")
+    before, hf = list(events(repo)), _HF({})
+    res = _run(repo, hf, sel("cheap_structured", snapshot(local=False)), call_id="shared")
+    assert hf.calls == [E] and res.model_ref.model_id == E
+    assert [e for e in events(repo) if e["reservation_id"] == _rid(B, "shared")] == \
+        [e for e in before if e["reservation_id"] == _rid(B, "shared")]
+
+
+@pytest.mark.parametrize("failure", ["denied", "ledger-unreadable"])
+@pytest.mark.parametrize("call_id", [None, "explicit"])
+def test_unaudited_reserve_failure_skips_to_the_next_candidate(repo, tmp_path, failure, call_id):
+    hf, local, parked = _HF({}), _Local({}), tmp_path / "parked-git"
+    if failure == "ledger-unreadable":
+        shutil.move(str(repo / ".git"), str(parked))
+    try:
+        res = _audited(repo, None, hf, local, call_id=call_id, obs=OBS(cap=0.0) if failure == "denied" else OBS())
+    finally:
+        if parked.exists():
+            shutil.move(str(parked), str(repo / ".git"))
+    assert res.model_ref.backend == "local" and hf.calls == [] and events(repo) == []
+
+
+# D. notes, audit reasons and errors carry an exception's TYPE, never its text
+
+def test_skip_notes_and_audit_reasons_carry_exception_types_only(lane_repo):
+    hf, local = _HF({}), _Local({})
+    denied = _audited(lane_repo, _sink(lane_repo), hf, local, obs=OBS(cap=0.0), route_id="r-denied")
+    raised = _audited(lane_repo, _sink(lane_repo), hf, local, obs=_exploding, route_id="r-raised")
+    reasons = [e.payload["reason"] for e in _lane(lane_repo) if e.event_type == "CandidateOutcome"]
+    text = "\n".join([*denied.notes, *raised.notes, *reasons])
+    assert "reservation denied (LedgerDenied)" in text and "could not reserve (RuntimeError)" in text
+    assert "SECRET" not in text and "exceeds cap" not in text and "fresh spend" not in text
+
+
+def test_claim_failure_error_carries_the_exception_type_only(repo):
+    with pytest.raises(RouteAuditError) as err:
+        _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)),
+             route_audit=FailingRecorder({"DispatchStarted"}))
+    assert "RuntimeError" in str(err.value) and "simulated" not in str(err.value)

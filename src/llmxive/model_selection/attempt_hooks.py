@@ -51,8 +51,13 @@ class RouteReplayError(RuntimeError):
     backend is NOT re-invoked; any paid reservation is RETAINED (the original
     dispatch owns it), and the caller/lane reconciles from durable events (e.g. a
     ``DispatchStarted`` with no ``DispatchCompleted`` → ``DispatchUnknown`` → fail
-    the Attempt closed). Distinct from ``RouteAuditError`` (the sink itself failed)
-    and ``ModelUnavailable``/``ChainExhausted``."""
+    the Attempt closed). Also raised for a FUNDED candidate that will not be dispatched
+    while the sink's read-only ``dispatch_claimed`` reports the boundary claimed, and —
+    with a call id derived from the route id — while the original call's funded hold is
+    still open with no claim yet (the original is between its reserve and its claim):
+    nothing is sent, no hold but this call's own is settled, no later candidate is
+    tried. Distinct from ``RouteAuditError`` (the sink itself failed) and
+    ``ModelUnavailable``/``ChainExhausted``."""
 
 
 def _candidate_event_id(route_id: str, candidate_index: int, kind: str) -> str:
@@ -282,10 +287,13 @@ class RouteAudit(Protocol):
     bool``** — ``True`` when a ``DispatchStarted`` with ``event.event_id`` is already
     durably recorded (this route + candidate's dispatch boundary was claimed); never
     records or claims. It is deliberately NOT a protocol member (existing sinks stay
-    structurally valid). ``execute`` asks it when a funded candidate's hold belongs to
-    another call: claimed → a REPLAY (``RouteReplayError``, no later candidate tried);
-    unclaimed → a different call met the hold (skip the candidate). A sink without it
-    makes that case fail closed (``RouteAuditError``, nothing sent).
+    structurally valid). ``execute`` asks it before a funded candidate is NOT dispatched
+    for any reason (its hold is another call's, its reserve was denied or raised, a
+    funded precondition failed): claimed → a REPLAY (``RouteReplayError``, no later
+    candidate tried); unclaimed → the candidate is skipped, except that a call id
+    derived from the route id meeting another call's still-open hold is also a replay
+    (see ``execute._funded_action``). A sink without it makes every such case fail
+    closed (``RouteAuditError``, nothing sent).
     """
 
     def record(self, event: RouteAuditEvent) -> None: ...
