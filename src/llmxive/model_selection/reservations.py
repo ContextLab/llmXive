@@ -89,6 +89,7 @@ class Reservation:
     lease_expires_at: str
     last_heartbeat_at: str
     settled_at: str = ""  # ts of the open→settling transition (drives the settlement timeout, #9)
+    charged: float | None = None  # funded ledger: the actual charge recorded at reconcile (first writer wins)
 
     @property
     def counts(self) -> bool:
@@ -161,6 +162,7 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
                 "lease_expires_at": str(e["lease_expires_at"]),
                 "last_heartbeat_at": str(e.get("ts", "")),
                 "settled_at": "",
+                "charged": None,
             }
         elif rid in state:
             if etype == "heartbeat":
@@ -173,6 +175,8 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
                 state[rid]["state"] = STATE_SETTLING
                 state[rid]["settled_at"] = str(e.get("ts", ""))
             elif etype == STATE_RECONCILED:
+                if state[rid]["state"] != STATE_RECONCILED and "charged" in e:
+                    state[rid]["charged"] = float(e["charged"])
                 state[rid]["state"] = STATE_RECONCILED
     return {rid: Reservation(**rec) for rid, rec in state.items()}
 
@@ -276,7 +280,7 @@ def reserve(
         }
 
     append_event(repo, prepare=prepare, config=config)
-    return project(read_events(repo))[reservation_id]
+    return project(read_events(repo, ref=config.ref))[reservation_id]
 
 
 _HB_SEQ = itertools.count()
@@ -345,28 +349,46 @@ def settle(
     append_event(repo, prepare=prepare, config=config)
 
 
-def _reconcile_one(
-    repo: Path, reservation_id: str, *, now: datetime, config: LedgerConfig | None
+def reconcile(
+    repo: Path,
+    reservation_id: str,
+    *,
+    charged: float | None = None,
+    now: datetime | None = None,
+    config: LedgerConfig | None = None,
 ) -> None:
-    # IDEMPOTENT (R4-2): terminal transition to `reconciled` from any non-terminal
-    # state; a second reconcile (two reconcilers, or daily-reset vs attribution) is a
-    # no-op instead of an append-only violation.
+    """Terminal transition to ``reconciled`` from any non-terminal state, optionally
+    recording the actual ``charged`` amount (funded ledger; USD). IDEMPOTENT (R4-2):
+    FIRST WRITER WINS — a second reconcile (two reconcilers, or daily-reset vs
+    attribution) is a no-op, never an append-only violation and never overwrites the
+    recorded charge. ``charged`` must be finite and non-negative (zero is a real charge)."""
+    if charged is not None and (
+        isinstance(charged, bool) or not math.isfinite(charged) or charged < 0
+    ):
+        raise ValueError(f"charged must be finite non-negative, got {charged!r}")
+    now = now or _utcnow()
+
     def prepare(events: list[dict]) -> dict | None:
         cur = project(events).get(reservation_id)
         if cur is None or cur.state == STATE_RECONCILED:
             return None
-        return {
+        event = {
             "event_id": f"{reservation_id}-reconciled",
             "reservation_id": reservation_id,
             "type": STATE_RECONCILED,
             "ts": now.isoformat(),
         }
+        if charged is not None:
+            event["charged"] = charged
+        return event
 
-    append_event(
-        repo,
-        prepare=prepare,
-        config=config,
-    )
+    append_event(repo, prepare=prepare, config=config)
+
+
+def _reconcile_one(
+    repo: Path, reservation_id: str, *, now: datetime, config: LedgerConfig | None
+) -> None:
+    reconcile(repo, reservation_id, now=now, config=config)
 
 
 # --------------------------------------------------------------------------- #
@@ -467,7 +489,7 @@ def reconcile_settled(
     now = now or _utcnow()
     config = config or LedgerConfig()
     fetch_ledger(repo, config)  # #3/R4-3: sync + verify the authoritative ref BEFORE projecting
-    current = project(read_events(repo))
+    current = project(read_events(repo, ref=config.ref))
     batch = sorted(
         (r for r in current.values() if r.state == STATE_SETTLING and r.budget_epoch == epoch),
         key=lambda r: (r.created_at, r.reservation_id),
@@ -517,7 +539,7 @@ def sweep(
     now = now or _utcnow()
     config = config or LedgerConfig()
     fetch_ledger(repo, config)  # #3/R4-3: sync + verify the authoritative ref BEFORE projecting
-    current = project(read_events(repo))
+    current = project(read_events(repo, ref=config.ref))
 
     conservatively_settled: list[str] = []
     for r in current.values():
@@ -546,7 +568,7 @@ def sweep(
     #    only ever released by attribution (observed spend covers it) or the daily
     #    epoch reset (FR-016 conservative handling).
     settlement_overdue: list[str] = []
-    for r in project(read_events(repo)).values():
+    for r in project(read_events(repo, ref=config.ref)).values():
         if (
             r.state == STATE_SETTLING
             and r.budget_epoch == current_epoch
@@ -577,8 +599,9 @@ def outstanding_headroom_consumption(
     slice 3's pre-call guard subtracts from the fractional cap. Syncs + verifies the
     authoritative ref first (#3/R4-3) so a fresh checkout is never silently blind and
     a missing/wrong remote fails closed (never read as full headroom)."""
-    fetch_ledger(repo, config or LedgerConfig())
-    return counting_total(project(read_events(repo)).values(), epoch=epoch)
+    config = config or LedgerConfig()
+    fetch_ledger(repo, config)
+    return counting_total(project(read_events(repo, ref=config.ref)).values(), epoch=epoch)
 
 
 __all__ = [
@@ -599,6 +622,7 @@ __all__ = [
     "lease_duration_for",
     "outstanding_headroom_consumption",
     "project",
+    "reconcile",
     "reconcile_settled",
     "reserve",
     "settle",

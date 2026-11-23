@@ -83,3 +83,24 @@ repeatedly. Use `--no-remote` only for local/single-runner testing.
 - Ledger unreachable at call time → the paid candidate is skipped, the chain
   advances to free candidates (or `ChainExhausted`). No paid call proceeds without a
   verified ledger.
+
+## Funded ledger (spec 027)
+
+The real-money (Hugging Face) spend is reserved and settled on a SEPARATE ref,
+`refs/llmxive/funded-ledger`, using the same CAS transport and event schema as the
+credit ledger (`LedgerConfig(ref=...)`). Differences:
+
+- Units: every amount field (`worst_case_credits`, `settlement_baseline`, `charged`) is **USD**.
+  Field names are the shared schema's and are not renamed.
+- Epoch: `budget_epoch` is the calendar month `YYYY-MM` (UTC).
+- Bootstrap (one-time admin): `llmxive funded-ledger-bootstrap [--remote origin | --no-remote]`;
+  it prints the anchor to pin.
+- Configuration: `LLMXIVE_FUNDED_LEDGER_REMOTE` (default `origin`) and
+  `LLMXIVE_FUNDED_LEDGER_ANCHOR` (required; fail closed when unset), read by
+  `funded_ledger_config_from_env()`.
+- Protection: the same server-side rule as the credit ledger — fast-forward-only, writable
+  only by the ledger identity (see "Server-side ref protection" above).
+- No sweep: a crashed `open` hold keeps counting at its full reservation until the month
+  ends, which is exactly the charge for a call without `usage` (spec 5.9.2).
+- 401/402/403 responses are reconciled at zero (`reconcile(..., charged=0.0)`); the first
+  reconcile wins and later ones are no-ops.

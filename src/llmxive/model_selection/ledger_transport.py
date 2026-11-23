@@ -64,6 +64,9 @@ logger = logging.getLogger(__name__)
 
 #: The single authoritative ledger ref (a standalone ref, NOT a working branch).
 LEDGER_REF = "refs/llmxive/credit-ledger"
+#: The funded (real-money) ledger ref — same schema + transport, separate protected ref.
+#: On this ref every amount field is USD and ``budget_epoch`` is ``YYYY-MM`` (UTC).
+FUNDED_LEDGER_REF = "refs/llmxive/funded-ledger"
 #: Bump when the on-disk event schema changes; events are namespaced by it so an
 #: old runner's projection never mixes schema revisions.
 SCHEMA_REVISION = "v1"
@@ -96,7 +99,7 @@ _REQUIRED_BY_TYPE = {
     "reconciled": (),
 }
 #: Credit-amount fields that MUST be finite and non-negative when present.
-_AMOUNT_FIELDS = ("worst_case_credits", "settlement_baseline")
+_AMOUNT_FIELDS = ("worst_case_credits", "settlement_baseline", "charged")
 #: Fields that, when present, MUST parse as an ISO-8601 timestamp.
 _TIMESTAMP_FIELDS = ("ts", "created_at", "lease_expires_at", "settled_at")
 
@@ -168,6 +171,7 @@ class LedgerConfig:
 
     remote: str | None = None
     expected_anchor: str | None = None
+    ref: str = LEDGER_REF
 
 
 #: Env vars pinning the PRODUCTION ledger location + trust anchor (R5-1). The anchor
@@ -175,14 +179,18 @@ class LedgerConfig:
 #: makes every authoritative read/write verify the remote tip descends from it.
 LEDGER_REMOTE_ENV = "LLMXIVE_CREDIT_LEDGER_REMOTE"
 LEDGER_ANCHOR_ENV = "LLMXIVE_CREDIT_LEDGER_ANCHOR"
+#: The funded ledger's equivalents (see ``funded_ledger_config_from_env``).
+FUNDED_LEDGER_REMOTE_ENV = "LLMXIVE_FUNDED_LEDGER_REMOTE"
+FUNDED_LEDGER_ANCHOR_ENV = "LLMXIVE_FUNDED_LEDGER_ANCHOR"
 
 
-def _log_ref(config: LedgerConfig | None = None, *, ref: str = LEDGER_REF) -> LogRef:
-    """THE credit ledger's :class:`LogRef` — its ref, subtree, remote, anchor, and
-    fixed commit identity. Built here so every call site shares one definition."""
+def _log_ref(config: LedgerConfig | None = None, *, ref: str | None = None) -> LogRef:
+    """THE ledger's :class:`LogRef` — its ref (``config.ref`` unless ``ref`` overrides),
+    subtree, remote, anchor, and fixed commit identity. Built here so every call site
+    shares one definition."""
     config = config or LedgerConfig()
     return LogRef(
-        ref=ref,
+        ref=ref or config.ref,
         event_dir=_EVENT_DIR,
         remote=config.remote,
         expected_anchor=config.expected_anchor,
@@ -242,6 +250,22 @@ def _message_fn(event: dict) -> str:
     )
 
 
+def _config_from_env(
+    *, remote: str | None, require_anchor: bool, remote_env: str, anchor_env: str, ref: str,
+    what: str, bootstrap_cmd: str,
+) -> LedgerConfig:
+    resolved_remote = (remote or os.environ.get(remote_env, "").strip() or "origin")
+    anchor = os.environ.get(anchor_env, "").strip() or None
+    if require_anchor and anchor is None:
+        raise LedgerError(
+            f"production {what} not fully configured: set {anchor_env} to the "
+            f"pinned bootstrap anchor OID (printed by `llmxive {bootstrap_cmd}`) so the "
+            f"ancestry check can reject a wrong/divergent ledger — paid fallback stays disabled "
+            f"until then (fail closed)."
+        )
+    return LedgerConfig(remote=resolved_remote, expected_anchor=anchor, ref=ref)
+
+
 def ledger_config_from_env(*, remote: str | None = None, require_anchor: bool = True) -> LedgerConfig:
     """THE single production :class:`LedgerConfig` source (R5-1): the authoritative
     remote (``LLMXIVE_CREDIT_LEDGER_REMOTE``, default ``origin``, overridable via
@@ -258,16 +282,23 @@ def ledger_config_from_env(*, remote: str | None = None, require_anchor: bool = 
     ``infra/credit-ledger-ops.md`` (bootstrap, required env, ref protection, token
     identity/permissions).
     """
-    resolved_remote = (remote or os.environ.get(LEDGER_REMOTE_ENV, "").strip() or "origin")
-    anchor = os.environ.get(LEDGER_ANCHOR_ENV, "").strip() or None
-    if require_anchor and anchor is None:
-        raise LedgerError(
-            f"production credit ledger not fully configured: set {LEDGER_ANCHOR_ENV} to the "
-            f"pinned bootstrap anchor OID (printed by `llmxive credits-ledger-bootstrap`) so the "
-            f"ancestry check can reject a wrong/divergent ledger — paid fallback stays disabled "
-            f"until then (fail closed)."
-        )
-    return LedgerConfig(remote=resolved_remote, expected_anchor=anchor)
+    return _config_from_env(
+        remote=remote, require_anchor=require_anchor, remote_env=LEDGER_REMOTE_ENV,
+        anchor_env=LEDGER_ANCHOR_ENV, ref=LEDGER_REF, what="credit ledger",
+        bootstrap_cmd="credits-ledger-bootstrap",
+    )
+
+
+def funded_ledger_config_from_env(*, remote: str | None = None, require_anchor: bool = True) -> LedgerConfig:
+    """The funded (real-money) ledger's :class:`LedgerConfig`: same mechanism as
+    :func:`ledger_config_from_env`, but on ``FUNDED_LEDGER_REF`` with its own remote
+    (``LLMXIVE_FUNDED_LEDGER_REMOTE``) and pinned anchor
+    (``LLMXIVE_FUNDED_LEDGER_ANCHOR``). Fails closed without the anchor."""
+    return _config_from_env(
+        remote=remote, require_anchor=require_anchor, remote_env=FUNDED_LEDGER_REMOTE_ENV,
+        anchor_env=FUNDED_LEDGER_ANCHOR_ENV, ref=FUNDED_LEDGER_REF, what="funded ledger",
+        bootstrap_cmd="funded-ledger-bootstrap",
+    )
 
 
 # --- Thin compatibility shims over the core -------------------------------------
@@ -327,7 +358,7 @@ def read_events(repo: Path, *, ref: str = LEDGER_REF) -> list[dict]:
         return read_log(repo, log=_log_ref(ref=ref), validate=_validate_event)
 
 
-def bootstrap_ledger(repo: Path, remote: str | None = None) -> str:
+def bootstrap_ledger(repo: Path, remote: str | None = None, *, ref: str = LEDGER_REF) -> str:
     """Bring the authoritative ledger into existence with an empty anchor commit —
     the ONE-TIME, EXPLICIT administrative operation (R3-4). NOT part of the routine
     sweep. Every other write path fails closed when the remote ref is absent, so this
@@ -344,8 +375,11 @@ def bootstrap_ledger(repo: Path, remote: str | None = None) -> str:
     with _as_ledger_error():
         return bootstrap_log(
             repo,
-            log=_log_ref(),
-            message=f"bootstrap credit-ledger {SCHEMA_REVISION}",
+            log=_log_ref(ref=ref),
+            message=(
+                f"bootstrap credit-ledger {SCHEMA_REVISION}" if ref == LEDGER_REF
+                else f"bootstrap ledger {ref} {SCHEMA_REVISION}"
+            ),
             remote=remote,
         )
 
@@ -392,6 +426,9 @@ def append_event(
 
 
 __all__ = [
+    "FUNDED_LEDGER_ANCHOR_ENV",
+    "FUNDED_LEDGER_REF",
+    "FUNDED_LEDGER_REMOTE_ENV",
     "LEDGER_ANCHOR_ENV",
     "LEDGER_REF",
     "LEDGER_REMOTE_ENV",
@@ -404,6 +441,7 @@ __all__ = [
     "append_event",
     "bootstrap_ledger",
     "fetch_ledger",
+    "funded_ledger_config_from_env",
     "ledger_config_from_env",
     "read_events",
 ]

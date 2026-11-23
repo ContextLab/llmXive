@@ -383,6 +383,23 @@ def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_funded_ledger_bootstrap(args: argparse.Namespace) -> int:
+    """One-time ADMIN op: create the funded (real-money) ledger ref. Same guards as
+    ``credits-ledger-bootstrap`` (wrong-remote refusal, idempotent adoption)."""
+    from llmxive.config import repo_root
+    from llmxive.model_selection.ledger_transport import (
+        FUNDED_LEDGER_ANCHOR_ENV,
+        FUNDED_LEDGER_REF,
+        bootstrap_ledger,
+    )
+
+    remote = None if args.no_remote else args.remote
+    anchor = bootstrap_ledger(repo_root(), remote=remote, ref=FUNDED_LEDGER_REF)
+    print(f"funded-ledger bootstrapped on {remote or 'local-only'}")
+    print(f"PIN {FUNDED_LEDGER_ANCHOR_ENV}={anchor} and protect {FUNDED_LEDGER_REF} server-side.")
+    return 0
+
+
 def _cmd_credits_ledger_bootstrap(args: argparse.Namespace) -> int:
     """One-time ADMIN op (R3-4): create the authoritative credit-reservation ledger
     ref. Run ONCE by a maintainer with push access — NOT part of the routine sweep.
@@ -1148,6 +1165,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_ledger_bootstrap.add_argument("--remote", default="origin", help="git remote (default: origin)")
     p_ledger_bootstrap.add_argument("--no-remote", action="store_true", help="local ledger only")
     p_ledger_bootstrap.set_defaults(func=_cmd_credits_ledger_bootstrap)
+
+    p_funded_bootstrap = subs.add_parser(
+        "funded-ledger-bootstrap",
+        help="ONE-TIME admin op: create the funded (USD) ledger ref (spec 027)",
+    )
+    p_funded_bootstrap.add_argument("--remote", default="origin", help="git remote (default: origin)")
+    p_funded_bootstrap.add_argument("--no-remote", action="store_true", help="local ledger only")
+    p_funded_bootstrap.set_defaults(func=_cmd_funded_ledger_bootstrap)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")
     auth_subs = p_auth.add_subparsers(dest="auth_cmd", required=True)

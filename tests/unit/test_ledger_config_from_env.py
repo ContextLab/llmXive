@@ -54,3 +54,25 @@ def test_blank_anchor_is_treated_as_missing(monkeypatch):
     monkeypatch.setenv(LEDGER_ANCHOR_ENV, "   ")
     with pytest.raises(LedgerError):
         ledger_config_from_env()
+
+
+def test_funded_config_fails_closed_without_anchor(monkeypatch):
+    from llmxive.model_selection.ledger_transport import (
+        FUNDED_LEDGER_ANCHOR_ENV,
+        FUNDED_LEDGER_REMOTE_ENV,
+        funded_ledger_config_from_env,
+    )
+
+    monkeypatch.delenv(FUNDED_LEDGER_ANCHOR_ENV, raising=False)
+    monkeypatch.delenv(FUNDED_LEDGER_REMOTE_ENV, raising=False)
+    with pytest.raises(LedgerError, match="LLMXIVE_FUNDED_LEDGER_ANCHOR"):
+        funded_ledger_config_from_env()
+    monkeypatch.setenv(FUNDED_LEDGER_ANCHOR_ENV, "abc")
+    assert funded_ledger_config_from_env() == LedgerConfig(
+        remote="origin", expected_anchor="abc", ref="refs/llmxive/funded-ledger"
+    )
+
+
+def test_credit_config_keeps_the_credit_ref(monkeypatch):
+    monkeypatch.setenv(LEDGER_ANCHOR_ENV, "abc")
+    assert ledger_config_from_env().ref == "refs/llmxive/credit-ledger"
