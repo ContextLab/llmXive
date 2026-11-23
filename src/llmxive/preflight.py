@@ -25,6 +25,7 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+from collections.abc import Callable
 
 from llmxive import credentials as cred_mod
 from llmxive.agents import registry as registry_loader
@@ -69,7 +70,7 @@ def _check_tools() -> list[str]:
     return missing
 
 
-def _dartmouth_configured() -> tuple[bool, list[str]]:
+def dartmouth_configured() -> tuple[bool, list[str]]:
     """Dartmouth key via env -> credentials file. Second item: problems found."""
     if os.environ.get(cred_mod.DARTMOUTH_KEY_NAME):
         return True, []
@@ -81,7 +82,7 @@ def _dartmouth_configured() -> tuple[bool, list[str]]:
     return False, []
 
 
-def _hf_configured() -> tuple[bool, list[str]]:
+def hf_configured() -> tuple[bool, list[str]]:
     """Hugging Face pair: a token (env or Keychain) AND the bill-to variable.
     Second item: the names of whichever half is missing (never values)."""
     missing = []
@@ -92,12 +93,21 @@ def _hf_configured() -> tuple[bool, list[str]]:
     return not missing, missing
 
 
+#: The usable-provider rule, per remote provider: is its credential configured, and
+#: (second item) what is missing or wrong. Shared by ``_check_secrets`` below and
+#: ``llmxive.checks.backends``.
+PROVIDER_CONFIGURED: dict[str, Callable[[], tuple[bool, list[str]]]] = {
+    "dartmouth": dartmouth_configured,
+    "huggingface": hf_configured,
+}
+
+
 def _check_secrets() -> tuple[list[str], list[str]]:
     """At least one usable model provider is required: the Dartmouth key, or the
     Hugging Face pair (``HF_TOKEN`` + ``LLMXIVE_HF_BILL_TO``). Returns
     ``(failures, info)``; messages carry names only, never values."""
-    dartmouth, problems = _dartmouth_configured()
-    hf, hf_missing = _hf_configured()
+    dartmouth, problems = dartmouth_configured()
+    hf, hf_missing = hf_configured()
     if not dartmouth and not hf:
         detail = f" ({'; '.join(problems)})" if problems else ""
         hf_detail = f"; Hugging Face is missing {hf_missing}" if len(hf_missing) < 2 else ""
@@ -108,7 +118,8 @@ def _check_secrets() -> tuple[list[str], list[str]]:
     if dartmouth and not hf:
         return [], [f"providers: dartmouth configured; huggingface not configured (missing {hf_missing})"]
     if hf and not dartmouth:
-        return [], ["providers: huggingface configured; dartmouth not configured (DARTMOUTH_CHAT_API_KEY unset)"]
+        why = "; ".join(problems) if problems else "DARTMOUTH_CHAT_API_KEY unset"
+        return [], [f"providers: huggingface configured; dartmouth not configured ({why})"]
     return [], ["providers: dartmouth and huggingface configured"]
 
 
@@ -248,4 +259,11 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["PreflightError", "main", "selection_report"]
+__all__ = [
+    "PROVIDER_CONFIGURED",
+    "PreflightError",
+    "dartmouth_configured",
+    "hf_configured",
+    "main",
+    "selection_report",
+]

@@ -112,3 +112,22 @@ def test_selection_report_attempts_no_network(monkeypatch):
     monkeypatch.setattr(socket.socket, "connect", refuse)
     monkeypatch.setattr(socket, "create_connection", refuse)
     assert selection_report(snapshot())
+
+
+def test_unsafe_credentials_file_is_reported_when_hf_carries_the_run(clean_env, monkeypatch, capsys, tmp_path):
+    """Final review B3: the permission problem on the Dartmouth credentials file must
+    appear in the info line even when Hugging Face is configured."""
+    from llmxive import credentials as cred_mod
+
+    path = cred_mod.credentials_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('dartmouth_chat_api_key = "placeholder"\n')
+    path.chmod(0o644)
+    monkeypatch.setenv("HF_TOKEN", "t" * 8)
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "b" * 8)
+    rc, out, err = _run(capsys)
+    assert rc == 0, err
+    line = next(ln for ln in out.splitlines() if "providers: huggingface configured" in ln)
+    problem = cred_mod.check_permissions().reason
+    assert problem and problem in line
+    assert "placeholder" not in out + err
