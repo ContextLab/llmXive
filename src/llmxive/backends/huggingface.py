@@ -129,7 +129,7 @@ class HuggingFaceBackend(BaseBackend):
 
     # ---- credentials -------------------------------------------------
     def _credentials(self) -> tuple[str, str]:
-        token = self._token or load_hf_token()
+        token = (self._token or load_hf_token() or "").strip()
         bill_to = (self._bill_to or os.environ.get(BILL_TO_ENV, "")).strip()
         missing = []
         if not token:
@@ -220,7 +220,17 @@ class HuggingFaceBackend(BaseBackend):
         try:
             body = resp.json()
             choice = body["choices"][0]
+            if not isinstance(choice, dict):
+                raise TypeError("choice is not an object")
             content = choice["message"].get("content")
+            if isinstance(content, list):  # OpenAI content parts: keep the text parts
+                content = "".join(
+                    p["text"]
+                    for p in content
+                    if isinstance(p, dict) and p.get("type", "text") == "text" and isinstance(p.get("text"), str)
+                )
+            elif content is not None and not isinstance(content, str):
+                raise TypeError("content is not text")
         except (ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
             raise TransientBackendError(
                 f"Hugging Face model {model!r}: malformed 200 response"

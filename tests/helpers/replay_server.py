@@ -5,6 +5,7 @@ either a list of ``(status, json_body)`` served in order (the last one repeats) 
 callable taking the recorded request dict and returning ``(status, json_body)``.
 Every request is recorded in ``.requests`` with ``method``, ``path``, ``query``
 (first value per key), ``headers`` (lower-cased names) and ``json`` (or ``None``).
+A body given as ``bytes`` is sent verbatim (for non-JSON replies).
 An unrouted request is answered 404 and still recorded.
 """
 
@@ -16,7 +17,7 @@ from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
-Route = list[tuple[int, dict]] | Callable[[dict], tuple[int, dict]]
+Route = list[tuple[int, dict | bytes]] | Callable[[dict], tuple[int, dict | bytes]]
 
 
 class ReplayServer:
@@ -56,7 +57,7 @@ class ReplayServer:
                 i = self._cursor.get(key, 0)
                 status, body = route[min(i, len(route) - 1)]
                 self._cursor[key] = i + 1
-        data = json.dumps(body).encode()
+        data = body if isinstance(body, bytes) else json.dumps(body).encode()
         handler.send_response(status)
         handler.send_header("Content-Type", "application/json")
         handler.send_header("Content-Length", str(len(data)))

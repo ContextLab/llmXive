@@ -127,3 +127,53 @@ def test_list_models_and_healthcheck_use_the_catalog():
 def test_registered_and_named():
     assert isinstance(make_backend("huggingface"), HuggingFaceBackend)
     assert BackendName("huggingface") is BackendName.HUGGINGFACE
+
+
+@pytest.mark.parametrize(
+    "status,exc",
+    [(402, HFPaymentRequired), (403, HFCredentialRejected), (408, TransientBackendError),
+     (500, TransientBackendError), (400, PermanentBackendError)],
+)
+def test_non_json_error_body_keeps_the_status_class(status, exc):
+    with ReplayServer({("POST", "/chat/completions"): [(status, b"<html>gateway page</html>")]}) as srv:
+        with pytest.raises(exc):
+            _be(srv).chat(MSG, model=M)
+
+
+def test_missing_token_alone_fails_closed_without_a_request(monkeypatch):
+    monkeypatch.delenv("HF_TOKEN", raising=False)
+    monkeypatch.setattr("llmxive.backends.huggingface.load_hf_token", lambda: None)
+    with ReplayServer({}) as srv:
+        with pytest.raises(HFCredentialRejected, match="HF_TOKEN") as ei:
+            HuggingFaceBackend(bill_to="grp123", base_url=srv.base_url).chat(MSG, model=M)
+    assert ei.value.http_status is None and srv.requests == []
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"choices": ["not-a-dict"]},
+        {"choices": [{"message": {"content": 5}}]},
+        {"choices": [{"message": "str"}]},
+        {"choices": []},
+        {"no": "choices"},
+    ],
+)
+def test_malformed_200_is_a_typed_transient_error(body):
+    with ReplayServer({("POST", "/chat/completions"): [(200, body)]}) as srv:
+        with pytest.raises(TransientBackendError, match="malformed 200"):
+            _be(srv).chat(MSG, model=M)
+
+
+def test_list_of_parts_content_joins_text_parts():
+    parts = [{"type": "text", "text": "he"}, {"type": "image_url"}, {"type": "text", "text": "llo"}]
+    body = {"choices": [{"message": {"content": parts}, "finish_reason": "stop"}], "usage": {}}
+    with ReplayServer({("POST", "/chat/completions"): [(200, body)]}) as srv:
+        assert _be(srv).chat(MSG, model=M).text == "hello"
+
+
+def test_token_and_bill_to_are_stripped():
+    with ReplayServer({("POST", "/chat/completions"): [OK]}) as srv:
+        HuggingFaceBackend(token="hf_t\n", bill_to=" grp123\n", base_url=srv.base_url).chat(MSG, model=M)
+    h = srv.requests[0]["headers"]
+    assert h["authorization"] == "Bearer hf_t" and h["x-hf-bill-to"] == "grp123"
