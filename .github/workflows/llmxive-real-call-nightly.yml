@@ -8,9 +8,11 @@ name: llmXive Real-Call Tests (nightly full suite)
 # button (workflow_dispatch).
 
 on:
-  schedule:
-    # 06:00 UTC daily (after the overnight pipeline cron settles).
-    - cron: "0 6 * * *"
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   # 06:00 UTC daily (after the overnight pipeline cron settles).
+  #   - cron: "0 6 * * *"
   workflow_dispatch: {}
 
 permissions:
