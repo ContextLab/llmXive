@@ -19,6 +19,17 @@ Pipeline:
    price NEVER free → excluded; a priced-paid model only if ``allow_paid`` AND the
    credit component is fresh+live AND opt-in AND
    ``worst_case_credits <= effective_per_call_cap``).
+
+   A **funded** (Hugging Face) candidate replaces the freshness, family-table and
+   paid-guard steps with the spec 027 5.10 rules, all fail closed: the
+   ``hf_catalog`` component fresh by ``max_catalog_age_s``; the ``leaderboard``
+   fetched within ``LEADERBOARD_MAX_FETCH_AGE_S`` with its newest publish date at
+   most ``max_publish_age_days`` old; a ``live`` funded guard; a requirement naming
+   a track and strength level; the candidate's repo in that track's scored
+   population; observed flags for vision / ``structured`` / ``tools`` / context
+   (other features from the reviewed family entry); a known price; not a
+   ``require_paid`` rung. ``allow_paid`` and the paid opt-in are not consulted.
+   A blocked funded component is recorded in the chain's ``explanation``.
 2. **Ordering** by the fixed tie-breaks (FR-008): free-before-paid → preferred
    quality tier → preferred independence → (health: inactive in v1) → estimated
    cost → stable canonical model id. Required capabilities/independence are
@@ -31,9 +42,21 @@ Pipeline:
 
 from __future__ import annotations
 
-from llmxive.model_selection.policy import CAPABILITY_POLICY, CapabilityPolicy
+from collections.abc import Mapping
+
+from llmxive.model_selection.policy import (
+    CAPABILITY_POLICY,
+    FUNDED_POLICY,
+    LEADERBOARD_MAX_FETCH_AGE_S,
+    CapabilityPolicy,
+    FundedPolicy,
+    PolicyEntry,
+)
+from llmxive.model_selection.strength import repo_of, track_population
 from llmxive.model_selection.types import (
     FUNDED_BACKENDS,
+    USD_TO_CREDITS,
+    ArenaScore,
     Candidate,
     IndependenceDim,
     ModelChain,
@@ -46,10 +69,105 @@ from llmxive.model_selection.types import (
 
 _LOCAL_BACKEND = "local"
 
+#: Features a Hugging Face provider reports itself (``ObservedModel.features``).
+#: Any other required feature (e.g. ``reasoning``) is read from the reviewed
+#: family entry instead; a model whose family has no entry cannot show it.
+_OBSERVABLE_FEATURES = frozenset({"structured", "tools", "vision"})
+
 
 def _component_of(model: ModelRef) -> str:
     """Which snapshot component a model's provenance/freshness comes from."""
-    return "local" if model.backend == _LOCAL_BACKEND else "catalog"
+    if model.backend == _LOCAL_BACKEND:
+        return "local"
+    if model.backend in FUNDED_BACKENDS:
+        return "hf_catalog"
+    return "catalog"
+
+
+def _stale_or_unavailable(
+    snapshot: RuntimeSnapshot, component: str, max_age_s: float
+) -> str | None:
+    """Why ``component`` cannot be relied on (missing, ``unavailable``, or a
+    ``last_known_good`` copy older than ``max_age_s``), or ``None`` if it can."""
+    prov = snapshot.sources.get(component)
+    if prov is None or prov.source == "unavailable":
+        src = prov.source if prov is not None else "missing"
+        return f"{component} is unavailable (source={src!r})"
+    if prov.source == "last_known_good" and prov.age_s > max_age_s:
+        return f"{component} is stale (last_known_good, age {prov.age_s:.0f}s > {max_age_s:.0f}s)"
+    return None
+
+
+def _funded_block_reason(
+    requirement: ModelRequirement, snapshot: RuntimeSnapshot, funded_policy: FundedPolicy
+) -> str | None:
+    """Why NO funded candidate may serve this call, or ``None`` if funded
+    candidates may be considered one by one (spec 027 5.10, fail closed).
+
+    The Hugging Face catalog is judged by ``max_catalog_age_s``; the leaderboard by
+    its own limits: fetched within :data:`LEADERBOARD_MAX_FETCH_AGE_S` and its
+    newest publish date at most ``max_publish_age_days`` old. The funded guard must
+    be present and ``live``; the requirement must name a track and a strength level.
+    """
+    if requirement.track is None or requirement.strength is None:
+        return "the requirement names no track and strength level"
+    reason = _stale_or_unavailable(snapshot, "hf_catalog", requirement.max_catalog_age_s)
+    if reason is None:
+        reason = _stale_or_unavailable(snapshot, "leaderboard", LEADERBOARD_MAX_FETCH_AGE_S)
+    if reason is not None:
+        return reason
+    dates = [
+        score.publish_date
+        for scores in snapshot.scores.values()
+        for score in (scores.reasoning, scores.coding)
+        if score is not None
+    ]
+    if not dates:
+        return "leaderboard holds no score for any catalog model"
+    newest = max(dates)
+    age_days = (snapshot.observed_at.date() - newest).days
+    if age_days > funded_policy.max_publish_age_days:
+        return (
+            f"leaderboard is stale (newest publish date {newest.isoformat()} is {age_days} days "
+            f"old > {funded_policy.max_publish_age_days})"
+        )
+    guard = snapshot.funded
+    if guard is None or guard.source != "live":
+        src = guard.source if guard is not None else "missing"
+        return f"funded guard is unavailable (source={src!r})"
+    return None
+
+
+def _funded_admits(
+    model: ModelRef,
+    requirement: ModelRequirement,
+    snapshot: RuntimeSnapshot,
+    entry: PolicyEntry | None,
+    population: Mapping[str, ArenaScore],
+) -> bool:
+    """Per-candidate funded eligibility (the components were already judged by
+    :func:`_funded_block_reason`): scored on the requirement's track with a fresh
+    publish date, observed flags meet the capability, features and context, and
+    the call is not a ``require_paid`` rung. ``allow_paid``, the paid opt-in and
+    the reviewed table's ``capabilities``/``quality_tier`` are not consulted."""
+    if requirement.require_paid or repo_of(model.model_id) not in population:
+        return False
+    observed = snapshot.observed.get(model.model_id)
+    if observed is None:
+        return False  # nothing observed about this provider → nothing can be shown
+    if requirement.capability == "vision" and "vision" not in observed.features:
+        return False
+    for feature in requirement.required_features:
+        if feature in _OBSERVABLE_FEATURES:
+            if feature not in observed.features:
+                return False
+        elif entry is None or feature not in entry.features:
+            return False
+    if requirement.min_context_tokens is not None and (
+        observed.context_length is None or observed.context_length < requirement.min_context_tokens
+    ):
+        return False
+    return True
 
 
 def _differs_from_baseline(model: ModelRef, dim: IndependenceDim, req: ModelRequirement) -> bool:
@@ -118,14 +236,17 @@ def select(
     snapshot: RuntimeSnapshot,
     *,
     policy: CapabilityPolicy | None = None,
+    funded_policy: FundedPolicy | None = None,
 ) -> ModelChain:
     """Choose an ordered ``ModelChain`` for ``requirement`` against ``snapshot``.
 
-    Pure and deterministic (SC-001). ``policy`` is injectable for tests; the
-    production default is the canonical :data:`CAPABILITY_POLICY`. Raises
-    :class:`ModelUnavailable` when no candidate satisfies the requirement.
+    Pure and deterministic (SC-001). ``policy`` / ``funded_policy`` are injectable
+    for tests; the production defaults are :data:`CAPABILITY_POLICY` and
+    :data:`FUNDED_POLICY`. Raises :class:`ModelUnavailable` when no candidate
+    satisfies the requirement.
     """
     pol = policy if policy is not None else CAPABILITY_POLICY
+    fpol = funded_policy if funded_policy is not None else FUNDED_POLICY
 
     # FR-007: a judgment review fails closed on a stale/unavailable catalog OR
     # credit/opt-in component BEFORE any per-model work (even for a free result).
@@ -142,36 +263,53 @@ def select(
     explanation: list[str] = []
     eligible: list[tuple[ModelRef, float, bool]] = []  # (ref, worst_case_credits, is_free)
 
+    # Funded (Hugging Face) candidates: the components that decide them are judged
+    # ONCE, fail closed (spec 027 5.10); the track's scored population is the
+    # day's leaderboard rows with a fresh publish date.
+    funded_block = _funded_block_reason(requirement, snapshot, fpol)
+    population: Mapping[str, ArenaScore] = {}
+    if funded_block is None:
+        assert requirement.track is not None  # checked by _funded_block_reason
+        population = track_population(
+            snapshot.scores,
+            requirement.track,
+            today=snapshot.observed_at.date(),
+            max_publish_age_days=fpol.max_publish_age_days,
+        )
+    elif requirement.track is not None and requirement.strength is not None:
+        explanation.append(f"funded candidates not eligible: {funded_block}")
+
     for model in snapshot.models:
         family = model.model_family
+        is_funded = model.backend in FUNDED_BACKENDS
 
-        # Funded (Hugging Face) models are admitted only by the funded selection
-        # path (spec 027 section 5.10: leaderboard strength levels + the allowance
-        # guard), never by the free/paid family-table walk below, which would
-        # price them against the Dartmouth credit guard.
-        if model.backend in FUNDED_BACKENDS:
-            continue
-
-        # (a) snapshot freshness for this model's component.
-        prov = snapshot.sources.get(_component_of(model))
-        if prov is None or prov.source == "unavailable":
-            continue
-        if prov.source == "last_known_good" and prov.age_s > requirement.max_catalog_age_s:
-            continue
-
-        # (b) capability + features attributed by the versioned policy.
-        entry = pol.entry(family)
-        if entry is None:
-            continue
-        if requirement.capability not in entry.capabilities:
-            continue
-        if not (requirement.required_features <= entry.features):
-            continue
-
-        # (c) minimum context window.
-        if requirement.min_context_tokens is not None:
-            if entry.max_context_tokens < requirement.min_context_tokens:
+        if is_funded:
+            # Funded eligibility replaces steps (a)-(c) and (f) for this backend.
+            if funded_block is not None or not _funded_admits(
+                model, requirement, snapshot, pol.entry(family), population
+            ):
                 continue
+        else:
+            # (a) snapshot freshness for this model's component.
+            prov = snapshot.sources.get(_component_of(model))
+            if prov is None or prov.source == "unavailable":
+                continue
+            if prov.source == "last_known_good" and prov.age_s > requirement.max_catalog_age_s:
+                continue
+
+            # (b) capability + features attributed by the versioned policy.
+            entry = pol.entry(family)
+            if entry is None:
+                continue
+            if requirement.capability not in entry.capabilities:
+                continue
+            if not (requirement.required_features <= entry.features):
+                continue
+
+            # (c) minimum context window.
+            if requirement.min_context_tokens is not None:
+                if entry.max_context_tokens < requirement.min_context_tokens:
+                    continue
 
         # (d) unconditional prohibitions.
         if _excluded(model, requirement):
@@ -189,6 +327,13 @@ def select(
         pricing = snapshot.pricing.get(model.model_id)
         if pricing is None or not pricing.is_known:
             continue  # no priced cost → cannot admit (unknown is never free)
+        if is_funded:
+            # Never free whatever the price; the allowance and max_credits are
+            # applied after ranking (spec 027 Task 14), not here.
+            cost = worst_case_credits(pricing, requirement.call_budget)
+            if cost is not None:
+                eligible.append((model, cost, False))
+            continue
         is_free = pricing.is_free
         if requirement.require_paid and is_free:
             continue  # require_paid rung: exclude every free candidate (spec 026 slice 6)
@@ -202,7 +347,7 @@ def select(
         eligible.append((model, cost, is_free))
 
     if not eligible:
-        raise ModelUnavailable(_no_candidate_reason(requirement, snapshot, pol))
+        raise ModelUnavailable(_no_candidate_reason(requirement, snapshot, pol, funded_block))
 
     # Ordering (FR-008). Required capabilities/independence are eligibility gates
     # (already applied), so survivors sort by the remaining rungs. All keys
@@ -235,12 +380,19 @@ def select(
         )
 
     chosen = eligible[: requirement.max_candidates]
+
+    def ceiling(model: ModelRef, is_free: bool) -> float:
+        if model.backend in FUNDED_BACKENDS:
+            assert snapshot.funded is not None  # a funded survivor implies a live guard
+            return snapshot.funded.available_usd * USD_TO_CREDITS
+        return 0.0 if is_free else cap
+
     candidates = tuple(
         Candidate(
             model_ref=model,
             pricing=snapshot.pricing[model.model_id],
             worst_case_credits=cost,
-            approved_ceiling_credits=(0.0 if is_free else cap),
+            approved_ceiling_credits=ceiling(model, is_free),
         )
         for model, cost, is_free in chosen
     )
@@ -256,18 +408,30 @@ def select(
 
 
 def _no_candidate_reason(
-    requirement: ModelRequirement, snapshot: RuntimeSnapshot, policy: CapabilityPolicy
+    requirement: ModelRequirement,
+    snapshot: RuntimeSnapshot,
+    policy: CapabilityPolicy,
+    funded_block: str | None,
 ) -> str:
-    """A human-readable reason for the ``ModelUnavailable`` (fail-fast clarity)."""
+    """A human-readable reason for the ``ModelUnavailable`` (fail-fast clarity):
+    the requirement, each component's source, and why funded candidates were
+    blocked (if they were)."""
     n = len(snapshot.models)
-    catalog = snapshot.sources.get("catalog")
-    src = catalog.source if catalog is not None else "missing"
+
+    def source(component: str) -> str:
+        prov = snapshot.sources.get(component)
+        return prov.source if prov is not None else "missing"
+
+    funded = f"; funded candidates not eligible: {funded_block}" if funded_block else ""
     return (
         f"no model satisfies capability={requirement.capability!r} "
         f"(required_features={set(requirement.required_features) or '∅'}, "
         f"allow_paid={requirement.allow_paid}, "
         f"required_independence={set(requirement.required_independence) or '∅'}, "
-        f"require_paid={requirement.require_paid}) "
-        f"against {n} snapshot model(s); catalog source={src!r}, "
-        f"policy_version={policy.version}"
+        f"require_paid={requirement.require_paid}, "
+        f"track={requirement.track!r}, strength={requirement.strength!r}) "
+        f"against {n} snapshot model(s); catalog source={source('catalog')!r}, "
+        f"hf_catalog source={source('hf_catalog')!r}, "
+        f"leaderboard source={source('leaderboard')!r}, funded source={source('funded')!r}, "
+        f"policy_version={policy.version}{funded}"
     )

@@ -285,16 +285,23 @@ def _fetch_funded_guard(*, now: datetime) -> FundedGuardSnapshot | None:
     fetches the org balance ONCE and records it as ``org_balance_usd``; whatever
     reserves against this snapshot passes the guard itself to
     ``hf_budget.reserve_funded`` so it prices with that same balance."""
-    from llmxive.backends.hf_budget import FundedUnavailable, funded_guard
-    from llmxive.config import repo_root
-    from llmxive.model_selection.ledger_transport import LedgerError
-
+    # The imports sit inside the ``try`` so an import failure is unavailable too.
+    # Only the exception TYPE is logged, never its message: FundedUnavailable and
+    # LedgerError wrap lower-level errors (git stderr, remote URLs, HTTP bodies)
+    # whose text is not guaranteed free of a token or the bill-to id.
+    try:
+        from llmxive.backends.hf_budget import FundedUnavailable, funded_guard
+        from llmxive.config import repo_root
+        from llmxive.model_selection.ledger_transport import LedgerError
+    except Exception as exc:
+        logger.warning("funded guard unavailable: cannot import its modules (%s)", type(exc).__name__)
+        return None
     try:
         return funded_guard(repo_root(), now=now)
     except (FundedUnavailable, LedgerError) as exc:
-        logger.warning("funded guard unavailable: %s: %s", type(exc).__name__, exc)
+        logger.warning("funded guard unavailable: %s (message withheld)", type(exc).__name__)
         return None
-    except Exception as exc:  # unexpected: log the type only (a message could carry secrets)
+    except Exception as exc:
         logger.warning("funded guard unavailable: unexpected %s", type(exc).__name__)
         return None
 
@@ -400,7 +407,8 @@ def _resolve_component(
 
     ``reuse_within_s``: when the stored entry is younger than this (and not from
     the future), it is served WITHOUT fetching, as ``last_known_good`` with its
-    true observed time and age — never restamped as fresh."""
+    true observed time and age — never restamped as fresh. A stored entry stamped
+    in the future is never served: after a failed fetch it counts as absent."""
     entry = lkg.get(name)
     if reuse_within_s is not None and entry is not None:
         age = (now - entry.observed_at).total_seconds()
@@ -418,13 +426,18 @@ def _resolve_component(
         return live, SnapshotProvenance(source="live", observed_at=now, age_s=0.0)
 
     if entry is not None:
-        try:
-            data = from_payload(entry.payload, entry.observed_at)
-        except (KeyError, TypeError, ValueError, IndexError, AttributeError) as exc:
-            logger.warning("LKG %s payload invalid (%s); treating as absent", name, exc)
+        age = (now - entry.observed_at).total_seconds()
+        if age < 0.0:
+            # A copy stamped in the future cannot be aged: clamping it to 0 would
+            # make it look fresh, so it is treated as absent.
+            logger.warning("LKG %s is stamped in the future; treating as absent", name)
         else:
-            age = max(0.0, (now - entry.observed_at).total_seconds())
-            return data, SnapshotProvenance("last_known_good", entry.observed_at, age)
+            try:
+                data = from_payload(entry.payload, entry.observed_at)
+            except (KeyError, TypeError, ValueError, IndexError, AttributeError) as exc:
+                logger.warning("LKG %s payload invalid (%s); treating as absent", name, exc)
+            else:
+                return data, SnapshotProvenance("last_known_good", entry.observed_at, age)
 
     return empty, SnapshotProvenance(source="unavailable", observed_at=now, age_s=0.0)
 

@@ -129,6 +129,72 @@
     },
     {
       "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 111,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 112,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 113,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 114,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 115,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 116,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
       "file": "tests/integration/test_credit_ledger_transport.py",
       "kind": "model_id_literal",
       "line": 319,
@@ -2563,6 +2629,17 @@
       ],
       "owning_slice": null,
       "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_funded_select.py",
+      "kind": "model_id_literal",
+      "line": 183,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
     },
     {
       "category": "test_double",

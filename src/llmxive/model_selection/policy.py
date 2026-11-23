@@ -232,3 +232,10 @@ FUNDED_POLICY = FundedPolicy(
     max_publish_age_days=7,
     max_chain_slots=2,
 )
+
+#: The leaderboard's fetch-age limit (spec 027 5.10 freshness): a leaderboard
+#: served from the last-known-good store more than this many seconds after it was
+#: fetched is stale, and no funded candidate is eligible. The leaderboard is judged
+#: by this and by ``FUNDED_POLICY.max_publish_age_days``, never by a requirement's
+#: ``max_catalog_age_s`` (that limit judges the Hugging Face catalog).
+LEADERBOARD_MAX_FETCH_AGE_S = 24 * 3600
