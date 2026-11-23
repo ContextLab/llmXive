@@ -671,6 +671,19 @@ class RunLogEntry(_Strict):
     outcome: Outcome
     failure_reason: str | None = None
     cost_estimate_usd: float = Field(ge=0.0)
+    # Optional breakdown of ``cost_estimate_usd`` by the backend that served each
+    # response (a run can span backends: a funded call then a free retry). Omitted
+    # when no response carried a cost; the total stays in ``cost_estimate_usd``.
+    cost_by_backend: dict[BackendName, float] | None = None
+
+    @model_validator(mode="after")
+    def _cost_breakdown_sums_to_total(self) -> RunLogEntry:
+        if self.cost_by_backend is not None:
+            if any(v < 0 for v in self.cost_by_backend.values()):
+                raise ValueError("cost_by_backend values must be >= 0")
+            if abs(sum(self.cost_by_backend.values()) - self.cost_estimate_usd) > 1e-9:
+                raise ValueError("cost_by_backend must sum to cost_estimate_usd")
+        return self
 
     @model_validator(mode="after")
     def _time_order(self) -> RunLogEntry:

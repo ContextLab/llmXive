@@ -4,6 +4,11 @@ One line per agent invocation under
 state/run-log/<YYYY-MM>/<run-id>.jsonl. Schema-validation failures raise
 and the failed entry is parked under .invalid/<entry_id>.json for
 postmortem (FIX C7 — guarantees SC-003 100% compliance).
+
+Cost is recorded per serving backend (``cost_by_backend``) and in total. A
+funded call that is charged but raises before returning a response does not
+appear in an entry's cost: the funded ledger, not the run log, is the
+authoritative spend record.
 """
 
 from __future__ import annotations
@@ -48,6 +53,20 @@ class CostInvariantError(RuntimeError):
     """
 
 
+def add_cost(by_backend: dict[str, float], backend: str, cost: float) -> None:
+    """Accumulate one response's settled ``cost`` under the backend that served it."""
+    by_backend[backend] = by_backend.get(backend, 0.0) + cost
+
+
+def cost_fields(by_backend: dict[str, float]) -> dict[str, object]:
+    """The run-log entry cost fields for a run's per-backend cost accumulator."""
+    nonzero = {BackendName(k): v for k, v in by_backend.items() if v > 0}
+    return {
+        "cost_estimate_usd": sum(nonzero.values()),
+        "cost_by_backend": nonzero or None,
+    }
+
+
 def _check_cost_invariant(entry: RunLogEntry) -> None:
     """T103: hard-block any non-zero cost unless funded or paid opt-in is active.
 
@@ -60,16 +79,23 @@ def _check_cost_invariant(entry: RunLogEntry) -> None:
     (:func:`llmxive.backends.credits.paid_call_allowed`) enforces the
     daily-budget cap before any such call is made.
     """
-    if entry.cost_estimate_usd > 0:
-        if entry.backend is BackendName.HUGGINGFACE:
-            return
+    if entry.cost_by_backend is not None:
+        # Only the portion NOT served by the funded backend needs the opt-in.
+        chargeable = sum(
+            v for k, v in entry.cost_by_backend.items() if k is not BackendName.HUGGINGFACE
+        )
+    elif entry.backend is BackendName.HUGGINGFACE:
+        chargeable = 0.0
+    else:
+        chargeable = entry.cost_estimate_usd
+    if chargeable > 0:
         from llmxive.backends.credits import paid_opt_in_enabled
 
         if paid_opt_in_enabled():
             return
         raise CostInvariantError(
             f"agent {entry.agent_name!r} attempted to log "
-            f"cost_estimate_usd={entry.cost_estimate_usd} on backend "
+            f"non-funded cost {chargeable} (cost_estimate_usd={entry.cost_estimate_usd}) on backend "
             f"{entry.backend.value!r} without LLMXIVE_PAID_OPT_IN; the "
             f"free-first invariant is 0.0 (the only sanctioned paid path "
             f"is the credit-managed opt-in — issue #295, backends/credits.py)"

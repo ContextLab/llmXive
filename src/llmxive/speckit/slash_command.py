@@ -144,7 +144,7 @@ class SlashCommandAgent(abc.ABC):
         backend_used: BackendName | None = None
         model_used: str | None = None
         # Settled cost of the response received this run (funded calls are metered).
-        cost_usd = 0.0
+        cost_by_backend: dict[str, float] = {}
         # Spec 011 inspection-hook locals — initialized so the finally block
         # can capture even when build_prompt or chat_with_fallback raises.
         messages: list[ChatMessage] = []
@@ -176,7 +176,9 @@ class SlashCommandAgent(abc.ABC):
                     )
                 backend_used = BackendName(llm_response.backend)
                 model_used = llm_response.model
-                cost_usd += llm_response.cost_estimate_usd
+                runlog.add_cost(
+                    cost_by_backend, llm_response.backend, llm_response.cost_estimate_usd
+                )
                 llm_response_text = llm_response.text
                 outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
                 # FR-026 point 1: validate citations on every artifact write.
@@ -207,7 +209,7 @@ class SlashCommandAgent(abc.ABC):
                 ended_at=ended,
                 outcome=outcome,
                 failure_reason=failure_reason,
-                cost_estimate_usd=cost_usd,
+                **runlog.cost_fields(cost_by_backend),
             )
             runlog.append_entry(entry, repo_root=ctx.project_dir.parent.parent)
             _maybe_write_inspection(

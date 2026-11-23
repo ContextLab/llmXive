@@ -1071,8 +1071,8 @@ class LLMXiveImplementer(Agent):
         model_used = "unknown"
         self._last_model_used: str | None = None
         self._last_backend_used: str | None = None
-        # Sum of the settled cost of every response received this run.
-        self._last_cost_usd: float = 0.0
+        # Settled cost of every response received this run, per serving backend.
+        self._cost_by_backend: dict[str, float] = {}
         repo = _repo_root()
 
         try:
@@ -1731,7 +1731,7 @@ class LLMXiveImplementer(Agent):
             # per-agent default).
             self._last_model_used = response.model
             self._last_backend_used = response.backend
-            self._last_cost_usd += response.cost_estimate_usd
+            runlog.add_cost(self._cost_by_backend, response.backend, response.cost_estimate_usd)
         except Exception as exc:
             return ImplementerLogEntry(
                 task_id=task_id,
@@ -2059,7 +2059,7 @@ class LLMXiveImplementer(Agent):
             ended_at=ended,
             outcome=outcome,
             failure_reason=failure_reason,
-            cost_estimate_usd=getattr(self, "_last_cost_usd", 0.0),
+            **runlog.cost_fields(getattr(self, "_cost_by_backend", {})),
         )
         runlog.append_entry(entry)
         return entry

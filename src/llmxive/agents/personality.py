@@ -825,6 +825,7 @@ def _sha256_of_path(path: Path) -> str:
 def dispatch(
     action: Action, persona: Personality, repo_root: Path, *,
     model_used: str = "unknown",
+    backend_used: str | None = None,
 ) -> DispatchResult:
     """Route the parsed action through the right existing pipe.
 
@@ -840,6 +841,8 @@ def dispatch(
     there is no longer a single static per-agent model to record; callers
     that don't have one (e.g. tests exercising dispatch in isolation) get the
     honest ``"unknown"`` default rather than a stale hard-coded pin.
+    ``backend_used`` is the backend that served that call (``ChatResponse.backend``);
+    callers without a response get the default serving backend.
     """
     if action.action == ACTION_ABSTAIN:
         return DispatchResult(outcome=OUTCOME_ABSTAINED, committed_paths=[])
@@ -857,7 +860,9 @@ def dispatch(
             )
 
     if action.action == ACTION_COMMENT:
-        result = _dispatch_comment(action, persona, repo_root, model_used=model_used)
+        result = _dispatch_comment(
+            action, persona, repo_root, model_used=model_used, backend_used=backend_used,
+        )
     elif action.action == ACTION_CONTRIBUTE:
         result = _dispatch_contribute(action, persona, repo_root, model_used=model_used)
     elif action.action == ACTION_PROPOSE_ARXIV:
@@ -900,6 +905,7 @@ def _project_id_from_artifact_path(artifact_rel: str) -> str | None:
 def _dispatch_comment(
     action: Action, persona: Personality, repo_root: Path, *,
     model_used: str = "unknown",
+    backend_used: str | None = None,
 ) -> DispatchResult:
     """Comment branch — writes a review file via the canonical
     :func:`llmxive.state.reviews.write` helper.
@@ -1042,7 +1048,7 @@ def _dispatch_comment(
         reviewed_at=datetime.now(_dt.UTC),
         prompt_version="1.0.0",
         model_name=model_used,
-        backend=BackendName.DARTMOUTH,
+        backend=BackendName(backend_used) if backend_used else BackendName.DARTMOUTH,
     )
     try:
         path = reviews_store.write(
@@ -1245,8 +1251,8 @@ def _write_run_log_entry(repo_root: Path, entry: dict[str, Any]) -> None:
 
 
 def _grounded_call(target, persona, repo_root: Path,
-                   *, persona_framing: str) -> tuple[str, str]:
-    """ONE model call for the turn. Returns ``(reply_text, actual_model)``.
+                   *, persona_framing: str) -> tuple[str, str, str]:
+    """ONE model call for the turn. Returns ``(reply_text, actual_model, actual_backend)``.
 
     Replaces the catalog-driven call. The old one sent 30 projects with two
     140-character artifact previews each and asked for a critique; the audit
@@ -1279,7 +1285,11 @@ def _grounded_call(target, persona, repo_root: Path,
     # Spec 026: routing is profile-driven, so there is no registry default to
     # fall back on for attribution. A response that names no model is recorded
     # as the honest "unknown", never as an assumed one.
-    return response.text, (getattr(response, "model", "") or "unknown")
+    return (
+        response.text,
+        (getattr(response, "model", "") or "unknown"),
+        response.backend,
+    )
 
 
 def _already_commented(repo_root: Path, slug: str, digest: str) -> bool:
@@ -1437,13 +1447,14 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
 
     # 4. Exactly one call.
     actual_model = ""
+    actual_backend: str | None = None
     try:
         fixture_path = llm_fixture or os.environ.get("LLMXIVE_PERSONALITY_FIXTURE")
         if fixture_path:
             raw_response = Path(fixture_path).read_text(encoding="utf-8")
             actual_model = "fixture"
         else:
-            raw_response, actual_model = _grounded_call(
+            raw_response, actual_model, actual_backend = _grounded_call(
                 target, persona, repo_root, persona_framing=persona.prompt_body,
             )
     except Exception as exc:
@@ -1522,6 +1533,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
     # than a static pin.
     dispatch_result = dispatch(
         action_obj, persona, repo_root, model_used=actual_model or "unknown",
+        backend_used=actual_backend,
     )
     outcome = dispatch_result.outcome
     ended = _dt.datetime.now(_dt.UTC)

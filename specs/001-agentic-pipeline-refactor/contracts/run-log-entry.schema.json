@@ -103,7 +103,17 @@
     "cost_estimate_usd": {
       "type": "number",
       "minimum": 0,
-      "description": "MUST be 0 unless an opt-in paid backend is active. v1 invariant: 0."
+      "description": "Total settled cost of the run. MUST be 0 unless the cost was incurred on the funded huggingface backend (no opt-in needed) or an opt-in paid backend is active."
+    },
+    "cost_by_backend": {
+      "type": ["object", "null"],
+      "description": "Optional breakdown of cost_estimate_usd by the backend that served each response; sums to cost_estimate_usd. Only the portion not served by huggingface is checked against the paid opt-in.",
+      "additionalProperties": false,
+      "properties": {
+        "dartmouth": { "type": "number", "minimum": 0 },
+        "huggingface": { "type": "number", "minimum": 0 },
+        "local": { "type": "number", "minimum": 0 }
+      }
     }
   }
 }
