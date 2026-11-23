@@ -24,9 +24,9 @@ is reached, so this is not a promise of zero overshoot.
 ## Credentials
 
 Never commit credentials, put them in a command-line argument, log them, or use a
-credential-bearing URL. The helper reads only `HF_TOKEN` (for a GitHub Actions
-secret) or the macOS Keychain service `llmxive-huggingface`, account
-`jeremyrmanning`. It does not read a plaintext HF cache or repository `.env` file.
+credential-bearing URL. The loader is `llmxive.credentials.load_hf_token` (this
+helper calls it); it reads only `HF_TOKEN` (for a GitHub Actions secret) or the
+macOS Keychain service `llmxive-huggingface`. It does not read a plaintext HF cache or repository `.env` file.
 The current local credential is in Keychain. **No HF GitHub secret or recurring
 HF workflow has been enabled.** Before enabling CI, create a dedicated fine-grained
 HF token limited to the required project repositories, Jobs, and inference,

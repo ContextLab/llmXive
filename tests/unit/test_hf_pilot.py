@@ -1,6 +1,7 @@
 """Keep optional HF operations scoped, bounded, and credential-safe."""
 
 import importlib.util
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,7 +17,7 @@ SPEC.loader.exec_module(pilot)
 def test_environment_secret_precedes_keychain(monkeypatch):
     monkeypatch.setenv("HF_TOKEN", "test-secret")
     monkeypatch.setattr(
-        pilot.subprocess, "run", lambda *a, **kw: pytest.fail("unexpected Keychain read")
+        subprocess, "run", lambda *a, **kw: pytest.fail("unexpected Keychain read")
     )
     assert pilot.token() == "test-secret"
 
