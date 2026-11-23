@@ -8,6 +8,13 @@ Runs as the first step of every scheduled workflow. Validates:
   * Dartmouth + HF endpoints respond to a list_models() probe (when keys
     are present)
 
+It then prints a model-selection report (``selection_report``): which backends
+are reachable, the funded allowance, the leaderboard's freshness and coverage,
+and the top candidate for each requirement profile. The report is built from one
+``runtime_snapshot()`` (catalog, leaderboard and ledger reads only; no chat
+request, no reservation, no ledger write) and never prints a rating, a token or
+a bill-to id.
+
 Per Constitution Principle V, exits non-zero on any failure with a
 precondition-specific message.
 """
@@ -23,11 +30,32 @@ from llmxive.agents import registry as registry_loader
 from llmxive.config import about_page_published, all_keys
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import list_contracts
+from llmxive.model_selection.policy import FUNDED_POLICY, FundedPolicy
+from llmxive.model_selection.profiles import PROFILES, build_requirement
+from llmxive.model_selection.select import select
+from llmxive.model_selection.snapshot import runtime_snapshot
+from llmxive.model_selection.strength import repo_of
+from llmxive.model_selection.types import (
+    CallBudget,
+    ModelUnavailable,
+    RuntimeSnapshot,
+    Track,
+    worst_case_usd,
+)
 
 REQUIRED_TOOLS = ["git"]
 OPTIONAL_TOOLS = ["pdflatex", "uvx", "uv", "pipx"]
 REQUIRED_SECRETS = ["DARTMOUTH_CHAT_API_KEY"]
-OPTIONAL_SECRETS = ["DARTMOUTH_API_KEY", "HF_TOKEN", "GITHUB_TOKEN"]
+OPTIONAL_SECRETS = [
+    "DARTMOUTH_API_KEY",
+    "HF_TOKEN",
+    "GITHUB_TOKEN",
+    "LLMXIVE_HF_BILL_TO",
+    "LLMXIVE_FUNDED_LEDGER_ANCHOR",
+]
+
+#: Nominal per-call budget used only to rank candidates and price them for display.
+_REPORT_BUDGET = CallBudget(8_000, 4_096)
 
 
 class PreflightError(RuntimeError):
@@ -97,6 +125,67 @@ def _check_about_page() -> list[str]:
     return info
 
 
+def _source_of(snap: RuntimeSnapshot, component: str) -> str:
+    prov = snap.sources.get(component)
+    return prov.source if prov is not None else "unavailable"
+
+
+def _leaderboard_line(snap: RuntimeSnapshot) -> str:
+    covered: dict[Track, set[str]] = {"reasoning": set(), "coding": set()}
+    published = []
+    for model_id, scores in snap.scores.items():
+        for track in covered:
+            score = scores.for_track(track)
+            if score is not None:
+                covered[track].add(repo_of(model_id))
+                published.append(score.publish_date)
+    latest = max(published).isoformat() if published else "n/a"
+    return (
+        f"leaderboard: {_source_of(snap, 'leaderboard')}, published {latest}, "
+        f"reasoning {len(covered['reasoning'])} models, coding {len(covered['coding'])} models"
+    )
+
+
+def selection_report(
+    snap: RuntimeSnapshot, *, funded_policy: FundedPolicy | None = None
+) -> list[str]:
+    """Lines describing what a run would use: backend reachability, funded
+    allowance, leaderboard freshness/coverage and each profile's top candidate.
+
+    Pure: reads only ``snap``. Prints model ids, counts, dates and dollar amounts,
+    never a leaderboard rating."""
+    fpol = funded_policy if funded_policy is not None else FUNDED_POLICY
+    lines = [
+        f"backends: dartmouth={_source_of(snap, 'catalog')} "
+        f"huggingface={_source_of(snap, 'hf_catalog')} local={_source_of(snap, 'local')}"
+    ]
+    fund = snap.funded
+    if fund is None:
+        lines.append("funded allowance: unavailable")
+    else:
+        lines.append(
+            f"funded allowance: ${fund.monthly_usd:.2f}/month, spent ${fund.spent_month_usd:.2f} "
+            f"this month, ${fund.available_usd:.2f} available now ({fund.epoch})"
+        )
+    lines.append(_leaderboard_line(snap))
+    for name, prof in PROFILES.items():
+        label = f"top candidate [{name}] {prof.track}/{prof.strength}"
+        try:
+            chain = select(build_requirement(name, _REPORT_BUDGET), snap, funded_policy=fpol)
+        except ModelUnavailable as exc:
+            reason = " ".join(str(exc).split())[:120]
+            lines.append(f"{label}: none — {reason}")
+            continue
+        top = chain.candidates[0]
+        worst = worst_case_usd(top.pricing, _REPORT_BUDGET)
+        cost = f"${worst:.4f}" if worst is not None else "unknown"
+        lines.append(
+            f"{label}: {top.model_ref.model_id} "
+            f"({top.model_ref.backend}, {top.cost_class}, worst case {cost})"
+        )
+    return lines
+
+
 def main() -> int:
     failures: list[str] = []
     info: list[str] = []
@@ -118,6 +207,11 @@ def main() -> int:
     failures.extend(_check_registry())
     failures.extend(_check_contracts())
     info.extend(_check_about_page())
+    if not failures:  # fail fast (FR-024): never spend network time on a run that cannot start
+        try:
+            info.extend(selection_report(runtime_snapshot(refresh=True)))
+        except Exception as exc:  # informational: never change preflight's outcome
+            info.append(f"selection report unavailable: {type(exc).__name__}")
 
     for line in info:
         print(f"[preflight] info: {line}")
@@ -133,4 +227,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["PreflightError", "main"]
+__all__ = ["PreflightError", "main", "selection_report"]
