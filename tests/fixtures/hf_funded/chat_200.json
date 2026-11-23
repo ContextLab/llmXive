@@ -2,25 +2,29 @@
  "captured_at": "2026-11-23",
  "source_url": "https://router.huggingface.co/v1/chat/completions",
  "status": 200,
- "provenance": "hand-shaped from the documented OpenAI-compatible response shape; NOT recorded from the live endpoint",
+ "provenance": "recorded",
  "payload": {
-  "object": "chat.completion",
-  "created": 1700000000,
-  "model": "example/model",
   "choices": [
    {
     "index": 0,
     "message": {
      "role": "assistant",
-     "content": "ok"
+     "content": "ok",
+     "reasoning": "The user wants me to reply with the single word \"ok\"."
     },
     "finish_reason": "stop"
    }
   ],
+  "created": 1795447722,
+  "model": "DeepSeek-V4.1-Flash-1017",
+  "object": "chat.completion",
   "usage": {
-   "prompt_tokens": 14,
-   "completion_tokens": 2,
-   "total_tokens": 16
+   "prompt_tokens": 37,
+   "completion_tokens": 16,
+   "total_tokens": 53,
+   "completion_tokens_details": {
+    "reasoning_tokens": 13
+   }
   }
  }
 }

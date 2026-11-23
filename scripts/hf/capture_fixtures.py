@@ -9,7 +9,7 @@ Writes five files under ``tests/fixtures/hf_funded/``, each shaped
   organizations, licenses, vote counts and publish dates are kept; every rating
   field is replaced by :func:`synthetic_rating` and ``rank`` is recomputed from
   it, so no real leaderboard rating is committed. Rows are sorted by name.
-- ``chat_200.json`` / ``chat_402.json``: only with ``--with-chat`` (one billed
+- ``chat_200.json`` / ``chat_402.json`` / ``chat_403.json``: only with ``--with-chat`` (one billed
   call of at most 64 tokens, plus one unbilled 402). Needs ``HF_TOKEN``/Keychain
   (via ``credentials.load_hf_token``) and ``LLMXIVE_HF_BILL_TO``; neither value is
   written anywhere. ``--hand-shaped-chat`` instead writes both from the documented
@@ -126,8 +126,13 @@ def capture_chat(client: httpx.Client, catalog: dict) -> None:
     body = {"model": _cheapest_live_model(catalog), "max_tokens": 64,
             "messages": [{"role": "user", "content": "Reply with the single word: ok"}]}
     url = f"{ROUTER}/chat/completions"
-    for bt, name in ((bill_to, "chat_200.json"), (ZERO_BILL_TO, "chat_402.json")):
-        r = client.post(url, json=body, headers={"Authorization": f"Bearer {token}", "X-HF-Bill-To": bt})
+    # Observed live 2026-11-23: no bill-to header -> 402 (billed to the personal
+    # account, which has no credits); an unknown group id -> 403.
+    for bt, name in ((bill_to, "chat_200.json"), (None, "chat_402.json"), (ZERO_BILL_TO, "chat_403.json")):
+        headers = {"Authorization": f"Bearer {token}"}
+        if bt is not None:
+            headers["X-HF-Bill-To"] = bt
+        r = client.post(url, json=body, headers=headers)
         payload = r.json()
         payload.pop("id", None)
         payload.pop("system_fingerprint", None)

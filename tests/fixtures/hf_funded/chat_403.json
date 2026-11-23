@@ -1,0 +1,9 @@
+{
+ "captured_at": "2026-11-23",
+ "source_url": "https://router.huggingface.co/v1/chat/completions",
+ "status": 403,
+ "provenance": "recorded",
+ "payload": {
+  "error": "Organization or resource group 000000000000000000000000 not found"
+ }
+}

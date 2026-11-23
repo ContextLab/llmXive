@@ -1,12 +1,9 @@
 {
- "captured_at": "2026-11-23",
- "source_url": "https://router.huggingface.co/v1/chat/completions",
- "status": 402,
- "provenance": "hand-shaped from the documented OpenAI-compatible response shape; NOT recorded from the live endpoint",
- "payload": {
-  "error": {
-   "message": "Payment required: insufficient credits for the selected billing account.",
-   "type": "payment_required"
-  }
- }
+  "captured_at": "2026-11-23",
+  "payload": {
+    "error": "Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get monthly included credits."
+  },
+  "provenance": "recorded (no X-HF-Bill-To header)",
+  "source_url": "https://router.huggingface.co/v1/chat/completions",
+  "status": 402
 }
