@@ -495,7 +495,7 @@ def invoke_with_deadline(
     worker.join(timeout)
     if worker.is_alive():
         raise DeadlineExceededError(
-            f"{description} hung past {timeout:.0f}s deadline (no response received)"
+            f"{description} hung past {timeout:g}s deadline (no response received)"
         )
     if error:
         raise error[0]

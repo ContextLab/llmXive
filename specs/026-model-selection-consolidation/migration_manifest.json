@@ -2854,7 +2854,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_leaderboard.py",
       "kind": "model_id_literal",
-      "line": 50,
+      "line": 53,
       "models": [
         "gpt-oss-120b"
       ],
@@ -2865,7 +2865,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_leaderboard.py",
       "kind": "model_id_literal",
-      "line": 61,
+      "line": 64,
       "models": [
         "gpt-oss-120b"
       ],
@@ -2876,7 +2876,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_leaderboard.py",
       "kind": "model_id_literal",
-      "line": 61,
+      "line": 64,
       "models": [
         "openai/gpt-oss-120b"
       ],

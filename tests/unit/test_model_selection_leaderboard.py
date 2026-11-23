@@ -1,6 +1,9 @@
 """LMArena leaderboard: real local HTTP paging, parsing and strict name matching."""
 
+import itertools
 import json
+import threading
+import time
 from datetime import date
 from pathlib import Path
 
@@ -18,7 +21,7 @@ from llmxive.model_selection.leaderboard import (
     parse_arena_rows,
 )
 from llmxive.model_selection.types import ArenaScore, ModelScores
-from tests.helpers.replay_server import ReplayServer
+from tests.helpers.replay_server import DROP, ReplayServer
 
 _FIX = Path(__file__).parents[1] / "fixtures" / "hf_funded"
 D = date(2026, 11, 22)
@@ -228,6 +231,93 @@ def test_transient_5xx_is_retried_then_succeeds_and_persistent_5xx_is_bounded():
         with pytest.raises(LeaderboardError):
             fetch_arena_category("coding", base_url=srv.base_url + "/filter")
         assert len(srv.requests) == 1  # a 4xx is not retried
+
+
+def test_fetch_bounds_are_named_and_sized_to_survive_one_or_two_hung_requests():
+    assert leaderboard.REQUEST_TIMEOUT_S == 10.0
+    assert leaderboard.FETCH_BUDGET_S == 90.0
+    assert leaderboard.MAX_RETRIES >= 2              # one or two hung requests on a page are survived
+    # a page's worst case (every attempt hangs to its timeout, plus the backoffs) fits the budget
+    worst_page = (leaderboard.MAX_RETRIES + 1) * leaderboard.REQUEST_TIMEOUT_S + sum(
+        leaderboard.RETRY_BACKOFF_SECONDS * a for a in range(1, leaderboard.MAX_RETRIES + 1))
+    assert worst_page < leaderboard.FETCH_BUDGET_S
+
+
+def _stalling(route, stall_when, release):
+    """Wrap ``route``: a request for which ``stall_when(n, req)`` holds (n = arrival
+    order) hangs until the test sets ``release`` — a request the server never answers."""
+    seen = itertools.count()
+
+    def respond(req):
+        if stall_when(next(seen), req):
+            release.wait(30)
+        return route(req)
+
+    return respond
+
+
+@pytest.fixture
+def short_timeouts(monkeypatch):
+    monkeypatch.setattr(leaderboard, "REQUEST_TIMEOUT_S", 0.3)
+
+
+def test_a_first_request_that_hangs_past_its_timeout_is_retried_and_the_fetch_completes(short_timeouts):
+    rows = [_row(f"M{i}", 1000.0 + i, "coding") for i in range(250)]
+    release = threading.Event()
+    route = _stalling(_pager(rows), lambda n, req: n == 0, release)
+    with ReplayServer({("GET", "/filter"): route}) as srv:
+        try:
+            got = fetch_arena_category("coding", base_url=srv.base_url + "/filter")
+        finally:
+            release.set()
+    assert got == rows
+    assert [r["query"]["offset"] for r in srv.requests] == ["0", "0", "100", "200"]
+
+
+def test_a_connection_dropped_on_a_later_page_is_retried_and_the_fetch_completes(short_timeouts):
+    rows = [_row(f"M{i}", 1000.0 + i, "coding") for i in range(250)]
+    good = _pager(rows)
+    dropped = []
+
+    def route(req):
+        if req["query"]["offset"] == "100" and not dropped:
+            dropped.append(req)
+            return DROP
+        return good(req)
+
+    with ReplayServer({("GET", "/filter"): route}) as srv:
+        got = fetch_arena_category("coding", base_url=srv.base_url + "/filter")
+    assert got == rows and len(dropped) == 1
+    assert [r["query"]["offset"] for r in srv.requests] == ["0", "100", "100", "200"]
+
+
+def test_persistent_transport_failure_is_bounded_by_the_retry_count(short_timeouts):
+    with ReplayServer({("GET", "/filter"): [DROP]}) as srv:
+        with pytest.raises(LeaderboardError, match="unavailable"):
+            fetch_arena_category("coding", base_url=srv.base_url + "/filter")
+        assert len(srv.requests) == leaderboard.MAX_RETRIES + 1
+
+
+def test_every_request_hanging_fails_within_the_overall_budget(monkeypatch):
+    monkeypatch.setattr(leaderboard, "REQUEST_TIMEOUT_S", 0.2)
+    monkeypatch.setattr(leaderboard, "FETCH_BUDGET_S", 1.0)
+    monkeypatch.setattr(leaderboard, "MAX_RETRIES", 1000)  # only the budget can end this
+    release = threading.Event()
+    route = _stalling(_pager([_row("M0", 1000.0, "coding")]), lambda n, req: True, release)
+    with ReplayServer({("GET", "/filter"): route}) as srv:
+        try:
+            started = time.monotonic()
+            with pytest.raises(LeaderboardError, match="budget"):
+                fetch_arena_category("coding", base_url=srv.base_url + "/filter")
+            elapsed = time.monotonic() - started
+            started = time.monotonic()
+            assert fetch_arena_scores(base_url=srv.base_url + "/filter") is None
+            both_tracks = time.monotonic() - started
+        finally:
+            release.set()
+    # the budget plus at most one per-request timeout of overrun, never an unbounded wait
+    assert 1.0 <= elapsed < 1.0 + 0.2 + 0.5
+    assert 1.0 <= both_tracks < 1.0 + 0.2 + 0.5     # ONE budget for the whole fetch, both tracks
 
 
 def test_fetch_arena_scores_maps_categories_to_tracks_and_returns_none_on_failure():

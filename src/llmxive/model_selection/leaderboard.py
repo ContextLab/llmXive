@@ -9,6 +9,7 @@ the datasets server; only ``snapshot.py`` calls it.
 
 from __future__ import annotations
 
+import json
 import logging
 import math
 import re
@@ -30,10 +31,19 @@ DATASETS_SERVER_FILTER_URL = "https://datasets-server.huggingface.co/filter"
 PAGE_LENGTH = 100  # the server's maximum; 101 -> HTTP 422
 TRACK_CATEGORY: Mapping[Track, str] = MappingProxyType({"reasoning": "overall", "coding": "coding"})
 
-# The datasets server answers transient 5xx now and then: retry a fixed small number of
-# times, then fail closed ("unavailable").
-MAX_RETRIES = 3
-RETRY_BACKOFF_SECONDS = 0.25
+# The datasets server normally answers a page in well under a second, but now and then
+# answers 5xx, drops a connection, or leaves one request hanging for a minute or more.
+# Each request gets a short timeout; a transport error (timeout, reset, refused) or a
+# 5xx is retried on the same page with a linear backoff; a 4xx fails at once. The whole
+# fetch (every page of both tracks) runs inside one overall budget, after which it
+# fails closed ("unavailable") — never an unbounded wait.
+REQUEST_TIMEOUT_S = 10.0
+MAX_RETRIES = 4  # retries per page after the first attempt
+RETRY_BACKOFF_SECONDS = 0.5  # sleep before retry n is n x this
+FETCH_BUDGET_S = 90.0
+
+#: Monotonic clock for :data:`FETCH_BUDGET_S` (module-level so tests can replace it).
+_monotonic = time.monotonic
 
 _TRAILING_GROUP = re.compile(r"\s*\([^()]*\)\s*$")
 
@@ -113,35 +123,76 @@ def parse_arena_rows(rows: Iterable[Mapping], *, category: str) -> dict[str, Are
     return out
 
 
-def _get_page(client: httpx.Client, base_url: str, params: dict[str, str | int]) -> dict:
+def _over_budget(last: str) -> LeaderboardError:
+    return LeaderboardError(
+        f"datasets server unavailable: the fetch exceeded its {FETCH_BUDGET_S:g}s budget (last: {last})"
+    )
+
+
+def _request(
+    client: httpx.Client, base_url: str, params: dict[str, str | int], *, deadline: float
+) -> tuple[int, bytes]:
+    """One GET, read in chunks so a body that trickles in cannot outlast the budget by
+    more than one per-request timeout."""
+    timeout = min(REQUEST_TIMEOUT_S, deadline - _monotonic())
+    chunks: list[bytes] = []
+    with client.stream("GET", base_url, params=params, timeout=timeout) as resp:
+        for chunk in resp.iter_bytes():
+            chunks.append(chunk)
+            if _monotonic() >= deadline:
+                raise _over_budget("response still arriving")
+        return resp.status_code, b"".join(chunks)
+
+
+def _get_page(
+    client: httpx.Client, base_url: str, params: dict[str, str | int], *, deadline: float
+) -> dict:
     last = "no attempt made"
     for attempt in range(MAX_RETRIES + 1):
         if attempt:
-            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
-        resp = client.get(base_url, params=params)
-        if resp.status_code == 200:
-            try:
-                body = resp.json()
-            except ValueError as exc:
-                raise LeaderboardError(f"datasets server returned non-JSON 200: {exc}") from exc
-            if not isinstance(body, dict):
-                raise LeaderboardError("datasets server returned a non-object body")
-            return body
-        last = f"HTTP {resp.status_code}"
-        if resp.status_code < 500:
-            break
+            pause = RETRY_BACKOFF_SECONDS * attempt
+            if pause >= deadline - _monotonic():
+                raise _over_budget(last)
+            time.sleep(pause)
+        if _monotonic() >= deadline:
+            raise _over_budget(last)
+        try:
+            status, raw = _request(client, base_url, params, deadline=deadline)
+        except httpx.TransportError as exc:  # read/connect timeout, reset, refused
+            last = type(exc).__name__
+        else:
+            if status == 200:
+                try:
+                    body = json.loads(raw)
+                except ValueError as exc:
+                    raise LeaderboardError(f"datasets server returned non-JSON 200: {exc}") from exc
+                if not isinstance(body, dict):
+                    raise LeaderboardError("datasets server returned a non-object body")
+                return body
+            last = f"HTTP {status}"
+            if status < 500:
+                break
+        if attempt < MAX_RETRIES:
+            logger.warning(
+                "LMArena page at offset %s: attempt %d failed (%s); retrying", params["offset"], attempt + 1, last
+            )
     raise LeaderboardError(f"datasets server unavailable: {last}")
 
 
 def fetch_arena_category(
-    category: str, *, base_url: str = DATASETS_SERVER_FILTER_URL, timeout: float = 30.0
+    category: str, *, base_url: str = DATASETS_SERVER_FILTER_URL, deadline: float | None = None
 ) -> list[dict]:
-    """Fetch every row of one leaderboard category (keyless), paging to ``num_rows_total``."""
+    """Fetch every row of one leaderboard category (keyless), paging to ``num_rows_total``.
+
+    ``deadline`` is a :data:`_monotonic` time the whole fetch must end by (default:
+    :data:`FETCH_BUDGET_S` from now); past it the fetch raises :class:`LeaderboardError`."""
+    if deadline is None:
+        deadline = _monotonic() + FETCH_BUDGET_S
     rows: list[dict] = []
     offset = 0
     total: int | None = None
     last_idx = -1
-    with httpx.Client(timeout=timeout) as client:
+    with httpx.Client(timeout=REQUEST_TIMEOUT_S) as client:
         while total is None or offset < total:
             body = _get_page(
                 client,
@@ -154,6 +205,7 @@ def fetch_arena_category(
                     "offset": offset,
                     "length": PAGE_LENGTH,
                 },
+                deadline=deadline,
             )
             if body.get("partial") is True:
                 raise LeaderboardError("datasets server reported a partial result")
@@ -197,10 +249,15 @@ def fetch_arena_category(
 def fetch_arena_scores(
     *, base_url: str = DATASETS_SERVER_FILTER_URL
 ) -> dict[Track, dict[str, ArenaScore]] | None:
-    """Both tracks' scores, or ``None`` (logged) so the snapshot's last-known-good takes over."""
+    """Both tracks' scores, or ``None`` (logged) so the snapshot's last-known-good takes over.
+
+    Both tracks share ONE :data:`FETCH_BUDGET_S` budget."""
+    deadline = _monotonic() + FETCH_BUDGET_S
     try:
         return {
-            track: parse_arena_rows(fetch_arena_category(cat, base_url=base_url), category=cat)
+            track: parse_arena_rows(
+                fetch_arena_category(cat, base_url=base_url, deadline=deadline), category=cat
+            )
             for track, cat in TRACK_CATEGORY.items()
         }
     except (LeaderboardError, httpx.HTTPError) as exc:

@@ -13,6 +13,7 @@ from __future__ import annotations
 import importlib
 import shutil
 import subprocess
+import threading
 import time
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
@@ -330,16 +331,27 @@ def test_breaker_open_is_charged_zero_and_sends_nothing(repo):
 
 
 def test_timeout_after_send_is_charged_the_full_reservation(repo):
+    # B's request reaches the server and then hangs until the test releases it, so B
+    # times out at its deadline however fast or slow the machine is. The deadline is
+    # per candidate and starts only when the request thread starts (the ledger's git
+    # work is outside it), so E gets the whole of its own deadline for a loopback reply.
+    b_arrived, release = threading.Event(), threading.Event()
+
     def route(req):
         if req["json"]["model"] == B:
-            time.sleep(1.5)                                  # longer than the 0.5 s deadline
+            b_arrived.set()
+            release.wait(30)                                 # hung: past B's deadline by construction
         return (200, _chat_ok(req["json"]["model"]))
 
     with ReplayServer({("POST", "/chat/completions"): route}) as srv:
-        res = execute(sel("cheap_structured", snapshot(local=False)), MSG,
-                      options=ExecutionOptions(max_tokens=512, deadline_s=0.5), backend_factory=lambda n: _hf(srv),
-                      ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
-        assert srv.requests[0]["json"]["model"] == B           # the request did go out
+        try:
+            res = execute(sel("cheap_structured", snapshot(local=False)), MSG,
+                          options=ExecutionOptions(max_tokens=512, deadline_s=3.0),
+                          backend_factory=lambda n: _hf(srv),
+                          ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+        finally:
+            release.set()
+        assert b_arrived.is_set() and srv.requests[0]["json"]["model"] == B   # the request did go out
     assert res.model_ref.model_id == E
     assert sorted(charged(repo).values()) == [pytest.approx(E_COST), pytest.approx(0.0018)]
 
