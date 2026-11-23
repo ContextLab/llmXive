@@ -39,7 +39,7 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.hf_budget import fetch_org_balance_usd
 from llmxive.backends.huggingface import (
-    HFPaymentRequired,
+    HFCredentialRejected,
     HuggingFaceBackend,
     PreInferenceRejection,
     fetch_router_catalog,
@@ -252,12 +252,15 @@ def test_vision_probe_reads_a_red_square():
     _assert_one_bounded_settlement(r, sink)
 
 
-def test_wrong_bill_to_is_a_402_outage_not_a_charge_to_another_account(snap):
+def test_wrong_bill_to_is_a_403_rejection_not_a_charge_to_another_account(snap):
+    # The recorded router reply for this all-zero id is 403 "Organization or resource
+    # group ... not found" (tests/fixtures/hf_funded/chat_403.json): a credential-class
+    # rejection before inference, which the router skips past to the next candidate.
     model = sorted(m.model_id for m in snap.models if m.backend == "huggingface")[0]
-    with pytest.raises(HFPaymentRequired) as ei:
+    with pytest.raises(HFCredentialRejected) as ei:
         HuggingFaceBackend(bill_to=_BAD_BILL_TO).chat([ChatMessage("user", "hi")], model=model, max_tokens=8)
     assert isinstance(ei.value, PreInferenceRejection)
-    assert disposition_of(ei.value) is CandidateDisposition.RETRY_ADVANCE
+    assert disposition_of(ei.value) is CandidateDisposition.SKIP
     assert load_hf_token() not in str(ei.value)
 
 

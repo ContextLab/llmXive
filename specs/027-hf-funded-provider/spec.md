@@ -170,7 +170,8 @@ per profile, and makes no paid call.
   reservation against a real git ref (as the spec-026 ledger tests do).
 - Real-call (`LLMXIVE_REAL_TESTS=1`, a few cents in total): one chat per profile through
   `route_chat` with Dartmouth unreachable; a strict-JSON probe; an image probe for
-  `vision`; a 402 path using a deliberately wrong bill-to id; recorded spend equals
+  `vision`; a deliberately wrong bill-to id, which the router rejects with 403
+  (`HFCredentialRejected`, recorded in `chat_403.json`) and which settles at zero; recorded spend equals
   `usage` × catalog price.
 - No mocks as the primary path (Constitution III).
 
