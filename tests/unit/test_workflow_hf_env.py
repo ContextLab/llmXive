@@ -66,3 +66,35 @@ def test_every_model_calling_env_block_carries_the_hf_settings():
 
 def test_bill_to_is_a_variable_never_a_secret():
     assert "secrets.LLMXIVE_HF_BILL_TO" not in "".join(p.read_text() for p in WF.glob("*.yml"))
+
+
+# --- final review A10: the funded ledger needs push access only where HF is used ----
+
+_HF_JOB = {"llmxive-real-call-tests.yml": "dartmouth", "llmxive-real-call-nightly.yml": "real-call-full"}
+
+
+def _receives_hf(job: dict) -> bool:
+    return any("HF_TOKEN" in env or "LLMXIVE_HF_BILL_TO" in env for env in _env_blocks(job))
+
+
+@pytest.mark.parametrize("name", sorted(_HF_JOB))
+def test_only_the_hf_receiving_job_may_push(name):
+    wf = _load(WF / name)
+    assert wf["permissions"]["contents"] == "read"  # the workflow default stays read-only
+    hf_jobs = sorted(j for j, body in wf["jobs"].items() if _receives_hf(body))
+    assert hf_jobs == [_HF_JOB[name]]
+    for job, body in wf["jobs"].items():
+        contents = (body.get("permissions") or {}).get("contents")
+        if job == _HF_JOB[name]:
+            assert contents == "write", job
+            # a job-level block replaces the workflow-level one: every other default is kept
+            for perm, level in wf["permissions"].items():
+                if perm != "contents":
+                    assert body["permissions"].get(perm) == level, (job, perm)
+        else:
+            assert contents in (None, "read"), job
+
+
+def test_prompt_eval_has_no_write_permission_anywhere():
+    text = (WF / "prompt-eval.yml").read_text()
+    assert ": write" not in text and "write-all" not in text

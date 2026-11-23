@@ -181,6 +181,10 @@ jobs:
     if: needs.changes.outputs.live == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # The funded (Hugging Face) path pushes refs/llmxive/funded-ledger.
+    permissions:
+      contents: write
+      pull-requests: read
     env:
       LLMXIVE_REAL_TESTS: "1"
       LLMXIVE_PAID_OPT_IN: "0"

@@ -22,6 +22,9 @@ jobs:
   real-call-full:
     runs-on: ubuntu-latest
     timeout-minutes: 330
+    # The funded (Hugging Face) path pushes refs/llmxive/funded-ledger.
+    permissions:
+      contents: write
     env:
       LLMXIVE_REAL_TESTS: "1"
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
