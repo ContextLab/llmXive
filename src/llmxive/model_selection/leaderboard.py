@@ -74,11 +74,15 @@ def _parse_row(row: Mapping) -> tuple[str, ArenaScore] | None:
         logger.warning("leaderboard row %r skipped: rating is not a finite number", name)
         return None
     lower_raw, upper_raw = row.get("rating_lower"), row.get("rating_upper")
-    lower = rating if lower_raw is None else _number(lower_raw)
-    upper = rating if upper_raw is None else _number(upper_raw)
-    if lower is None or upper is None:
+    if any(raw is not None and _number(raw) is None for raw in (lower_raw, upper_raw)):
         logger.warning("leaderboard row %r skipped: bounds are not finite numbers", name)
         return None
+    if lower_raw is None or upper_raw is None:
+        # A row missing EITHER bound is a zero-width interval (spec 5.10 "Near-ties"):
+        # a half-filled interval would invent a one-sided near-tie band.
+        lower = upper = rating
+    else:
+        lower, upper = _number(lower_raw), _number(upper_raw)
     published = row.get("leaderboard_publish_date")
     try:
         publish_date = date.fromisoformat(published)  # type: ignore[arg-type]

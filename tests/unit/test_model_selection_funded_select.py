@@ -125,6 +125,18 @@ def test_publish_date_at_exactly_the_limit_is_still_fresh():
     assert B in got
 
 
+def test_a_publish_date_one_day_ahead_passes_and_two_days_ahead_makes_the_leaderboard_unavailable():
+    got = ids(sel("cheap_structured", snapshot(local=False, publish_dates={REPO_B: date(2026, 11, 24)}), **WIDE))
+    assert B in got
+    snap = snapshot(dartmouth=(GLM,), local=False, publish_dates={REPO_B: date(2026, 11, 25)})
+    chain = sel("cheap_structured", snap, **WIDE)
+    assert order(chain) == [GLM]                       # no funded candidate at all, not just B dropped
+    assert any(e.startswith("funded candidates not eligible") and "more than 1 day(s) after" in e
+               for e in chain.explanation)
+    with pytest.raises(ModelUnavailable, match="publish date"):
+        sel("cheap_structured", snapshot(local=False, publish_dates={REPO_B: date(2026, 11, 25)}))
+
+
 def test_leaderboard_lkg_at_exactly_the_limit_is_still_fresh():
     at_limit = {"leaderboard": ("last_known_good", float(LEADERBOARD_MAX_FETCH_AGE_S))}
     assert A in ids(sel("deep_review", snapshot(sources=at_limit), **WIDE))

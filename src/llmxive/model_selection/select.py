@@ -24,7 +24,8 @@ Pipeline:
    paid-guard steps with the spec 027 5.10 rules, all fail closed: the
    ``hf_catalog`` component fresh by ``max_catalog_age_s``; the ``leaderboard``
    fetched within ``LEADERBOARD_MAX_FETCH_AGE_S`` with its newest publish date at
-   most ``max_publish_age_days`` old; a ``live`` funded guard; a requirement naming
+   most ``max_publish_age_days`` old and not more than one day in the future
+   (``strength.publish_date_fresh``); a ``live`` funded guard; a requirement naming
    a track and strength level; the candidate's repo in that track's scored
    population; observed flags for vision / ``structured`` / ``tools`` / context
    (other features from the reviewed family entry); a known price; not a
@@ -52,7 +53,13 @@ from llmxive.model_selection.policy import (
     FundedPolicy,
     PolicyEntry,
 )
-from llmxive.model_selection.strength import repo_of, track_population
+from llmxive.model_selection.strength import (
+    MAX_FUTURE_PUBLISH_DAYS,
+    publish_date_fresh,
+    publish_date_invalid,
+    repo_of,
+    track_population,
+)
 from llmxive.model_selection.types import (
     FUNDED_BACKENDS,
     USD_TO_CREDITS,
@@ -106,7 +113,9 @@ def _funded_block_reason(
 
     The Hugging Face catalog is judged by ``max_catalog_age_s``; the leaderboard by
     its own limits: fetched within :data:`LEADERBOARD_MAX_FETCH_AGE_S` and its
-    newest publish date at most ``max_publish_age_days`` old. The funded guard must
+    newest publish date fresh by the shared rule in
+    :func:`~llmxive.model_selection.strength.publish_date_fresh` (at most
+    ``max_publish_age_days`` old; more than one day in the future is invalid). The funded guard must
     be present and ``live``; the requirement must name a track and a strength level.
     """
     if requirement.track is None or requirement.strength is None:
@@ -125,11 +134,16 @@ def _funded_block_reason(
     if not dates:
         return "leaderboard holds no score for any catalog model"
     newest = max(dates)
-    age_days = (snapshot.observed_at.date() - newest).days
-    if age_days > funded_policy.max_publish_age_days:
+    today = snapshot.observed_at.date()
+    if publish_date_invalid(newest, today=today):
         return (
-            f"leaderboard is stale (newest publish date {newest.isoformat()} is {age_days} days "
-            f"old > {funded_policy.max_publish_age_days})"
+            f"leaderboard is unavailable (newest publish date {newest.isoformat()} is more than "
+            f"{MAX_FUTURE_PUBLISH_DAYS} day(s) after {today.isoformat()})"
+        )
+    if not publish_date_fresh(newest, today=today, max_publish_age_days=funded_policy.max_publish_age_days):
+        return (
+            f"leaderboard is stale (newest publish date {newest.isoformat()} is "
+            f"{(today - newest).days} days old > {funded_policy.max_publish_age_days})"
         )
     guard = snapshot.funded
     if guard is None or guard.source != "live":

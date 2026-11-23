@@ -2,16 +2,22 @@
 
 Pure arithmetic, no I/O and no clock (``today`` is an argument):
 
+- :func:`publish_date_invalid` / :func:`publish_date_fresh` — THE publish-date
+  rule, shared with ``select``'s whole-leaderboard check: a date more than
+  :data:`MAX_FUTURE_PUBLISH_DAYS` in the future is invalid; otherwise a date is
+  fresh when at most ``max_publish_age_days`` old.
 - :func:`track_population` — the day's scored population for one track: every
-  repo with a score on that track whose leaderboard publish date is at most
-  ``max_publish_age_days`` old.
+  repo with a fresh score on that track (empty when any row on the track carries
+  an invalid future date: the leaderboard is then unavailable).
 - :func:`cutoff_index` — the population index of the model sitting at a level's
   percentile cut-off, in integer arithmetic only.
 - :func:`level_qualifiers` — the repos that qualify for a level under the
   near-tie rule: ``rating_upper`` at or above the ``rating_lower`` of the model at
-  the cut-off (for ``strongest``, the top model). A leaderboard row without both
-  bounds reaches this module as a zero-width :class:`ArenaScore`
-  (``rating_lower == rating == rating_upper``), so it needs no special case here.
+  the cut-off (for ``strongest``, the top model), AND the same for every weaker
+  level, so levels nest. A leaderboard row missing either bound reaches this
+  module as a zero-width :class:`ArenaScore`
+  (``rating_lower == rating == rating_upper``; ``leaderboard._parse_row``), so it
+  needs no special case here.
 
 Population order is ``rating`` descending, then repo id ascending, so equal
 ratings resolve the same way on every run.
@@ -23,7 +29,29 @@ from collections.abc import Mapping
 from datetime import date
 
 from llmxive.model_selection.policy import FundedPolicy
-from llmxive.model_selection.types import ArenaScore, ModelScores, StrengthLevel, Track
+from llmxive.model_selection.types import (
+    STRENGTH_LEVELS,
+    ArenaScore,
+    ModelScores,
+    StrengthLevel,
+    Track,
+)
+
+#: A publish date up to this many days ahead of ``today`` is accepted (time zones:
+#: the leaderboard may already be on tomorrow's date); further ahead is invalid.
+MAX_FUTURE_PUBLISH_DAYS = 1
+
+
+def publish_date_invalid(publish_date: date, *, today: date) -> bool:
+    """True when ``publish_date`` is more than :data:`MAX_FUTURE_PUBLISH_DAYS` after ``today``."""
+    return (publish_date - today).days > MAX_FUTURE_PUBLISH_DAYS
+
+
+def publish_date_fresh(publish_date: date, *, today: date, max_publish_age_days: int) -> bool:
+    """True when ``publish_date`` is valid and at most ``max_publish_age_days`` old."""
+    return not publish_date_invalid(publish_date, today=today) and (
+        (today - publish_date).days <= max_publish_age_days
+    )
 
 
 def repo_of(model_id: str) -> str:
@@ -39,8 +67,10 @@ def track_population(
     today: date,
     max_publish_age_days: int,
 ) -> dict[str, ArenaScore]:
-    """Map each repo scored on ``track`` to its score, keeping only rows with
-    ``(today - publish_date).days <= max_publish_age_days``.
+    """Map each repo scored on ``track`` to its score, keeping only rows whose
+    publish date is :func:`publish_date_fresh`. When ANY row on the track carries
+    an invalid (future) publish date the leaderboard is unavailable and the
+    population is empty, so nobody qualifies.
 
     ``scores`` is keyed by provider-qualified model id; ids of the same repo
     collapse to one entry. Two ids of one repo carrying DIFFERENT scores is a
@@ -49,7 +79,11 @@ def track_population(
     population: dict[str, ArenaScore] = {}
     for model_id, model_scores in scores.items():
         score = model_scores.for_track(track)
-        if score is None or (today - score.publish_date).days > max_publish_age_days:
+        if score is None:
+            continue
+        if publish_date_invalid(score.publish_date, today=today):
+            return {}
+        if not publish_date_fresh(score.publish_date, today=today, max_publish_age_days=max_publish_age_days):
             continue
         repo = repo_of(model_id)
         seen = population.get(repo)
@@ -75,10 +109,15 @@ def level_qualifiers(
     policy: FundedPolicy,
 ) -> frozenset[str]:
     """Repos whose ``rating_upper`` is at or above the ``rating_lower`` of the
-    repo at ``level``'s cut-off. An empty population qualifies nothing."""
+    repo at the cut-off of ``level`` AND of every weaker level. The effective floor
+    is therefore the maximum of those cut-off ``rating_lower`` values, so a wide
+    interval on the top model can never make ``strongest`` admit a model that
+    ``strong`` rejects. An empty population qualifies nothing."""
     if not population:
         return frozenset()
     ordered = sorted(population, key=lambda repo: (-population[repo].rating, repo))
-    cutoff_repo = ordered[cutoff_index(len(ordered), policy.level_top_percent[level])]
-    floor = population[cutoff_repo].rating_lower
+    floor = max(
+        population[ordered[cutoff_index(len(ordered), policy.level_top_percent[lvl])]].rating_lower
+        for lvl in STRENGTH_LEVELS[: STRENGTH_LEVELS.index(level) + 1]
+    )
     return frozenset(repo for repo, score in population.items() if score.rating_upper >= floor)

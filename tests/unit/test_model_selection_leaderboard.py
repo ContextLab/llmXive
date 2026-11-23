@@ -81,6 +81,17 @@ def test_parse_rows_highest_variant_wins_bounds_default_and_bad_rows_drop():
         parse_arena_rows([_row("Z", 1.0, category="coding")], category="overall")
 
 
+@pytest.mark.parametrize("lower,upper", [(1190.0, None), (None, 1210.0), (None, None)])
+def test_a_row_missing_either_bound_is_a_zero_width_interval(lower, upper):
+    got = parse_arena_rows([_row("Beta Mini", 1200.0, lower=lower, upper=upper)], category="overall")
+    assert got == {"betamini": ArenaScore(1200.0, 1200.0, 1200.0, D)}
+
+
+def test_a_present_non_numeric_bound_beside_a_missing_one_still_drops_the_row():
+    assert parse_arena_rows([_row("Beta Mini", 1200.0, lower="wide", upper=None),
+                             _row("Alpha", 1100.0)], category="overall") == {"alpha": ArenaScore(1100.0, 1100.0, 1100.0, D)}
+
+
 def test_join_matches_by_normalised_repo_name_and_drops_ambiguous():
     s1, s2, s3 = (ArenaScore(r, r, r, D) for r in (1300.0, 1500.0, 1250.0))
     arena = {"reasoning": {"alphalarge": s1, "zetadup": s2}, "coding": {"alphalarge": s3}}

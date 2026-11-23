@@ -2634,7 +2634,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_funded_select.py",
       "kind": "model_id_literal",
-      "line": 183,
+      "line": 195,
       "models": [
         "gpt-oss"
       ],
