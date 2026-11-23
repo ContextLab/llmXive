@@ -72,6 +72,9 @@ jobs:
       - name: Preflight (FR-024 fail-fast preconditions)
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
           LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -82,6 +85,9 @@ jobs:
         timeout-minutes: 300
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
           LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}

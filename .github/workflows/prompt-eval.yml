@@ -29,6 +29,9 @@ jobs:
     timeout-minutes: 30
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
     steps:
       - uses: actions/checkout@v5
         with:

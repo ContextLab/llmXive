@@ -72,6 +72,9 @@ jobs:
       - name: Run differential calibration
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
           # Inputs piped via env (safer than direct ${{ ... }} expansion
           # in run: blocks — workflow_dispatch is write-access-only but
           # we follow the same hardening as untrusted-input workflows).
