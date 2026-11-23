@@ -422,3 +422,19 @@ def test_a_planted_provider_pinned_literal_in_production_is_a_violation(tmp_path
 
 def test_the_real_tree_still_has_zero_violations_after_027():
     assert find_violations(REPO_ROOT) == []
+
+
+@pytest.mark.parametrize("value", [
+    "state/model_selection:x",
+    "refs/heads/main:prov-a",
+    "application/json:together",
+    "lmarena-ai/leaderboard-dataset:novita",
+    "src/llmxive/backends/huggingface.py:12",
+])
+def test_a_provider_suffix_alone_does_not_widen_matching(value):
+    """Final review B4: appending ``:<provider>`` to a string the detector rejects must
+    not turn it into a model id."""
+    from llmxive.model_selection.inventory import looks_like_model_id
+
+    assert not looks_like_model_id(value.rsplit(":", 1)[0])
+    assert not looks_like_model_id(value)
