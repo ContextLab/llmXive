@@ -16,6 +16,7 @@ from llmxive.backends.hf_budget import (
     funded_guard,
     funded_observer,
     funded_spend,
+    reserve_funded,
     settle_funded,
 )
 from llmxive.model_selection.ledger_transport import (
@@ -24,6 +25,7 @@ from llmxive.model_selection.ledger_transport import (
     LedgerConfig,
     LedgerDenied,
     bootstrap_ledger,
+    fetch_ledger,
     read_events,
 )
 from llmxive.model_selection.reservations import (
@@ -121,10 +123,6 @@ def test_bootstrap_funded_ref_on_a_remote(remote_and_clone):
 
 
 def test_two_clones_race_to_reconcile_exactly_one_charge_wins(tmp_path: Path):
-    import threading
-
-    from llmxive.model_selection.ledger_transport import fetch_ledger
-
     remote = tmp_path / "remote.git"
     _git(["init", "--bare", "-b", "main", str(remote)], tmp_path)
     clones = []
@@ -289,28 +287,72 @@ def test_two_runners_cannot_overspend_the_allowance(remote_and_two_clones, monke
     monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
     _remote, a, b = remote_and_two_clones
     cfg = LedgerConfig(remote="origin", ref=FUNDED_LEDGER_REF)
-    now = U("2026-11-30T12:00:00")
-    barrier = threading.Barrier(2)
-    results: list[str] = []
+    now = U("2026-11-30T12:00:00")  # last day: cap = the whole $50 month
+    # Both clones start from the SAME authoritative tip.
+    for clone in (a, b):
+        fetch_ledger(clone, cfg)
+    tips = {subprocess.run(["git", "rev-parse", FUNDED_LEDGER_REF], cwd=str(c), capture_output=True,
+                           text=True, check=True).stdout.strip() for c in (a, b)}
+    assert len(tips) == 1
+    # Each runner's FIRST pricing waits until the other has priced too, so both price
+    # against that same tip; one CAS push must then lose and re-price.
+    priced = threading.Barrier(2)
+    calls: dict[str, int] = {"ra": 0, "rb": 0}
+    results: dict[str, str] = {}
+
+    def observer_for(clone, rid):
+        inner = funded_observer(clone, config=cfg, now_fn=lambda: now)
+
+        def observe():
+            obs = inner()
+            calls[rid] += 1
+            if calls[rid] == 1:
+                priced.wait(timeout=20)
+            return obs
+        return observe
 
     def run(clone, rid):
         try:
-            barrier.wait(timeout=10)
             reserve(clone, reservation_id=rid, worst_case_credits=30.0, model="m",
                     lease_expires_at=now + timedelta(seconds=420),
-                    credit_observer=funded_observer(clone, config=cfg, now_fn=lambda: now), now=now, config=cfg)
-            results.append("ok")
+                    credit_observer=observer_for(clone, rid), now=now, config=cfg)
+            results[rid] = "ok"
         except LedgerDenied:
-            results.append("denied")
+            results[rid] = "denied"
         except BaseException as exc:  # surfaced in the assertion
-            results.append(f"error: {exc!r}")
+            results[rid] = f"error: {exc!r}"
 
     ts = [threading.Thread(target=run, args=(a, "ra")), threading.Thread(target=run, args=(b, "rb"))]
     for t in ts:
         t.start()
     for t in ts:
-        t.join(30)
-    assert sorted(results) == ["denied", "ok"]                                   # $50 month, two $30 holds
+        t.join(60)
+    assert sorted(results.values()) == ["denied", "ok"], results               # $50 month, two $30 holds
+    loser = next(rid for rid, r in results.items() if r == "denied")
+    assert calls[loser] >= 2, calls  # the loser re-priced after its CAS push was rejected
+    fetch_ledger(a, cfg)
+    held = sum(r.worst_case_credits for r in project(read_events(a, ref=FUNDED_LEDGER_REF)).values())
+    assert held <= 50.0
+
+
+def test_december_hold_does_not_count_against_january(repo, monkeypatch):
+    monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
+    dec31 = U("2026-12-31T23:59:30")
+    r = reserve_funded(repo, reservation_id="dec", worst_case_usd=45.0, model="m",
+                       lease_expires_at=dec31 + timedelta(seconds=420), now=dec31, config=CFG)
+    assert r.budget_epoch == "2026-12" and r.created_at.startswith("2026-12-31")  # one clock
+    with pytest.raises(LedgerDenied):  # December has only $5 left
+        reserve_funded(repo, reservation_id="dec2", worst_case_usd=6.0, model="m",
+                       lease_expires_at=dec31 + timedelta(seconds=420), now=dec31, config=CFG)
+    jan1 = U("2027-01-01T00:00:30")
+    obs = funded_observer(repo, config=CFG, now_fn=lambda: jan1)()
+    assert (obs.budget_epoch, obs.spend) == ("2027-01", 0.0)
+    assert obs.effective_cap == pytest.approx(4 * 50.0 / 31)  # allowance reset for January
+    j = reserve_funded(repo, reservation_id="jan", worst_case_usd=6.0, model="m",
+                       lease_expires_at=jan1 + timedelta(seconds=420), now=jan1, config=CFG)
+    assert j.budget_epoch == "2027-01"
+    spend = funded_spend(project(read_events(repo, ref=FUNDED_LEDGER_REF)).values(), now=jan1)
+    assert spend == FundedSpend(0.0, 0.0, 6.0)  # December's open $45 hold is not January's
 
 
 def test_settle_funded_charges_full_reservation_when_usage_is_missing(repo):

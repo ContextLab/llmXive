@@ -116,6 +116,35 @@ def test_fetch_org_balance_is_none_when_unreachable(monkeypatch):
     assert fetch_org_balance_usd(url=url, timeout=2.0) is None  # server already shut down
 
 
+@pytest.mark.parametrize("bad_url", [
+    "https://evil.example/api/organizations/contextlab/billing/credits",
+    "http://huggingface.co/api/organizations/contextlab/billing/credits",   # token never over plain http
+    "https://huggingface.co.evil.example/x",
+    "https://10.0.0.5/x",
+])
+def test_fetch_org_balance_refuses_to_send_the_token_elsewhere(monkeypatch, bad_url):
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with pytest.raises(ValueError, match="refusing to send"):
+        fetch_org_balance_usd(url=bad_url, timeout=2.0)
+
+
+def test_fetch_org_balance_non_allowed_host_gets_no_request(monkeypatch):
+    # A real server reached through a name that is not on the allow-list: nothing arrives.
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with ReplayServer({("GET", _PATH): [(200, {"balanceUsd": 1.0})]}) as srv:
+        port = srv.base_url.rsplit(":", 1)[1]
+        with pytest.raises(ValueError, match="refusing to send"):
+            fetch_org_balance_usd(url=f"http://0.0.0.0:{port}{_PATH}", timeout=2.0)
+    assert srv.requests == []
+
+
+def test_fetch_org_balance_accepts_localhost_names(monkeypatch):
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with ReplayServer({("GET", _PATH): [(200, {"balanceUsd": 3.0})]}) as srv:
+        port = srv.base_url.rsplit(":", 1)[1]
+        assert fetch_org_balance_usd(url=f"http://localhost:{port}{_PATH}", timeout=5.0) == 3.0
+
+
 def test_fetch_org_balance_without_a_token_makes_no_request(monkeypatch):
     monkeypatch.delenv("HF_TOKEN", raising=False)
     monkeypatch.setenv("PATH", "/nonexistent")  # no Keychain CLI either → no token

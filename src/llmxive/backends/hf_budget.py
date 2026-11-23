@@ -31,6 +31,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -163,11 +164,34 @@ def parse_org_credits(payload: dict) -> float:
     return float(value)
 
 
+#: Hosts the Hugging Face token may be sent to: Hugging Face itself (over https) and
+#: loopback (local test servers). Any other host is refused before a request is made.
+_TOKEN_HOST = "huggingface.co"
+_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+
+
+def _require_token_safe_url(url: str) -> None:
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower()
+    if host == _TOKEN_HOST and parts.scheme == "https":
+        return
+    if host in _LOOPBACK_HOSTS and parts.scheme in ("http", "https"):
+        return
+    raise ValueError(
+        f"refusing to send the Hugging Face token to {parts.scheme}://{host or '?'}: "
+        f"only https://{_TOKEN_HOST} or a loopback address is allowed"
+    )
+
+
 def fetch_org_balance_usd(*, timeout: float = 30.0, url: str = ORG_CREDITS_URL) -> float | None:
     """The organisation's credit balance in USD, or ``None`` on ANY failure: no token,
     a refused scope (403 — the CI token usually lacks ``org.billing.read``), another
     non-200 status, a transport error, or a malformed body. ``None`` means "cross-check
-    unavailable"; callers fall back to the ledger-derived allowance alone."""
+    unavailable"; callers fall back to the ledger-derived allowance alone.
+
+    ``url`` must be ``https://huggingface.co/...`` or a loopback address (tests); any
+    other host raises ``ValueError`` before a token is loaded or a request is sent."""
+    _require_token_safe_url(url)
     token = load_hf_token()
     if not token:
         logger.info("org credits cross-check unavailable: no Hugging Face token")
@@ -210,7 +234,7 @@ def funded_observer(
     repo: Path,
     *,
     config: LedgerConfig,
-    now_fn: Callable[[], datetime] = lambda: datetime.now(UTC),
+    now_fn: Callable[[], datetime],
     org_balance_usd: float | None = None,
 ) -> Callable[[], CreditObservation]:
     """A ``credit_observer`` for :func:`reservations.reserve` on the funded ledger.
@@ -220,7 +244,12 @@ def funded_observer(
     attempt — and returns ``spend`` = month-to-date reconciled spend, ``effective_cap``
     = :func:`allowance_cap_usd`, ``budget_epoch`` = the current UTC month.
     ``org_balance_usd`` is a cross-check value fetched once by the caller (``None`` =
-    unavailable; the ledger-derived allowance alone applies)."""
+    unavailable; the ledger-derived allowance alone applies).
+
+    ``now_fn`` is REQUIRED and must be the same clock ``reserve`` stamps
+    ``created_at`` with; otherwise, at a month boundary, a hold's ``budget_epoch``
+    could disagree with its ``created_at``. :func:`reserve_funded` wires one clock to
+    both — production callers should use it."""
     from llmxive.model_selection.ledger_transport import read_events
     from llmxive.model_selection.reservations import CreditObservation, project
 
@@ -233,6 +262,37 @@ def funded_observer(
         return CreditObservation(spend=spend.spent_month_usd, effective_cap=cap, budget_epoch=epoch_of(now))
 
     return observe
+
+
+def reserve_funded(
+    repo: Path,
+    *,
+    reservation_id: str,
+    worst_case_usd: float,
+    model: str,
+    lease_expires_at: datetime,
+    now: datetime,
+    config: LedgerConfig,
+    org_balance_usd: float | None = None,
+) -> Reservation:
+    """Open a funded reservation under strict CAS with ONE clock: the same ``now``
+    prices the hold (epoch + cap via :func:`funded_observer`) and stamps its
+    ``created_at``, so a hold can never land in a different month than it was priced
+    in. Raises ``LedgerDenied`` when the allowance has no headroom."""
+    from llmxive.model_selection.reservations import reserve
+
+    return reserve(
+        repo,
+        reservation_id=reservation_id,
+        worst_case_credits=worst_case_usd,
+        model=model,
+        credit_observer=funded_observer(
+            repo, config=config, now_fn=lambda: now, org_balance_usd=org_balance_usd
+        ),
+        lease_expires_at=lease_expires_at,
+        now=now,
+        config=config,
+    )
 
 
 def funded_guard(
@@ -334,5 +394,6 @@ __all__ = [
     "funded_spend",
     "monthly_allowance_usd",
     "parse_org_credits",
+    "reserve_funded",
     "settle_funded",
 ]
