@@ -72,6 +72,15 @@ class HFCredentialRejected(PreInferenceRejection, BackendCredentialError):
         self.http_status = http_status
 
 
+def request_was_sent(exc: BaseException) -> bool:
+    """Whether the request that raised ``exc`` may have reached the provider.
+
+    ``False`` only when :meth:`HuggingFaceBackend.chat` recorded that no request was
+    or will be sent; an exception without that record (from another backend, or one
+    that refused the attribute) reads as sent — the safe answer for budget accounting."""
+    return getattr(exc, "request_sent", True) is not False
+
+
 def _deadline_s() -> float:
     return float(os.environ.get("LLMXIVE_HF_DEADLINE_S", str(_DEFAULT_DEADLINE_S)))
 
@@ -164,38 +173,55 @@ class HuggingFaceBackend(BaseBackend):
         temperature: float | None = None,
         deadline_s: float | None = None,
     ) -> ChatResponse:
-        token, bill_to = self._credentials()
-        payload: dict[str, Any] = {
-            "model": model,
-            "messages": [{"role": m.role, "content": openai_content(m.content)} for m in messages],
-            "stream": False,
-        }
-        if max_tokens is not None:
-            payload["max_tokens"] = max_tokens
-        if temperature is not None:
-            payload["temperature"] = temperature
-        headers = {"Authorization": f"Bearer {token}", BILL_TO_HEADER: bill_to}
-        deadline = deadline_s if deadline_s is not None else _deadline_s()
+        """One chat request. Any exception leaving this method carries
+        ``request_sent`` (read it with :func:`request_was_sent`): ``False`` only when it
+        is certain no HTTP request was or will be sent — missing credentials, or the
+        circuit breaker refusing before the request thread starts. Once that thread
+        starts it is ``True``, even if the request has not reached the network yet (a
+        deadline can abandon the thread before it sends, and the thread may still send)."""
+        started = False
+        try:
+            token, bill_to = self._credentials()
+            payload: dict[str, Any] = {
+                "model": model,
+                "messages": [{"role": m.role, "content": openai_content(m.content)} for m in messages],
+                "stream": False,
+            }
+            if max_tokens is not None:
+                payload["max_tokens"] = max_tokens
+            if temperature is not None:
+                payload["temperature"] = temperature
+            headers = {"Authorization": f"Bearer {token}", BILL_TO_HEADER: bill_to}
+            deadline = deadline_s if deadline_s is not None else _deadline_s()
 
-        def _attempt() -> ChatResponse:
-            try:
-                resp = httpx.post(
-                    f"{self._base_url}/chat/completions",
-                    json=payload,
-                    headers=headers,
-                    timeout=deadline,
+            def _attempt() -> ChatResponse:
+                try:
+                    resp = httpx.post(
+                        f"{self._base_url}/chat/completions",
+                        json=payload,
+                        headers=headers,
+                        timeout=deadline,
+                    )
+                except httpx.HTTPError as exc:
+                    raise TransientBackendError(
+                        f"Hugging Face model {model!r}: {type(exc).__name__}"
+                    ) from exc
+                return self._parse(resp, model, secrets=(token, bill_to))
+
+            def _dispatch() -> ChatResponse:
+                nonlocal started
+                started = True  # from here on a request may leave, whatever happens next
+                return invoke_with_deadline(
+                    _attempt, timeout=deadline, description=f"Hugging Face model {model!r}"
                 )
-            except httpx.HTTPError as exc:
-                raise TransientBackendError(
-                    f"Hugging Face model {model!r}: {type(exc).__name__}"
-                ) from exc
-            return self._parse(resp, model, secrets=(token, bill_to))
 
-        return self._breaker(model).call(
-            lambda: invoke_with_deadline(
-                _attempt, timeout=deadline, description=f"Hugging Face model {model!r}"
-            )
-        )
+            return self._breaker(model).call(_dispatch)
+        except Exception as exc:
+            try:
+                exc.request_sent = started  # type: ignore[attr-defined]
+            except AttributeError:  # refuses attributes → request_was_sent() reads "sent"
+                pass
+            raise
 
     def healthcheck(self) -> bool:
         try:
@@ -261,4 +287,5 @@ __all__ = [
     "HuggingFaceBackend",
     "PreInferenceRejection",
     "fetch_router_catalog",
+    "request_was_sent",
 ]

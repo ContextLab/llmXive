@@ -140,9 +140,11 @@ CC-BY-4.0, by LMArena); they are used for internal ranking only and are never
 committed. A funded call needs neither `allow_paid` nor the paid opt-in. Before it
 is sent, its worst-case cost is reserved on the funded ledger
 (`refs/llmxive/funded-ledger`, USD, monthly epoch); it is sent once, and afterwards
-the ledger records its real cost (reported token usage times the catalog price;
-zero for an HTTP 401/402/403 rejection or a request never sent; the full
-reservation when no usage is reported). When the allowance is exhausted the funded
+the ledger records its real cost (reported token usage times the catalog price,
+capped at the reservation, with any excess logged and noted on the result; zero
+for an HTTP 401/402/403 rejection or a request provably never sent, such as an
+open circuit breaker or a missing token or bill-to id; the full reservation when
+no usage is reported). When the allowance is exhausted the funded
 candidates are skipped and the chain moves on. Settings: `HF_TOKEN` (CI secret or
 macOS Keychain), `LLMXIVE_HF_BILL_TO` (the billed resource group),
 `LLMXIVE_HF_MONTHLY_USD`, `LLMXIVE_HF_DEADLINE_S`, and the funded ledger's

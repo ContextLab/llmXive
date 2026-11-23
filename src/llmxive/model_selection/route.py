@@ -36,6 +36,7 @@ import time
 import uuid
 from collections.abc import Callable, Iterable
 from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 
 from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse, ImagePart, TextPart
@@ -383,6 +384,7 @@ def route_chat(
     route_id: str | None = None,
     funded_ledger_config: LedgerConfig | None = None,
     funded_policy: FundedPolicy | None = None,
+    now: datetime | None = None,
 ) -> ChatResponse:
     """Route one chat call through select()→execute() and return its response.
 
@@ -440,7 +442,10 @@ def route_chat(
     to :func:`execute` (``None`` → the production funded ledger from the env, failing
     closed without its anchor). The snapshot's funded guard prices each funded hold,
     which needs neither ``allow_paid`` nor the paid opt-in; an exhausted allowance
-    skips the funded candidates (outage path, never a human escalation).
+    skips the funded candidates (outage path, never a human escalation). ``now``
+    (default: the wall clock, read by :func:`execute`) is the clock every reservation
+    is priced and stamped with — an injection seam so a funded hold's month can be
+    pinned to the snapshot's guard in tests.
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
@@ -524,5 +529,6 @@ def route_chat(
         route_audit=route_audit,
         funded_ledger_config=funded_ledger_config,
         funded_guard=snap.funded,
+        now=now,
     )
     return result.response

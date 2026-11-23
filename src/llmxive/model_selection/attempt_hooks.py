@@ -143,7 +143,12 @@ class SelectionFailure:
 
 @dataclass(frozen=True)
 class ReservationOpened:
-    """Emitted once per paid candidate whose Attempt + 026 reservations both opened."""
+    """Emitted once per paid candidate whose Attempt + 026 reservations both opened,
+    and once per funded (Hugging Face) candidate whose funded-ledger hold opened.
+
+    ``reserved_credits`` is always in credits (1 credit = $0.001). ``reserved_usd`` is
+    the USD amount held on the funded ledger for a funded candidate, and ``None`` for a
+    paid one (whose hold is on the Dartmouth credit ledger, in credits)."""
 
     route_id: str
     candidate_index: int
@@ -151,6 +156,7 @@ class ReservationOpened:
     reservation_id: str
     reserved_credits: float
     event_id: str = ""
+    reserved_usd: float | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(

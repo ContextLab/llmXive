@@ -284,6 +284,7 @@ def reserve_funded(
     now: datetime,
     config: LedgerConfig,
     guard: FundedGuardSnapshot,
+    owner: str | None = None,
 ) -> Reservation:
     """Open a funded reservation under strict CAS with ONE clock: the same ``now``
     prices the hold (epoch + cap via :func:`funded_observer`) and stamps its
@@ -293,7 +294,8 @@ def reserve_funded(
     ``guard`` is the runtime snapshot's live :class:`FundedGuardSnapshot`; the hold is
     priced with ITS ``org_balance_usd`` — the one org-balance fetch :func:`funded_guard`
     made — never a second fetch. A guard that is not live, or is from another epoch
-    than ``now``, raises :class:`FundedUnavailable` (fail closed: re-snapshot)."""
+    than ``now``, raises :class:`FundedUnavailable` (fail closed: re-snapshot).
+    ``owner`` is passed to :func:`reservations.reserve` (it marks who opened the hold)."""
     from llmxive.model_selection.reservations import reserve
 
     if guard.source != "live":
@@ -313,6 +315,7 @@ def reserve_funded(
         lease_expires_at=lease_expires_at,
         now=now,
         config=config,
+        owner=owner,
     )
 
 

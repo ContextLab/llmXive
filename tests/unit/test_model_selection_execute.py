@@ -30,9 +30,9 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
+from tests.helpers.audit_sinks import FailingRecorder
 from tests.unit.test_model_selection_attempt_hooks import (
     _ClaimingRecorder,
-    _FailingRecorder,
     _Recorder,
 )
 
@@ -237,7 +237,7 @@ def test_route_audit_emits_dispatch_lifecycle_free_chain():
 
 
 def test_route_audit_predispatch_failure_is_route_fatal():
-    rec = _FailingRecorder(fail_on={"DispatchStarted"})
+    rec = FailingRecorder(fail_on={"DispatchStarted"})
     chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
     with pytest.raises(RouteAuditError):
         execute(chain, MSG, options=ExecutionOptions(max_tokens=64),

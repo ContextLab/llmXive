@@ -3069,7 +3069,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_route.py",
       "kind": "module_constant",
-      "line": 47,
+      "line": 48,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3080,7 +3080,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_route.py",
       "kind": "module_constant",
-      "line": 48,
+      "line": 49,
       "models": [
         "google.gemma-4-31B-it"
       ],
@@ -3091,7 +3091,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_route.py",
       "kind": "module_constant",
-      "line": 49,
+      "line": 50,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -3102,7 +3102,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_route.py",
       "kind": "module_constant",
-      "line": 50,
+      "line": 51,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],
@@ -3113,7 +3113,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_route.py",
       "kind": "module_constant",
-      "line": 51,
+      "line": 52,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],
@@ -3124,7 +3124,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_route.py",
       "kind": "module_constant",
-      "line": 168,
+      "line": 169,
       "models": [
         "openai.gpt-5"
       ],

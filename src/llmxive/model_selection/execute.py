@@ -49,7 +49,7 @@ from pathlib import Path
 
 from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse
 from llmxive.backends.hf_budget import reserve_funded, settle_funded
-from llmxive.backends.huggingface import PreInferenceRejection
+from llmxive.backends.huggingface import PreInferenceRejection, request_was_sent
 from llmxive.backends.router import (
     CandidateDisposition,
     chat_one_candidate,
@@ -114,8 +114,11 @@ class ExecutionResult:
     winning candidate's ledger ``reservation_id`` (``None`` for a free winner —
     FR-033a: the lane attributes settled Attempt cost by this id; a funded winner's
     id names a hold on the funded ledger, not the Dartmouth credit ledger).
-    ``charged_usd`` is the real USD charge settled for a funded winner (also set as
-    ``response.cost_estimate_usd``); ``None`` for a free or paid winner."""
+    ``reserved_credits`` is always in credits (1 credit = $0.001); for a funded winner
+    the hold actually on the funded ledger is in USD and is ``reserved_usd``
+    (``None`` otherwise). ``charged_usd`` is the real USD charge settled for a funded
+    winner (also set as ``response.cost_estimate_usd``); ``None`` for a free or paid
+    winner."""
 
     response: ChatResponse
     model_ref: ModelRef
@@ -123,6 +126,7 @@ class ExecutionResult:
     notes: tuple[str, ...]
     reservation_id: str | None = None
     charged_usd: float | None = None
+    reserved_usd: float | None = None
 
 
 def _sanitize_reservation_id(model_id: str, call_id: str) -> str:
@@ -291,6 +295,41 @@ def _settle_funded_hold(
         return None
 
 
+def _release_unsent_hold_if_created(
+    ledger_repo: Path,
+    reservation_id: str,
+    *,
+    owner: str,
+    now: datetime,
+    config: LedgerConfig,
+    notes: list[str],
+) -> None:
+    """Release (reconcile at zero) a funded hold that THIS call opened and never sent.
+
+    Creation is decided from the ledger itself: the hold's ``open`` event carries the
+    ``owner`` token of the call that wrote it, so a hold another call opened under the
+    same id (a replay, or a caller-supplied ``call_id``) is never touched — its own
+    dispatch settles it. When ownership cannot be established (the ledger read fails,
+    or the event has not reached the local ref), the hold is left for its lease expiry
+    and the funded ledger's sweep, and that is logged + noted."""
+    from llmxive.model_selection.ledger_transport import read_events
+    from llmxive.model_selection.reservations import STATE_RECONCILED, project
+
+    try:
+        hold = project(read_events(ledger_repo, ref=config.ref)).get(reservation_id)
+    except Exception as exc:
+        msg = (
+            f"funded hold {reservation_id}: ownership unknown ({type(exc).__name__} reading the "
+            "ledger); left for the lease expiry and the funded ledger's sweep"
+        )
+        logger.warning("execute: %s", msg)
+        notes.append(msg)
+        return
+    if hold is None or hold.owner != owner or hold.state == STATE_RECONCILED:
+        return
+    _settle_funded_hold(ledger_repo, reservation_id, charged_usd=0.0, now=now, config=config, notes=notes)
+
+
 def _open_funded_reservation(
     candidate: Candidate,
     chain: ModelChain,
@@ -302,14 +341,17 @@ def _open_funded_reservation(
     funded_guard: FundedGuardSnapshot | None,
     now: datetime,
     call_id: str,
-    owns_call_id: bool,
+    owner: str,
+    dispatch_gated: bool,
     notes: list[str],
-) -> tuple[str | None, float, str | None]:
+) -> tuple[str | None, float, bool, str | None]:
     """Reserve a funded (Hugging Face) candidate's worst case x 1, in USD, on the funded
-    ledger. Returns ``(reservation_id, reserved_usd, skip_reason)`` — exactly one of
-    ``reservation_id`` / ``skip_reason`` is non-None. ANY failure (a denial, a ledger
-    error, a refused guard, or an unexpected exception from the observer) is a skip:
-    a funded candidate is never dispatched without a successful reservation.
+    ledger. Returns ``(reservation_id, reserved_usd, created, skip_reason)`` — exactly
+    one of ``reservation_id`` / ``skip_reason`` is non-None; ``created`` says whether
+    THIS call wrote the hold (its ``owner`` token is on the ``open`` event) or found one
+    already there under the same id. ANY failure (a denial, a ledger error, a refused
+    guard, or an unexpected exception from the observer) is a skip: a funded candidate
+    is never dispatched without a successful reservation.
 
     The hold is priced by ``funded_observer`` when one is injected (FR-015 seam),
     else by :func:`hf_budget.reserve_funded` against the runtime snapshot's live
@@ -317,49 +359,61 @@ def _open_funded_reservation(
     not live or is from another month). ``reservation_authority`` (Dartmouth credits)
     is not consulted. Only ``worst_case x 1`` is held: the candidate is dispatched once.
 
-    If the reserve raised unexpectedly AFTER its event may have landed, a hold this
-    call owns (``owns_call_id`` — a freshly minted ``call_id``, so the id cannot name
-    another dispatch's hold) is released at zero; otherwise its lease expiry and the
-    ledger's sweep end it."""
+    A hold found already there (not created) is dispatched under only when
+    ``dispatch_gated`` (a ``route_audit`` sink whose atomic ``claim_dispatch`` lets at
+    most one caller send under it); without that gate the candidate is skipped, since
+    the other call may be sending under the same hold. If the reserve raised after its
+    ``open`` event may have landed, :func:`_release_unsent_hold_if_created` releases the
+    hold at zero only when it is provably this call's."""
     ref = candidate.model_ref
     fprov = chain.snapshot_provenance.get("funded")
     if fprov is None or fprov.source != "live":
         src = fprov.source if fprov is not None else "missing"
-        return None, 0.0, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'"
+        return None, 0.0, False, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'"
     if ledger_repo is None or config is None:
-        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)"
+        return None, 0.0, False, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)"
     if funded_observer is None and funded_guard is None:
-        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)"
+        return None, 0.0, False, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)"
 
     reserve_usd = candidate.worst_case_credits / USD_TO_CREDITS
     rid = _sanitize_reservation_id(ref.model_id, call_id)
     lease_expires = now + timedelta(seconds=lease_duration_for(options.deadline_s))
     try:
         if funded_observer is not None:
-            reserve(
+            hold = reserve(
                 ledger_repo, reservation_id=rid, worst_case_credits=reserve_usd, model=ref.model_id,
                 credit_observer=funded_observer, lease_expires_at=lease_expires, now=now, config=config,
+                owner=owner,
             )
         else:
-            reserve_funded(
+            hold = reserve_funded(
                 ledger_repo, reservation_id=rid, worst_case_usd=reserve_usd, model=ref.model_id,
                 lease_expires_at=lease_expires, now=now, config=config,
                 guard=funded_guard,  # type: ignore[arg-type]  # non-None: checked above
+                owner=owner,
             )
     except LedgerDenied as exc:  # no allowance headroom, or an id collision: nothing written
-        return None, 0.0, f"funded {ref.model_id!r} skipped: reservation denied ({exc})"
+        return None, 0.0, False, f"funded {ref.model_id!r} skipped: reservation denied ({exc})"
     except Exception as exc:
-        if owns_call_id:
-            try:
-                from llmxive.model_selection.ledger_transport import read_events
-                from llmxive.model_selection.reservations import project
+        _release_unsent_hold_if_created(ledger_repo, rid, owner=owner, now=now, config=config, notes=notes)
+        return None, 0.0, False, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})"
+    created = hold.owner == owner
+    if not created and not dispatch_gated:
+        return None, 0.0, False, (
+            f"funded {ref.model_id!r} skipped: hold {rid} already exists for another call and no "
+            "dispatch claim gate is active (would send twice under one hold)"
+        )
+    return rid, reserve_usd, created, None
 
-                if rid in project(read_events(ledger_repo, ref=config.ref)):
-                    _settle_funded_hold(ledger_repo, rid, charged_usd=0.0, now=now, config=config, notes=notes)
-            except Exception as read_exc:  # best-effort; the lease expiry backstops it
-                logger.warning("execute: post-failure ledger read for %s failed (%s)", rid, type(read_exc).__name__)
-        return None, 0.0, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})"
-    return rid, reserve_usd, None
+
+def _provably_no_inference(exc: BaseException, *, sent: bool) -> bool:
+    """spec 5.9.2: a funded call is charged zero only when it provably incurred no
+    inference — ``execute`` never handed it to the backend (``sent`` False), the
+    backend recorded that no HTTP request was or will be sent (circuit breaker open,
+    missing token or bill-to: :func:`huggingface.request_was_sent`), or the provider
+    definitively rejected it before inference (HTTP 401/402/403,
+    ``PreInferenceRejection``). Everything else may have reached inference."""
+    return not sent or not request_was_sent(exc) or isinstance(exc, PreInferenceRejection)
 
 
 def _usage_charge_usd(candidate: Candidate, response: ChatResponse) -> float | None:
@@ -412,12 +466,16 @@ def execute(
     ``hf_budget.reserve_funded`` against ``funded_guard`` (the runtime snapshot's
     guard; ``route_chat`` passes it). It is dispatched ONCE (``retries=1``) and ALWAYS
     reconciled before ``execute`` leaves the candidate: the charge is ``usage`` x the
-    catalog price (capped at the reservation, the excess noted and logged), ``0.0`` for
-    a definitive pre-inference rejection (``PreInferenceRejection``: HTTP 401/402/403,
-    or a request never sent), and the full reservation for every other failure or a
-    reply without both token counts. A successful reply carries the charge as
-    ``response.cost_estimate_usd`` and ``ExecutionResult.charged_usd``; a failed settle
-    is logged + noted and never fails the reply.
+    catalog price (capped at the reservation, the excess noted and logged), ``0.0``
+    when no inference provably happened (:func:`_provably_no_inference`: never handed
+    to the backend, the backend recorded no request sent — breaker open, missing token
+    or bill-to — or HTTP 401/402/403), and the full reservation for every other
+    failure or a reply without both token counts. A successful reply carries the
+    charge as ``response.cost_estimate_usd`` and ``ExecutionResult.charged_usd``; a
+    failed settle is logged + noted and never fails the reply. Every funded hold
+    carries this call's ``owner`` token: a hold found under the same id (a replay, a
+    shared ``call_id``) is never released by this call, and is dispatched under only
+    behind the ``route_audit`` claim gate.
 
     **Attempt budget (FR-033b).** An optional ``reservation_authority`` is consulted
     per paid candidate, BEFORE the 026 daily reserve: a refusal (``False``) skips the
@@ -495,9 +553,9 @@ def execute(
     # Slice-0 audit fix #6 (HIGH finding #1): the call_id derivation is CONDITIONAL
     # on whether the dispatch-idempotency gate (the atomic claim_dispatch below) is
     # active — i.e. on whether a route_audit sink was injected.
-    # A freshly minted (random) call_id cannot name another dispatch's reservation,
-    # so only then may a failed funded reserve release a hold under that id.
-    owns_call_id = call_id is None and route_audit is None
+    # Funded holds record this per-call token as their `owner`, so this call can tell
+    # a hold it opened from one another call opened under the same reservation id.
+    funded_owner = uuid.uuid4().hex
     if call_id is None:
         if route_audit is not None:
             # AUDITED path: claim_dispatch() gates the real backend dispatch, so a
@@ -566,16 +624,17 @@ def execute(
         reserved_credits = 0.0
         funded = candidate.cost_class == "funded"
         reserved_usd = 0.0
+        funded_created = False
 
         if funded:
             if funded_config_error is not None:
                 skip = f"funded {ref.model_id!r} skipped: funded ledger not configured ({funded_config_error}) — fail closed"
             else:
-                reservation_id, reserved_usd, skip = _open_funded_reservation(
+                reservation_id, reserved_usd, funded_created, skip = _open_funded_reservation(
                     candidate, chain, options=options, ledger_repo=ledger_repo,
                     config=funded_ledger_config, funded_observer=funded_observer,
                     funded_guard=funded_guard, now=now, call_id=call_id,
-                    owns_call_id=owns_call_id, notes=notes,
+                    owner=funded_owner, dispatch_gated=route_audit is not None, notes=notes,
                 )
             if skip is not None:
                 notes.append(skip)
@@ -617,7 +676,10 @@ def execute(
             if reservation_id is not None:
                 emit_audit(
                     route_audit,
-                    ReservationOpened(route_id, candidate_index, ref, reservation_id, reserved_credits),
+                    ReservationOpened(
+                        route_id, candidate_index, ref, reservation_id, reserved_credits,
+                        reserved_usd=reserved_usd if funded else None,
+                    ),
                 )
             if route_audit is not None:
                 try:
@@ -632,11 +694,14 @@ def execute(
                 claimed = True  # no audit sink → no idempotency (compat path, unchanged behavior)
         except RouteAuditError:
             if reservation_id is not None and funded:
-                # Definitively not dispatched → the funded hold is released at zero.
-                _settle_funded_hold(
-                    ledger_repo, reservation_id, charged_usd=0.0, now=now,  # type: ignore[arg-type]
-                    config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
-                )
+                # Not dispatched by THIS call. Release at zero only a hold this call
+                # created; a hold found under the same id belongs to another call
+                # (possibly mid-dispatch), whose own settlement records its charge.
+                if funded_created:
+                    _settle_funded_hold(
+                        ledger_repo, reservation_id, charged_usd=0.0, now=now,  # type: ignore[arg-type]
+                        config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                    )
             elif reservation_id is not None:
                 # F3: run BOTH cleanups independently — a failing release() must not
                 # suppress settle(), and neither must mask the primary RouteAuditError.
@@ -736,6 +801,7 @@ def execute(
                 model_ref=ref,
                 reserved_credits=reserved_credits,
                 notes=tuple(notes),
+                reserved_usd=reserved_usd if funded else None,
                 reservation_id=reservation_id,
                 charged_usd=charged_usd,
             )
@@ -750,7 +816,7 @@ def execute(
                 funded_settled = True
                 _settle_funded_hold(
                     ledger_repo, reservation_id,  # type: ignore[arg-type]
-                    charged_usd=0.0 if (not sent or isinstance(exc, PreInferenceRejection)) else None,
+                    charged_usd=0.0 if _provably_no_inference(exc, sent=sent) else None,
                     now=now, config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
                 )
             disp = disposition_of(exc)

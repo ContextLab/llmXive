@@ -10,10 +10,12 @@ FR-015 sanctions (scripted per model, counting calls).
 
 from __future__ import annotations
 
+import importlib
 import shutil
 import subprocess
+import time
 from dataclasses import replace
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -25,15 +27,20 @@ from llmxive.backends.base import (
     TransientBackendError,
 )
 from llmxive.backends.hf_budget import FundedUnavailable
-from llmxive.backends.huggingface import HFCredentialRejected, HFPaymentRequired
-from llmxive.model_selection.attempt_hooks import RouteAuditError
-from llmxive.model_selection.execute import ChainExhausted, execute
+from llmxive.backends.huggingface import HFCredentialRejected, HFPaymentRequired, HuggingFaceBackend
+from llmxive.model_selection.attempt_hooks import ReservationOpened, RouteAuditError
+from llmxive.model_selection.execute import ChainExhausted, _release_unsent_hold_if_created, execute
 from llmxive.model_selection.ledger_transport import FUNDED_LEDGER_REF, LedgerConfig, read_events
-from llmxive.model_selection.reservations import STATE_OPEN, CreditObservation, project
+from llmxive.model_selection.reservations import STATE_OPEN, CreditObservation, project, reserve
 from llmxive.model_selection.route import route_chat
 from llmxive.model_selection.types import ExecutionOptions, SnapshotProvenance
+from tests.helpers.audit_sinks import FailingRecorder
 from tests.helpers.funded import NOW, B, E, policy_with, sel, snapshot
-from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder
+from tests.helpers.replay_server import ReplayServer
+
+# The modules themselves (the package re-exports a function named ``execute``).
+execute_mod = importlib.import_module("llmxive.model_selection.execute")
+reservations_mod = importlib.import_module("llmxive.model_selection.reservations")
 
 CFG = LedgerConfig(remote=None, ref=FUNDED_LEDGER_REF)
 MSG = [ChatMessage("user", "hi")]
@@ -230,7 +237,7 @@ def test_unconfigured_production_ledger_fails_closed(repo, monkeypatch):
 def test_audit_failure_after_dispatch_still_settles_the_real_cost(repo):
     with pytest.raises(RouteAuditError):
         _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)),
-             route_audit=_FailingRecorder({"DispatchCompleted"}))
+             route_audit=FailingRecorder({"DispatchCompleted"}))
     assert list(charged(repo).values()) == [pytest.approx(B_COST)]
 
 
@@ -238,7 +245,7 @@ def test_audit_failure_before_dispatch_releases_the_hold_at_zero(repo):
     be = _HF({})
     with pytest.raises(RouteAuditError):
         _run(repo, be, sel("cheap_structured", snapshot(local=False)),
-             route_audit=_FailingRecorder({"DispatchStarted"}))
+             route_audit=FailingRecorder({"DispatchStarted"}))
     assert be.calls == [] and list(charged(repo).values()) == [0.0]
 
 
@@ -260,9 +267,138 @@ def test_settle_failure_keeps_the_reply_and_is_visible(repo, tmp_path, caplog):
     assert [r.state for r in project(events(repo)).values()] == [STATE_OPEN]
 
 
-def test_route_chat_serves_funded_through_the_policy_seam(repo):
+class _FrozenWallClock(datetime):
+    """A ``datetime`` whose wall clock reads :data:`WALL` — the clock every module on
+    the funded path would read if a ``now`` were not threaded through."""
+
+    @classmethod
+    def now(cls, tz=None):
+        return WALL if tz is None else WALL.astimezone(tz)
+
+
+WALL = datetime(2027, 3, 15, 9, tzinfo=UTC)      # another month AND another year than NOW
+
+
+@pytest.mark.parametrize("wall_clock", ["real", "2027-03"])
+def test_route_chat_serves_funded_through_the_policy_seam(repo, monkeypatch, wall_clock):
+    """``route_chat(now=)`` prices and stamps the hold on the snapshot's clock, so the
+    result does not depend on the wall clock: the same call passes with the wall clock
+    read as 2027-03 by every module on the path (execute, the reservation ledger)."""
+    if wall_clock != "real":
+        monkeypatch.setattr(execute_mod, "datetime", _FrozenWallClock)
+        monkeypatch.setattr(reservations_mod, "_utcnow", lambda: WALL)
     be = _HF({})
     r = route_chat(MSG, profile="deep_review", max_tokens=512, snapshot=snapshot(local=False),
                    backend_factory=lambda n: be, ledger_repo=repo, funded_ledger_config=CFG,
-                   funded_policy=policy_with(max_chain_slots=1))
+                   funded_policy=policy_with(max_chain_slots=1), now=NOW)
     assert r.backend == "huggingface" and r.model == E and r.cost_estimate_usd > 0 and be.calls == [E]
+    opened = next(e for e in events(repo) if e["type"] == "open")
+    assert opened["created_at"] == NOW.isoformat() and opened["budget_epoch"] == "2026-11"
+
+
+# --- a request provably never sent is charged zero; one that may have left is charged in full ---
+
+def _chat_ok(model):
+    return {"choices": [{"message": {"content": "ok"}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 1200, "completion_tokens": 300}, "model": model}
+
+
+def _hf(srv):  # placeholder credentials for a loopback server, not real secrets
+    return HuggingFaceBackend(token="hf_test_token", bill_to="test-group", base_url=srv.base_url)
+
+
+def test_breaker_open_is_charged_zero_and_sends_nothing(repo):
+    def route(req):
+        return (503, {"error": "down"}) if req["json"]["model"] == B else (200, _chat_ok(req["json"]["model"]))
+
+    with ReplayServer({("POST", "/chat/completions"): route}) as srv:
+        be = _hf(srv)
+        for _ in range(3):                                   # trip B's breaker (3 consecutive 503s)
+            with pytest.raises(TransientBackendError):
+                be.chat(MSG, model=B)
+        sent_to_b = sum(1 for r in srv.requests if r["json"]["model"] == B)
+        res = _run(repo, be, sel("cheap_structured", snapshot(local=False)))
+        assert sum(1 for r in srv.requests if r["json"]["model"] == B) == sent_to_b == 3   # no new request
+    assert res.model_ref.model_id == E
+    assert sorted(charged(repo).values()) == [0.0, pytest.approx(E_COST)]
+
+
+def test_timeout_after_send_is_charged_the_full_reservation(repo):
+    def route(req):
+        if req["json"]["model"] == B:
+            time.sleep(1.5)                                  # longer than the 0.5 s deadline
+        return (200, _chat_ok(req["json"]["model"]))
+
+    with ReplayServer({("POST", "/chat/completions"): route}) as srv:
+        res = execute(sel("cheap_structured", snapshot(local=False)), MSG,
+                      options=ExecutionOptions(max_tokens=512, deadline_s=0.5), backend_factory=lambda n: _hf(srv),
+                      ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+        assert srv.requests[0]["json"]["model"] == B           # the request did go out
+    assert res.model_ref.model_id == E
+    assert sorted(charged(repo).values()) == [pytest.approx(E_COST), pytest.approx(0.0018)]
+
+
+def test_missing_credentials_are_charged_zero_and_send_nothing(repo):
+    with ReplayServer({("POST", "/chat/completions"): lambda req: (200, _chat_ok(req["json"]["model"]))}) as srv:
+        no_bill_to = HuggingFaceBackend(token="hf_test_token", bill_to="", base_url=srv.base_url)
+        with pytest.raises(ChainExhausted):
+            _run(repo, no_bill_to, sel("cheap_structured", snapshot(local=False)))
+        assert srv.requests == []
+    assert list(charged(repo).values()) == [0.0, 0.0]
+
+
+# --- a hold this call did not create is never released or dispatched under by it ---
+
+def test_audit_failure_never_zeroes_another_calls_in_flight_hold(repo):
+    """Two calls share a call id. While the first is mid-dispatch, the second (audited)
+    finds the SAME hold, then its audit sink fails before dispatch: it must leave the
+    hold alone, and the first call's real charge is what the ledger records."""
+    seen: dict = {}
+
+    def second_call():
+        with pytest.raises(RouteAuditError):
+            execute(sel("cheap_structured", snapshot(local=False)), MSG, options=ExecutionOptions(max_tokens=512),
+                    backend_factory=lambda n: _HF({}), ledger_repo=repo, funded_ledger_config=CFG,
+                    funded_observer=OBS(), now=NOW, call_id="shared",
+                    route_audit=FailingRecorder({"DispatchStarted"}))
+        seen["holds"] = {rid: (r.state, r.charged) for rid, r in project(events(repo)).items()}
+        return "ok"
+
+    res = _run(repo, _HF({B: second_call}), sel("cheap_structured", snapshot(local=False)), call_id="shared")
+    assert list(seen["holds"].values()) == [(STATE_OPEN, None)]                # untouched by the second call
+    assert list(charged(repo).values()) == [pytest.approx(B_COST)] and res.charged_usd == pytest.approx(B_COST)
+
+
+def test_ungated_call_never_dispatches_under_another_calls_hold(repo):
+    inner: dict = {}
+
+    def second_call():
+        hf = _HF({})
+        inner["res"] = _run(repo, hf, sel("cheap_structured", snapshot(local=False)), call_id="shared")
+        inner["calls"] = hf.calls
+        return "ok"
+
+    _run(repo, _HF({B: second_call}), sel("cheap_structured", snapshot(local=False)), call_id="shared")
+    assert inner["calls"] == [E] and inner["res"].model_ref.model_id == E     # B's hold is the first call's
+    assert any("already exists for another call" in n for n in inner["res"].notes)
+    assert sorted(charged(repo).values()) == [pytest.approx(B_COST), pytest.approx(E_COST)]
+
+
+def test_unsent_hold_is_released_only_by_the_call_that_created_it(repo):
+    """The decision behind both the audit-abort release and a reserve that raised after
+    its open event landed: ownership comes from the hold's own ``owner`` token."""
+    reserve(repo, reservation_id="h1", worst_case_credits=0.0018, model=B, credit_observer=OBS(),
+            lease_expires_at=NOW + timedelta(minutes=7), now=NOW, config=CFG, owner="call-1")
+    notes: list[str] = []
+    _release_unsent_hold_if_created(repo, "h1", owner="call-2", now=NOW, config=CFG, notes=notes)
+    assert project(events(repo))["h1"].state == STATE_OPEN
+    _release_unsent_hold_if_created(repo, "h1", owner="call-1", now=NOW, config=CFG, notes=notes)
+    assert charged(repo) == {"h1": 0.0}
+
+
+def test_reservation_opened_states_both_units(repo):
+    sink = FailingRecorder(set())
+    res = _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)), route_audit=sink)
+    opened = next(e for e in sink.events if isinstance(e, ReservationOpened))
+    assert opened.reserved_usd == pytest.approx(0.0018) and opened.reserved_credits == pytest.approx(1.8)
+    assert res.reserved_usd == pytest.approx(0.0018) and res.reserved_credits == pytest.approx(1.8)

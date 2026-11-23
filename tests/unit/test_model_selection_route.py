@@ -39,7 +39,8 @@ from llmxive.model_selection.types import (
     RuntimeSnapshot,
     SnapshotProvenance,
 )
-from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder, _Recorder
+from tests.helpers.audit_sinks import FailingRecorder
+from tests.unit.test_model_selection_attempt_hooks import _Recorder
 
 NOW = datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC)
 DARTMOUTH_EP = "https://chat.dartmouth.edu"
@@ -579,7 +580,7 @@ def test_route_chat_chain_resolved_sink_failure_raises_route_audit_error():
     # exception (a plain RuntimeError here).
     from llmxive.model_selection.route import route_chat
 
-    rec = _FailingRecorder(fail_on={"ChainResolved"})
+    rec = FailingRecorder(fail_on={"ChainResolved"})
     with pytest.raises(RouteAuditError):
         route_chat(
             _MSGS, profile="standard_generation", max_tokens=32,
@@ -595,7 +596,7 @@ def test_route_chat_selection_failure_sink_failure_raises_route_audit_error_not_
     # would NOT match a leaking ModelUnavailable, so this is non-vacuous.
     from llmxive.model_selection.route import route_chat
 
-    rec = _FailingRecorder(fail_on={"SelectionFailure"})
+    rec = FailingRecorder(fail_on={"SelectionFailure"})
     with pytest.raises(RouteAuditError):
         route_chat(
             _MSGS, profile="standard_generation", max_tokens=32,

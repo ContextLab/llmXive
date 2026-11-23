@@ -90,6 +90,7 @@ class Reservation:
     last_heartbeat_at: str
     settled_at: str = ""  # ts of the open→settling transition (drives the settlement timeout, #9)
     charged: float | None = None  # funded ledger: the actual charge recorded at reconcile (first writer wins)
+    owner: str = ""  # the opaque token of the call that wrote the `open` event ("" when none was given)
 
     @property
     def counts(self) -> bool:
@@ -163,6 +164,7 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
                 "last_heartbeat_at": str(e.get("ts", "")),
                 "settled_at": "",
                 "charged": None,
+                "owner": str(e.get("owner", "")),
             }
         elif rid in state:
             if etype == "heartbeat":
@@ -211,6 +213,7 @@ def reserve(
     lease_expires_at: datetime,
     now: datetime | None = None,
     config: LedgerConfig | None = None,
+    owner: str | None = None,
 ) -> Reservation:
     """Open a reservation for ``worst_case_credits`` under strict CAS.
 
@@ -222,6 +225,12 @@ def reserve(
     :class:`ledger_transport.LedgerDenied` when there is no headroom, or when the id
     already names a reservation with a DIFFERENT identity (collision, fixes #8).
     Idempotent for a matching re-``reserve`` (no double-count).
+
+    ``owner`` (optional, an opaque per-call token) is written into the ``open``
+    event and projected as ``Reservation.owner``. It is NOT part of the idempotency
+    identity, so a matching re-``reserve`` by another caller still returns the
+    existing hold; comparing the returned ``owner`` with your own token tells
+    whether THIS call created the hold or found one already there.
     """
     now = now or _utcnow()
     config = config or LedgerConfig()
@@ -277,6 +286,7 @@ def reserve(
             "created_at": now.isoformat(),
             "lease_expires_at": lease_expires_at.isoformat(),
             "ts": now.isoformat(),
+            **({"owner": owner} if owner else {}),
         }
 
     append_event(repo, prepare=prepare, config=config)

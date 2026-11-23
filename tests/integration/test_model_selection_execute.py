@@ -34,10 +34,10 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
+from tests.helpers.audit_sinks import FailingRecorder
 from tests.unit.test_model_selection_attempt_hooks import (
     _Budget,
     _ClaimingRecorder,
-    _FailingRecorder,
 )
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
@@ -619,7 +619,7 @@ def test_reservation_authority_released_on_non_ledger_error_from_026_reserve(rep
 # the FREE-path outbox/route-fatal/none-preserving cases are in
 # tests/unit/test_model_selection_execute.py).
 # --------------------------------------------------------------------------- #
-# _FailingRecorder is the real in-memory failing sink (imported at module top).
+# FailingRecorder is the real in-memory failing sink (imported at module top).
 
 
 def test_route_audit_postdispatch_failure_fails_closed_retained(repo, monkeypatch):
@@ -629,7 +629,7 @@ def test_route_audit_postdispatch_failure_fails_closed_retained(repo, monkeypatc
     # and the test would pass for the wrong reason (the Task 3 lesson).
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
     budget = _Budget(10_000.0)
-    rec = _FailingRecorder(fail_on={"DispatchCompleted"})
+    rec = FailingRecorder(fail_on={"DispatchCompleted"})
     with pytest.raises(RouteAuditError):
         execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
                 backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
@@ -691,7 +691,7 @@ def test_route_audit_predispatch_failure_paid_releases_reservation(repo, monkeyp
 
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")  # else the candidate is skipped pre-dispatch
     budget = _Budget(10_000.0)
-    rec = _FailingRecorder(fail_on={"DispatchStarted"})
+    rec = FailingRecorder(fail_on={"DispatchStarted"})
     call_id = "cpre1"
     rid = execmod._sanitize_reservation_id(CLAUDE, call_id)
 
@@ -735,7 +735,7 @@ def test_route_audit_predispatch_failure_release_error_does_not_suppress_settle(
 
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")  # else the candidate is skipped pre-dispatch
     budget = _ReleaseRaisingBudget(10_000.0)
-    rec = _FailingRecorder(fail_on={"DispatchStarted"})
+    rec = FailingRecorder(fail_on={"DispatchStarted"})
 
     class _MustNotDispatch:
         def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
