@@ -28719,7 +28719,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-23T10:33:12.507844+00:00",
+  "generated_at": "2026-11-23T11:06:59.996279+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -128140,6 +128140,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1662.164264,
+          "ended_at": "2026-11-23T10:32:21.511690Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-23T10:04:39.347426Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1718.12318,
           "ended_at": "2026-11-22T11:33:21.660384Z",
           "model": "zai-org.glm-5.3",
@@ -128209,14 +128217,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-14T15:04:41.929906Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1565.71219,
-          "ended_at": "2026-11-13T17:30:50.242146Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-13T17:04:44.529956Z"
         }
       ],
       "paper_status": null,
@@ -179259,6 +179259,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1662.164264,
+      "ended_at": "2026-11-23T10:32:21.511690Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-524-the-impact-of-nostalgia-on-cognitive-fle",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-23T10:04:39.347426Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1179.939727,
       "ended_at": "2026-11-23T10:25:55.645873Z",
@@ -185245,18 +185257,6 @@
       "project_stage": "flesh_out_complete",
       "severity": "hard",
       "started_at": "2026-11-20T04:05:12.214641Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1198.099162,
-      "ended_at": "2026-11-20T04:24:09.330759Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-20T04:04:11.231597Z"
     }
   ],
   "reviewed_preprints": [
