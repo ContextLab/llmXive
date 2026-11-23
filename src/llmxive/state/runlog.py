@@ -22,6 +22,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
+from llmxive.model_selection.types import FUNDED_BACKENDS
 from llmxive.state._io import atomic_write_text
 from llmxive.types import BackendName, Outcome, RunLogEntry
 
@@ -46,7 +47,7 @@ class CostInvariantError(RuntimeError):
     registry compromise — both warrant a hard failure.
 
     The one exemption is a FUNDED call (backend ``huggingface``): spend on
-    the maintainer-funded Hugging Face allowance needs no opt-in
+    the funded, metered Hugging Face allowance needs no opt-in
     (Constitution 1.4.0, "Funded services"); the funded reserve/settle
     ledger (:mod:`llmxive.model_selection.execute`) is what caps it, and the
     run log records the settled cost honestly.
@@ -70,7 +71,7 @@ def cost_fields(by_backend: dict[str, float]) -> dict[str, object]:
 def _check_cost_invariant(entry: RunLogEntry) -> None:
     """T103: hard-block any non-zero cost unless funded or paid opt-in is active.
 
-    A funded entry (``BackendName.HUGGINGFACE``) may carry a non-zero cost
+    A funded entry (a backend in ``model_selection.types.FUNDED_BACKENDS``) may carry a non-zero cost
     without the paid opt-in; the allowance guard lives in the funded ledger.
 
     When ``LLMXIVE_PAID_OPT_IN`` is enabled, opted-in paid calls log
@@ -82,9 +83,9 @@ def _check_cost_invariant(entry: RunLogEntry) -> None:
     if entry.cost_by_backend is not None:
         # Only the portion NOT served by the funded backend needs the opt-in.
         chargeable = sum(
-            v for k, v in entry.cost_by_backend.items() if k is not BackendName.HUGGINGFACE
+            v for k, v in entry.cost_by_backend.items() if k.value not in FUNDED_BACKENDS
         )
-    elif entry.backend is BackendName.HUGGINGFACE:
+    elif entry.backend is not None and entry.backend.value in FUNDED_BACKENDS:
         chargeable = 0.0
     else:
         chargeable = entry.cost_estimate_usd

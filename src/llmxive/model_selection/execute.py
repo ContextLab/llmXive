@@ -284,14 +284,16 @@ def _settle_funded_hold(
     """Reconcile a funded hold (spec 5.9.2) and return the charge the ledger records,
     or ``None`` when settling failed. Never raises: a failed settle must not turn a
     reply into a failed call, so it is logged (exception type only — no ledger or
-    remote text that could carry a credential) and noted; the hold then expires
-    through the ledger's own sweep."""
+    remote text that could carry a credential) and noted. The funded ledger has no
+    sweep: an unsettled hold keeps counting at its full reservation against the
+    month's allowance (``reservations.counting_total`` counts every ``open`` /
+    ``settling`` hold of the epoch, whatever its lease) until the month ends."""
     try:
         return settle_funded(ledger_repo, reservation_id, charged_usd=charged_usd, now=now, config=config)
     except Exception as exc:
         msg = (
             f"funded settle_funded({reservation_id}) failed ({type(exc).__name__}); the hold "
-            "stays open until the funded ledger's sweep expires it"
+            "stays open and counts at its full reservation until the month ends"
         )
         logger.warning("execute: %s", msg)
         notes.append(msg)
@@ -327,10 +329,19 @@ class _FundedAction(Enum):
 
 
 def _funded_action(*, audited: bool, derived_id: bool, hold: _Hold, claimed: bool) -> _FundedAction:
-    """THE decision for a funded candidate: (state) -> (action). Every funded branch in
-    :func:`execute` goes through this one function, so the decision table in the
-    task-15 report and ``test_funded_decision_table`` can be checked against it row by
-    row.
+    """The decision for a funded candidate: (state) -> (action), for every state it is
+    called with; ``test_funded_decision_table`` checks it row by row. :func:`execute`
+    calls it once per funded candidate, after the reserve attempt. Three branches are
+    decided in :func:`execute` outside this function:
+
+    - a hold this call created (``OWN``, so this returns ``DISPATCH``) whose atomic
+      ``claim_dispatch`` is then refused: the hold is released at zero and
+      ``RouteReplayError`` is raised;
+    - a sink failure (``ReservationOpened`` or ``claim_dispatch`` rejected or raising,
+      or ``dispatch_claimed`` raising): ``RouteAuditError``, after releasing this call's
+      own hold at zero if it has one;
+    - a sink without ``dispatch_claimed``, asked about a candidate that will not be
+      dispatched: ``RouteAuditError`` (it cannot tell a replay from a skip).
 
     - ``audited``: a ``route_audit`` sink was given (the dispatch boundary is gated).
     - ``derived_id``: the call id was derived from the route id (audited, no explicit
@@ -414,7 +425,8 @@ def _release_unsent_hold_if_created(
     call's is released at zero (``OWN_RELEASED``). When ownership cannot be established
     — the ledger read fails, or the reserve raised something other than a denial and no
     hold is on the local ref (it may have landed remotely) — the result is ``UNKNOWN``:
-    any such hold is left for its lease expiry and the funded ledger's sweep, and that
+    any such hold is left untouched (it counts at its full reservation until the month
+    ends; the funded ledger has no sweep), and that
     is logged + noted. A denial (``LedgerDenied``: nothing is written by design) with
     no hold on a readable ledger is ``ABSENT``."""
     from llmxive.model_selection.ledger_transport import read_events
@@ -426,7 +438,7 @@ def _release_unsent_hold_if_created(
     except Exception as exc:
         msg = (
             f"funded hold {reservation_id}: ownership unknown{failed} ({type(exc).__name__} reading "
-            "the ledger); left for the lease expiry and the funded ledger's sweep"
+            "the ledger); any hold is left untouched and counts at its full reservation until the month ends"
         )
         logger.warning("execute: %s", msg)
         notes.append(msg)
@@ -436,7 +448,8 @@ def _release_unsent_hold_if_created(
             return _Hold.ABSENT
         msg = (
             f"funded hold {reservation_id}: ownership unknown{failed} (not on the local ledger "
-            "ref); if it landed remotely it is left for the lease expiry and the funded ledger's sweep"
+            "ref); if it landed remotely it is left untouched and counts at its full reservation until "
+            "the month ends"
         )
         logger.warning("execute: %s", msg)
         notes.append(msg)

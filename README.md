@@ -145,7 +145,10 @@ capped at the reservation, with any excess logged and noted on the result; zero
 for an HTTP 401/402/403 rejection or a request provably never sent, such as an
 open circuit breaker or a missing token or bill-to id; the full reservation when
 no usage is reported). When the allowance is exhausted the funded
-candidates are skipped and the chain moves on. Settings: `HF_TOKEN` (CI secret or
+candidates are skipped and the chain moves on to free and local candidates; paid
+candidates are skipped too, whether the allowance ran out before selection or
+between selection and the call. A funded provider is eligible only when its
+reported context length holds the call's input plus output token bounds. Settings: `HF_TOKEN` (CI secret or
 macOS Keychain), `LLMXIVE_HF_BILL_TO` (the billed resource group),
 `LLMXIVE_HF_MONTHLY_USD`, `LLMXIVE_HF_DEADLINE_S`, and the funded ledger's
 `LLMXIVE_FUNDED_LEDGER_REMOTE` / `LLMXIVE_FUNDED_LEDGER_ANCHOR` (without the anchor,

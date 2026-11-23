@@ -257,7 +257,7 @@ def test_audit_failure_before_dispatch_releases_the_hold_at_zero(repo):
 
 def test_settle_failure_keeps_the_reply_and_is_visible(repo, tmp_path, caplog):
     """The ledger becomes unreachable during the call: the reply still returns, the
-    failure is logged and noted, and the hold stays open for the ledger's own sweep."""
+    failure is logged and noted, and the hold stays open (counted until the month ends)."""
     git_dir, parked = repo / ".git", tmp_path / "parked-git"
 
     def break_ledger():
@@ -716,7 +716,7 @@ def test_replay_meeting_the_originals_open_unclaimed_hold_touches_nothing(lane_r
 @pytest.mark.parametrize("ended", ["lease-expired", "settling", "reconciled"])
 def test_route_whose_original_crashed_before_claiming_recovers_once_the_hold_ended(lane_repo, ended):
     """The original reserved and died before its claim. Once its hold's lease expired,
-    or the sweep settled / reconciled it, the same route skips that candidate and goes
+    or it was settled / reconciled, the same route skips that candidate and goes
     on; the dead call's hold is left exactly as it was."""
     rid = _rid(B, _derived("route-R"))
     _foreign(lane_repo, rid, lease=timedelta(seconds=-1) if ended == "lease-expired" else timedelta(minutes=7))

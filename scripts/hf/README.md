@@ -10,14 +10,19 @@ commands do not change automatic model selection or upload project directories.
 
 - Organization: `contextlab` (Academia plan verified 2026-10-09).
 - Resource group: `llmxive`, ID `6ac8defed831a06784773cfd`.
-- Monthly combined compute cap: **$20**; Jobs and Inference Providers share it.
+- Group spend limit set on Hugging Face at provisioning (2026-10-09): **$20** per
+  month; Jobs and Inference Providers share it. Hugging Face enforces this limit on
+  its side.
+- llmXive's own funded allowance for routed inference is `LLMXIVE_HF_MONTHLY_USD`,
+  default **$50** per month (`DEFAULT_MONTHLY_USD` in `llmxive.backends.hf_budget`),
+  reserved and settled on the funded ledger before and after each call.
 - Paid Spaces and Inference Endpoints: **$0** limits.
 - Private versioned artifacts: <https://huggingface.co/datasets/contextlab/llmxive-artifacts>.
 - Private working bucket: <https://huggingface.co/buckets/contextlab/llmxive-work>.
 - Group settings: <https://huggingface.co/organizations/contextlab/settings/resource-groups/6ac8defed831a06784773cfd?tab=settings>.
 
 Credits are pooled across the organization, not separate wallets attached to ten
-bot accounts. The $20 cap represents ten seats' monthly allocation. It does not
+bot accounts. At provisioning, the $20 group limit represented ten seats' monthly allocation. It does not
 reserve credits against other lab usage, and is not an additional subscription.
 HF enforces the group limit; jobs must specify this group and inference requests
 must use its ID in `X-HF-Bill-To`. HF may stop running work shortly after a limit
@@ -29,8 +34,9 @@ Never commit credentials, put them in a command-line argument, log them, or use 
 credential-bearing URL. The loader is `llmxive.credentials.load_hf_token` (this
 helper calls it); it reads only `HF_TOKEN` (for a GitHub Actions secret) or the
 macOS Keychain service `llmxive-huggingface`. It does not read a plaintext HF cache or repository `.env` file.
-The current local credential is in Keychain. **No HF GitHub secret or recurring
-HF workflow has been enabled.** Before enabling CI, create a dedicated fine-grained
+The current local credential is in Keychain. Eleven workflows under
+`.github/workflows/` pass the `HF_TOKEN` secret to their jobs, together with the
+Actions variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`. Before enabling CI, create a dedicated fine-grained
 HF token limited to the required project repositories, Jobs, and inference,
 and save it as a GitHub Actions secret. Do not reuse a broad lab administrator
 token in pull-request workflows. A service account can replace the personal
@@ -84,7 +90,7 @@ probes as a health-check loop.
 Lane: `tests/real_call/test_hf_funded_real.py`. With Dartmouth made unreachable, each
 profile picks a Hugging Face model from the live leaderboard and catalog, reserves on
 the production funded ledger, makes a short real chat (`max_tokens=1024`, `retries=1`,
-`max_credits=50`), and settles the real charge. It spends real money and writes to
+`max_credits=100`, i.e. at most $0.10 reserved per call), and settles the real charge. It spends real money and writes to
 `refs/llmxive/funded-ledger`; it fails (never skips) when `HF_TOKEN`,
 `LLMXIVE_HF_BILL_TO` or `LLMXIVE_FUNDED_LEDGER_ANCHOR` is missing. It prints model ids,
 token counts, dollar amounts and counts only, never a rating, the token or the bill-to id.

@@ -352,3 +352,15 @@ def test_implementer_paid_then_funded_without_opt_in_is_rejected_for_the_paid_pa
 def test_implementer_funded_then_paid_without_opt_in_is_rejected_for_the_paid_part(repo, monkeypatch):
     with pytest.raises(CostInvariantError):
         _run_impl(repo, monkeypatch, [_resp("huggingface", 0.01, "ok"), _resp("dartmouth", 0.02, "ok")])
+
+
+def test_the_funded_exemption_follows_the_one_funded_backend_set(tmp_path, monkeypatch):
+    """Final review B1: which backends are exempt from the paid opt-in is read from
+    ``model_selection.types.FUNDED_BACKENDS``, not a second hardcoded name."""
+    import llmxive.state.runlog as runlog_mod
+
+    monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
+    _mk_state(tmp_path)
+    monkeypatch.setattr(runlog_mod, "FUNDED_BACKENDS", frozenset())  # nothing funded
+    with pytest.raises(CostInvariantError):
+        append_entry(_entry(BackendName.HUGGINGFACE, 0.0123), repo_root=tmp_path)
