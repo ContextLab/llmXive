@@ -940,3 +940,23 @@ def test_claim_failure_error_carries_the_exception_type_only(repo):
         _run(repo, _HF({}), sel("cheap_structured", snapshot(local=False)),
              route_audit=FailingRecorder({"DispatchStarted"}))
     assert "RuntimeError" in str(err.value) and "simulated" not in str(err.value)
+
+
+# --- a missing or rejected Dartmouth key skips to the next candidate (final review A5) ---
+
+def test_missing_dartmouth_key_skips_to_the_funded_candidate(repo, monkeypatch, tmp_path):
+    from llmxive.backends.router import make_backend
+    from tests.helpers.funded import GLM
+
+    monkeypatch.delenv("DARTMOUTH_CHAT_API_KEY", raising=False)
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "no-config"))  # no credentials file
+    chain = sel("cheap_structured", snapshot(dartmouth=(GLM,), local=False))
+    assert [c.model_ref.backend for c in chain.candidates][:2] == ["dartmouth", "huggingface"]
+    with ReplayServer({("POST", "/chat/completions"): lambda req: (200, _chat_ok(req["json"]["model"]))}) as srv:
+        hf = _hf(srv)
+        res = execute(chain, MSG, options=ExecutionOptions(max_tokens=512),
+                      backend_factory=lambda n: hf if n == "huggingface" else make_backend(n),
+                      ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+        assert [r["json"]["model"] for r in srv.requests] == [B]
+    assert res.model_ref.model_id == B and res.charged_usd == pytest.approx(B_COST)
+    assert any("BackendCredentialError" in n for n in res.notes)

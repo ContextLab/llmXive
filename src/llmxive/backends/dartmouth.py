@@ -20,6 +20,7 @@ from llmxive.backends.base import (
     DEFAULT_BREAKER_COOLDOWN_S,
     DEFAULT_BREAKER_MAX_CONSECUTIVE,
     DEFAULT_BREAKER_WINDOW_S,
+    BackendCredentialError,
     BackendUnavailable,
     BaseBackend,
     ChatMessage,
@@ -366,8 +367,9 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
     * an AUTH rejection whose key the catalog still ACCEPTS (or cannot be
       confirmed bad) → :class:`TransientBackendError` — a transient auth-service
       flap (engine-failure #515-518), NOT a config error. A genuinely bad key is
-      rejected by the catalog too (_gateway_rejects_key → True) and falls through
-      to PERMANENT below, surfacing a loud, actionable engine-failure issue.
+      rejected by the catalog too (_gateway_rejects_key → True) and raises
+      :class:`BackendCredentialError` (a ``PermanentBackendError``): the router
+      skips to the next candidate; if none serves, the chain is exhausted.
     * anything else                → :class:`PermanentBackendError` (no retry)
     """
     # Explicit account budgets are hard limits even when costs/IDs happen to
@@ -384,8 +386,12 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
         raise ModelDownError(str(exc)) from exc
     if _is_transient_error_text(text):
         raise TransientBackendError(str(exc)) from exc
-    if _is_auth_error_text(text) and not _gateway_rejects_key():
-        raise TransientBackendError(str(exc)) from exc
+    if _is_auth_error_text(text):
+        if not _gateway_rejects_key():
+            raise TransientBackendError(str(exc)) from exc
+        # A key the gateway definitively rejects: this backend cannot serve any
+        # request, but a peer backend may, so the router skips to it.
+        raise BackendCredentialError(str(exc)) from exc
     raise PermanentBackendError(str(exc)) from exc
 
 
@@ -573,7 +579,7 @@ def _fetch_cloud_models() -> list[dict[str, Any]]:
     _ensure_api_key_env()
     key = os.environ.get("DARTMOUTH_CHAT_API_KEY")
     if not key:
-        raise PermanentBackendError(
+        raise BackendCredentialError(
             "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
         )
     resp = _catalog_get(key, timeout=30)
@@ -841,7 +847,7 @@ class DartmouthBackend(BaseBackend):
     ) -> None:
         _ensure_api_key_env()
         if not os.environ.get("DARTMOUTH_CHAT_API_KEY"):
-            raise PermanentBackendError(
+            raise BackendCredentialError(
                 "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
             )
         self._model_name = model_name
