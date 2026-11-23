@@ -543,3 +543,10 @@ def test_the_context_rule_bumped_the_policy_version():
     from llmxive.model_selection.policy import SELECTION_POLICY_VERSION
 
     assert SELECTION_POLICY_VERSION == 5
+
+
+def test_a_provider_missing_from_the_observed_map_is_ineligible_not_a_crash():
+    snap = snapshot()
+    observed = {k: v for k, v in snap.observed.items() if k != B}
+    chain = sel("cheap_structured", replace(snap, observed=observed))
+    assert B not in ids(chain) and order(chain)[0] == E

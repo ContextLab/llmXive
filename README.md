@@ -172,15 +172,18 @@ Research designs should fit available compute. The existing
 [Kaggle offload adapter](src/llmxive/execution/offload.py) can submit eligible
 GPU-bound execution when configured with `KAGGLE_API_TOKEN`, then poll and collect
 outputs. Missing credentials or unavailable capacity do not establish successful
-execution. The optional HF pilot below is a separate, explicitly invoked path.
+execution. The HF pilot helpers below (storage and Jobs) are invoked explicitly;
+Hugging Face inference is part of the model chain described above.
 
 ### Optional Hugging Face pilot
 
 The `contextlab` Academia pilot has private versioned artifact storage and a
-private working bucket in an `llmxive` resource group. **Jobs and Inference
-Providers share one $20 monthly compute cap**; paid Spaces and Inference Endpoints
-have $0 limits. This is a pooled allocation, not ten independent wallets or an
-automatic production fallback. Provider enforcement can lag the cap.
+private working bucket in an `llmxive` resource group. Inference Providers
+calls name the group that pays in `LLMXIVE_HF_BILL_TO`, and they are a routed
+fallback in the model chain: the code reserves each funded call on
+the funded ledger and paces spend against `LLMXIVE_HF_MONTHLY_USD` (default
+50 USD a month). A spending limit set on the Hugging Face side is enforced by
+Hugging Face, and its enforcement can lag.
 
 The [pilot guide](scripts/hf/README.md) records successful private-file
 upload/download verification, a bounded CPU computation and one alternate-model
@@ -190,8 +193,9 @@ data round trip remains untested. Automatic research-artifact migration and
 production compute offloading remain future integration work.
 
 The helper reads `HF_TOKEN` from a CI secret or the local macOS Keychain; it does
-not read plaintext HF caches or repository `.env` files. The pilot currently uses
-Keychain, with no recurring HF workflow or pilot HF CI secret enabled. Keep all
+not read plaintext HF caches or repository `.env` files. Locally it uses the
+Keychain; the workflows that call Hugging Face read the `HF_TOKEN` repository
+secret. Keep all
 tokens out of Git, command arguments and logs. Use the explicit commands in the
 pilot guide only when a bounded storage, compute or model experiment is needed.
 

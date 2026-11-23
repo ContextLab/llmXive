@@ -509,7 +509,9 @@ def select(
             # The provider's reported context window must hold the whole call
             # budget (input bound + output bound): an over-long request is
             # rejected after the reservation and charged in full.
-            context_length = snapshot.observed[model.model_id].context_length
+            # A missing observation reads as "no context length" (ineligible).
+            observed = snapshot.observed.get(model.model_id)
+            context_length = observed.context_length if observed is not None else None
             if context_length is None:
                 funded_no_context.append(model.model_id)
                 continue
