@@ -79,6 +79,32 @@ probes as a health-check loop.
   source Git commit. This is an additional copy; source files were not deleted.
 - The private working bucket is provisioned; its data round trip is not yet tested.
 
+## Funded-provider real-call lane (spec 027, Task 21)
+
+Lane: `tests/real_call/test_hf_funded_real.py`. With Dartmouth made unreachable, each
+profile picks a Hugging Face model from the live leaderboard and catalog, reserves on
+the production funded ledger, makes a short real chat (`max_tokens=1024`, `retries=1`,
+`max_credits=50`), and settles the real charge. It spends real money and writes to
+`refs/llmxive/funded-ledger`; it fails (never skips) when `HF_TOKEN`,
+`LLMXIVE_HF_BILL_TO` or `LLMXIVE_FUNDED_LEDGER_ANCHOR` is missing. It prints model ids,
+token counts, dollar amounts and counts only, never a rating, the token or the bill-to id.
+
+Prerequisites, once: `llmxive funded-ledger-bootstrap --remote origin`; set the Actions
+variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`; protect
+`refs/llmxive/funded-ledger` fast-forward-only.
+
+Run: `LLMXIVE_REAL_TESTS=1 pytest tests/real_call/test_hf_funded_real.py tests/real_call/test_model_selection_snapshot_real.py -q -s`
+
+Acceptance evidence: **not yet run.** Fields to fill after the first real run (no
+ratings):
+
+- Date:
+- Models served (ids) per profile:
+- Input / output tokens per call:
+- Total settled cost (USD):
+- Leaderboard matched counts (reasoning / coding) and ambiguous names:
+- `llmxive preflight` spend line and coverage line after the run:
+
 ## Next integration steps
 
 1. Add content-addressed artifact manifests with project/run ownership, SHA-256,
