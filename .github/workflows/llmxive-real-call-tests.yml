@@ -181,10 +181,10 @@ jobs:
     if: needs.changes.outputs.live == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    # The funded (Hugging Face) path pushes refs/llmxive/funded-ledger.
-    permissions:
-      contents: write
-      pull-requests: read
+    # Read-only (the workflow default): this job runs pull-request code. A funded
+    # call needs a hold pushed to refs/llmxive/funded-ledger, so here the funded
+    # class fails closed (no hold, nothing sent); the funded lane runs in the
+    # `huggingface` job below, on a manual dispatch from main only.
     env:
       LLMXIVE_REAL_TESTS: "1"
       LLMXIVE_PAID_OPT_IN: "0"
@@ -239,7 +239,52 @@ jobs:
       - name: Contracts including live source channels
         run: pytest tests/contract -v
       - name: Fast runtime real-call tests
-        run: pytest tests/real_call -v -m "not slow and not external_references" --durations=25
+        run: pytest tests/real_call -v -m "not slow and not external_references" --durations=25 --ignore=tests/real_call/test_hf_funded_real.py
+
+  huggingface:
+    name: Hugging Face funded lane
+    needs: changes
+    # The ONLY job with a write token: it pushes refs/llmxive/funded-ledger. GitHub
+    # does not evaluate expressions in `permissions:`, so the write token is made
+    # unreachable from pull requests by this condition: a manual dispatch on main.
+    if: needs.changes.outputs.live == 'true' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      pull-requests: read
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      LLMXIVE_PAID_OPT_IN: "0"
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /.specify/
+            /src/
+            /tests/
+            /agents/
+            /contracts/
+            /scripts/
+            /specs/
+            /*.md
+            /*.toml
+            /*.ini
+            /LICENSE
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+      - name: Funded (Hugging Face) real-call tests
+        run: pytest tests/real_call/test_hf_funded_real.py -v --durations=25
 
   references:
     name: External reference and dataset services
@@ -291,13 +336,15 @@ jobs:
 
   real-call:
     name: CI gate (offline + Dartmouth)
-    needs: [changes, offline, integration, dartmouth, references]
+    needs: [changes, offline, integration, dartmouth, huggingface, references]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Require every selected check to succeed
         env:
           NEEDS: ${{ toJSON(needs) }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
         run: |
           python - <<'PY'
           import json, os
@@ -314,4 +361,13 @@ jobs:
               expected = 'success' if required else 'skipped'
               assert actual == expected, f'{job}: expected {expected}, got {actual}'
               print(f'{job}: {actual}' + ('' if required else ' (unchanged behavior)'))
+          # The funded lane runs only on a manual dispatch from main (it holds the
+          # write token); on every pull request it must be skipped, never pending.
+          funded = (jobs['changes']['outputs']['live'] == 'true'
+                    and os.environ['EVENT_NAME'] == 'workflow_dispatch'
+                    and os.environ['REF'] == 'refs/heads/main')
+          expected = 'success' if funded else 'skipped'
+          actual = jobs['huggingface']['result']
+          assert actual == expected, f'huggingface: expected {expected}, got {actual}'
+          print(f'huggingface: {actual}')
           PY

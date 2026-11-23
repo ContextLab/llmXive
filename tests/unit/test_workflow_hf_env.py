@@ -68,31 +68,77 @@ def test_bill_to_is_a_variable_never_a_secret():
     assert "secrets.LLMXIVE_HF_BILL_TO" not in "".join(p.read_text() for p in WF.glob("*.yml"))
 
 
-# --- final review A10: the funded ledger needs push access only where HF is used ----
+# --- the funded ledger needs push access; pull-request code never gets it -------
+# (final review A10, narrowed by the closing security fix): GitHub does not evaluate
+# expressions inside ``permissions:``, so a write token is made unreachable from a
+# pull request structurally — only a job whose ``if`` requires a manual dispatch on
+# main may hold ``contents: write``.
 
-_HF_JOB = {"llmxive-real-call-tests.yml": "dartmouth", "llmxive-real-call-nightly.yml": "real-call-full"}
+_WRITE_FILES = ("llmxive-real-call-tests.yml", "llmxive-real-call-nightly.yml")
+_ON_MAIN = "github.ref == 'refs/heads/main'"
+_ON_DISPATCH = "github.event_name == 'workflow_dispatch'"
+
+
+def _triggers(wf: dict) -> set[str]:
+    on = wf.get("on", wf.get(True))  # PyYAML 1.1 reads the bare key `on` as True
+    return {on} if isinstance(on, str) else set(on or ())
+
+
+def _contents(job: dict) -> str | None:
+    return (job.get("permissions") or {}).get("contents")
+
+
+def _dispatch_only(wf: dict, job: dict) -> bool:
+    """The job cannot run for any event but a manual dispatch."""
+    return _ON_DISPATCH in str(job.get("if", "")) or _triggers(wf) == {"workflow_dispatch"}
+
+
+@pytest.mark.parametrize("name", _WRITE_FILES)
+def test_no_pull_request_runnable_job_has_contents_write(name):
+    wf = _load(WF / name)
+    assert wf["permissions"]["contents"] == "read"  # the workflow default stays read-only
+    for job, body in wf["jobs"].items():
+        if "pull_request" in _triggers(wf) and _ON_DISPATCH not in str(body.get("if", "")):
+            assert _contents(body) in (None, "read"), job
+
+
+@pytest.mark.parametrize("name", _WRITE_FILES)
+def test_every_write_job_runs_only_on_a_dispatch_from_main(name):
+    wf = _load(WF / name)
+    writers = {j: b for j, b in wf["jobs"].items() if _contents(b) == "write"}
+    assert writers, "the funded lane lost its push access"
+    for job, body in writers.items():
+        assert _ON_MAIN in str(body.get("if", "")), job
+        assert _dispatch_only(wf, body), job
+        assert _receives_hf(body), job  # write exists only for the funded ledger
+        # a job-level block replaces the workflow-level one: every other default is kept
+        for perm, level in wf["permissions"].items():
+            if perm != "contents":
+                assert body["permissions"].get(perm) == level, (job, perm)
+
+
+def test_pull_request_jobs_do_not_run_the_funded_lane():
+    wf = _load(WF / "llmxive-real-call-tests.yml")
+    for job, body in wf["jobs"].items():
+        if _contents(body) == "write" or not _receives_hf(body):
+            continue  # a job without the HF settings cannot reach the funded lane
+        for step in body.get("steps", []):
+            run = step.get("run", "")
+            if "pytest tests/real_call" in run:
+                assert "--ignore=tests/real_call/test_hf_funded_real.py" in run, job
+
+
+def test_the_gate_requires_the_funded_lane_only_when_it_can_run():
+    wf = _load(WF / "llmxive-real-call-tests.yml")
+    gate = wf["jobs"]["real-call"]
+    assert "huggingface" in gate["needs"] and gate["if"] == "always()"
+    script = gate["steps"][0]["run"]
+    assert "jobs['huggingface']['result']" in script and "'skipped'" in script
+    assert "workflow_dispatch" in script and "refs/heads/main" in script
 
 
 def _receives_hf(job: dict) -> bool:
     return any("HF_TOKEN" in env or "LLMXIVE_HF_BILL_TO" in env for env in _env_blocks(job))
-
-
-@pytest.mark.parametrize("name", sorted(_HF_JOB))
-def test_only_the_hf_receiving_job_may_push(name):
-    wf = _load(WF / name)
-    assert wf["permissions"]["contents"] == "read"  # the workflow default stays read-only
-    hf_jobs = sorted(j for j, body in wf["jobs"].items() if _receives_hf(body))
-    assert hf_jobs == [_HF_JOB[name]]
-    for job, body in wf["jobs"].items():
-        contents = (body.get("permissions") or {}).get("contents")
-        if job == _HF_JOB[name]:
-            assert contents == "write", job
-            # a job-level block replaces the workflow-level one: every other default is kept
-            for perm, level in wf["permissions"].items():
-                if perm != "contents":
-                    assert body["permissions"].get(perm) == level, (job, perm)
-        else:
-            assert contents in (None, "read"), job
 
 
 def test_prompt_eval_has_no_write_permission_anywhere():
