@@ -68,10 +68,21 @@ class _PromptBuildFailsAgent(_RunnableSlashAgent):
         raise ValueError("prompt construction blew up")
 
 
-def _ctx() -> SlashCommandContext:
+class _WritesAnOutputAgent(_RunnableSlashAgent):
+    """Really writes one artifact. A run that writes nothing is recorded as
+    SKIPPED, so the success path needs a genuine output."""
+
+    def write_artifacts(self, ctx, mechanical_output, llm_response):  # type: ignore[no-untyped-def]
+        out = ctx.project_dir / "notes" / "reply.txt"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(llm_response.text, encoding="utf-8")
+        return [str(out.relative_to(ctx.project_dir.parent.parent))]
+
+
+def _ctx(project_dir: Path | None = None) -> SlashCommandContext:
     return SlashCommandContext(
         project_id="PROJ-001-test",
-        project_dir=Path("/tmp/llmxive-test/projects/PROJ-001-test"),
+        project_dir=project_dir or Path("/tmp/llmxive-test/projects/PROJ-001-test"),
         run_id="r",
         task_id="t",
         inputs=[],
@@ -87,7 +98,7 @@ def _capture_entries(monkeypatch) -> list[Any]:
     captured: list[Any] = []
     monkeypatch.setattr(
         "llmxive.speckit.slash_command.runlog.append_entry",
-        lambda entry: captured.append(entry),
+        lambda entry, **kw: captured.append(entry),
     )
     return captured
 
@@ -155,7 +166,7 @@ def test_c_candidate_attempted_but_exhausted_records_no_attribution(monkeypatch)
     assert entry.model_name is None
 
 
-def test_success_still_records_real_attribution(monkeypatch):
+def test_success_still_records_real_attribution(monkeypatch, tmp_path):
     """Sanity check: the happy path is unaffected — a real ``ChatResponse``
     still gets its real backend/model recorded (never ``None``)."""
     entries = _capture_entries(monkeypatch)
@@ -164,10 +175,14 @@ def test_success_still_records_real_attribution(monkeypatch):
         lambda messages, **kw: ChatResponse(text="ok", model="real-model", backend="dartmouth"),
     )
 
-    _RunnableSlashAgent().run(_ctx())
+    project_dir = tmp_path / "projects" / "PROJ-001-test"
+    project_dir.mkdir(parents=True)
+    _WritesAnOutputAgent().run(_ctx(project_dir))
 
+    assert (project_dir / "notes" / "reply.txt").read_text(encoding="utf-8") == "ok"
     assert len(entries) == 1
     entry = entries[0]
     assert entry.outcome == Outcome.SUCCESS
+    assert entry.outputs == ["projects/PROJ-001-test/notes/reply.txt"]
     assert entry.backend is not None and entry.backend.value == "dartmouth"
     assert entry.model_name == "real-model"

@@ -152,7 +152,10 @@ class SlashCommandAgent(abc.ABC):
             mechanical_output = self.mechanical_step(ctx)
             if mechanical_output.get("skip_llm"):
                 outcome = Outcome.SKIPPED
+                # No model call was made: record the same no-LLM sentinel pair as
+                # the deterministic write below (never an invented model).
                 model_used = "deterministic-no-llm"
+                backend_used = BackendName.DARTMOUTH
             else:
                 if mechanical_output.get("deterministic_write"):
                     # A deterministic write makes NO model call, so there is no

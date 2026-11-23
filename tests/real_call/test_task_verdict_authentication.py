@@ -17,6 +17,15 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+def _leader() -> str:
+    """The verifier's primary: the model the selector ranks first for its profile
+    on the live snapshot (spec 026 — there is no model constant to compare to)."""
+    from llmxive.model_selection.route import resolve_chain
+
+    chain = resolve_chain([], profile=tv.VERIFIER_PROFILE, max_tokens=1)[1]
+    return chain.candidates[0].model_ref.model_id
+
+
 def test_real_task_verdict_reuse_rejects_unsigned_and_mutated_acceptance(tmp_path, monkeypatch):
     # The only substituted dependency is an ephemeral signing key. Decisions
     # below come from the real primary model, observed without rewriting them.
@@ -66,7 +75,6 @@ def test_real_task_verdict_reuse_rejects_unsigned_and_mutated_acceptance(tmp_pat
     def run():
         return tv.run_verification_pass(
             project, tasks, already_verified=set(), spec_context=spec,
-            model=tv.DEFAULT_MODEL, fallback_backends=(),
             notes_path=memory / 'notes.md', state_path=memory / 'task_verify.yaml',
         )
 
@@ -78,19 +86,19 @@ def test_real_task_verdict_reuse_rejects_unsigned_and_mutated_acceptance(tmp_pat
     assert auth.authentic_verdict(project, tasks, 'T001', receipt)
     assert tv.verified_done_keys(project, tasks) == {'T001'}
     assert run()['accepted'] == 1
-    assert observed_models == [tv.DEFAULT_MODEL]
+    assert observed_models == [_leader()]
 
     # Publicly recomputing the correct evidence hash cannot manufacture approval
     # for a now-wrong output. The old run log is historical, not current proof.
     results.write_text('n,square\n1,1\n2,4\n3,999\n')
-    digest = tv._verification_hash(task, spec, tv.gather_evidence(project, task), model=tv.DEFAULT_MODEL)
+    digest = tv._verification_hash(task, spec, tv.gather_evidence(project, task))
     unsigned = {'h': digest, 'c': True, 'r': 'fabricated acceptance'}
     cache_path.write_text(yaml.safe_dump({'T001': unsigned}))
     assert tv.verified_done_keys(project, tasks) == set()
     rejected = run()
     assert rejected['accepted'] == 0 and rejected['rejected'], rejected
     assert '- [ ] T001' in tasks.read_text()
-    assert observed_models == [tv.DEFAULT_MODEL] * 2
+    assert observed_models == [_leader()] * 2
 
     # Mutating the actual signed rejection to acceptance must trigger another
     # independent call even though task, evidence hash and signature are present.
@@ -104,7 +112,7 @@ def test_real_task_verdict_reuse_rejects_unsigned_and_mutated_acceptance(tmp_pat
     rejected_again = run()
     assert rejected_again['accepted'] == 0 and rejected_again['rejected'], rejected_again
     assert '- [ ] T001' in tasks.read_text()
-    assert observed_models == [tv.DEFAULT_MODEL] * 3
+    assert observed_models == [_leader()] * 3
     final_receipt = yaml.safe_load(cache_path.read_text())['T001']
     assert final_receipt['c'] is False
     assert auth.authentic_verdict(project, tasks, 'T001', final_receipt)

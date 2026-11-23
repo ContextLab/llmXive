@@ -44,13 +44,16 @@ def test_corrupt_tier_resolves_free_only_even_with_paid_rung(
     re-introduced last-rung clamp would go undetected. Lock it WITH the paid
     rung present (real env, no mocks)."""
     monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")  # ladder gains a paid rung
-    assert len(es.model_tier_ladder()) == 3  # two free rungs + one paid rung
+    assert len(es.model_tier_ladder()) == 4  # three free rungs + one paid rung
     for bad in (-1, True, 2.5, "1", 10**9):
         c = es.tier_constraint(bad)  # type: ignore[arg-type]
         assert c.is_paid is False and c.allow_paid is False  # never the paid rung
     # A stale in-range paid tier index resolves to free once paid is disabled:
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
-    assert es.tier_constraint(2).is_paid is False  # 2 >= len(free-only ladder) -> ladder[0]
+    paid_index = 3  # where the paid rung sat while escalation was enabled
+    assert paid_index >= len(es.model_tier_ladder())  # now past the free-only ladder
+    assert es.tier_constraint(paid_index) == es.model_tier_ladder()[0]  # -> ladder[0]
+    assert es.tier_constraint(paid_index).is_paid is False
 
 
 def test_paid_rung_present_only_when_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -82,12 +85,32 @@ def test_next_usable_tier_skips_paid_when_opt_in_off(monkeypatch: pytest.MonkeyP
     monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")  # ladder has paid rung
     # opt-in OFF → paid unusable
     assert es.next_usable_tier(0) == 1               # free second opinion
-    assert es.next_usable_tier(1) is None            # paid skipped (opt-in off)
+    assert es.next_usable_tier(1) == 2               # third free family
+    assert es.next_usable_tier(2) is None            # paid skipped (opt-in off)
 
 
 def test_fabrication_free_only_never_reaches_paid(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
     monkeypatch.setattr(es, "paid_tier_usable", lambda: True)  # opt-in ON, headroom
-    assert es.next_usable_tier(1) == 2                       # paid reachable generally
-    assert es.next_usable_tier(1, free_only=True) is None    # ...but not free_only
+    assert es.next_usable_tier(2) == 3                       # paid reachable generally
+    assert es.model_tier_ladder()[3].is_paid
+    assert es.next_usable_tier(2, free_only=True) is None    # ...but not free_only
     assert es.next_usable_tier(0, free_only=True) == 1
+    assert es.next_usable_tier(1, free_only=True) == 2       # every free rung stays reachable
+
+
+def test_third_free_rung_drops_the_top_two_candidates() -> None:
+    """Tier 2 is a THIRD free family: it excludes the two best-ranked candidates
+    (no model id), so the policy's third-best free model leads."""
+    from llmxive.model_selection.route import resolve_chain
+
+    free = [c for c in es.model_tier_ladder() if not c.is_paid]
+    assert len(free) == 3
+    leaders = [
+        resolve_chain([], profile="deep_code", max_tokens=1, overrides=c.to_overrides())[1]
+        .candidates[0].model_ref.model_id
+        for c in free
+    ]
+    # Over the offline snapshot's free chain (tests/conftest.py), in policy order.
+    assert leaders == ["zai-org.glm-5.3", "qwen.qwen3.5-122b", "google.gemma-4-31B-it"]
+    assert all(c.to_overrides().allow_paid is False for c in free)

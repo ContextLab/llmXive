@@ -36,3 +36,38 @@ def test_success_requires_both_fields():
 
 def test_success_with_both_is_valid():
     assert _entry().model_name == "qwen.qwen3.5-122b"
+
+
+def test_unattributed_failure_is_persisted_by_the_real_run_log(tmp_path):
+    """The on-disk contract agrees with the model: a failed run with no
+    attribution is APPENDED (not parked as invalid) and reads back unchanged.
+    Before the schema allowed null here, every pre-response failure raised a
+    contract ValidationError from the caller's ``finally`` block."""
+    import uuid
+
+    from llmxive.state import runlog
+
+    run_id = str(uuid.uuid4())
+    entry = _entry(run_id=run_id, entry_id=str(uuid.uuid4()), outcome=Outcome.FAILED,
+                   backend=None, model_name=None, failure_reason="BackendUnavailable")
+    path = runlog.append_entry(entry, repo_root=tmp_path)
+    assert path.is_file() and not (path.parent / ".invalid").exists()
+    (read_back,) = runlog.read_entries(run_id, repo_root=tmp_path)
+    assert read_back.backend is None and read_back.model_name is None
+    assert read_back.outcome is Outcome.FAILED
+
+
+@pytest.mark.parametrize("missing", ["backend", "model_name"])
+def test_contract_schema_rejects_an_unattributed_success(missing):
+    """The JSON contract enforces the same rule as the model, independently."""
+    import uuid
+
+    from jsonschema import ValidationError
+
+    from llmxive.contract_validate import validate
+
+    payload = _entry(run_id=str(uuid.uuid4()), entry_id=str(uuid.uuid4())).model_dump(mode="json")
+    validate("run-log-entry", payload)  # a fully attributed success is valid
+    payload[missing] = None
+    with pytest.raises(ValidationError):
+        validate("run-log-entry", payload)

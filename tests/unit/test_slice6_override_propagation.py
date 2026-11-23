@@ -86,6 +86,17 @@ class _RunnableSlashAgent(SlashCommandAgent):
         return []
 
 
+def _real_feature_dir(repo: Path) -> Path:
+    """A real active feature directory under ``repo``. The bridge validates the
+    feature's paths (real directory inside its project, regular files) BEFORE it
+    builds the review spec, so the seam under test is only reachable with one."""
+    feature = repo / "projects" / "PROJ-001-test" / "specs" / "001-x"
+    feature.mkdir(parents=True)
+    for name in ("tasks.md", "spec.md", "plan.md"):
+        (feature / name).write_text(f"# {name}\n", encoding="utf-8")
+    return feature
+
+
 def _min_ctx(*, requirement_overrides) -> SlashCommandContext:
     return SlashCommandContext(
         project_id="PROJ-001-test",
@@ -114,7 +125,7 @@ def test_slashcommand_run_forwards_overrides(monkeypatch):
     )
     # Keep the run-log side-effect off the real repo (not under test).
     monkeypatch.setattr(
-        "llmxive.speckit.slash_command.runlog.append_entry", lambda entry: None
+        "llmxive.speckit.slash_command.runlog.append_entry", lambda entry, **kw: None
     )
 
     ov = RequirementOverrides(allow_paid=False)
@@ -132,7 +143,7 @@ def test_slashcommand_run_default_is_none(monkeypatch):
         lambda messages, **kw: (captured.update(kw), ChatResponse(text="ok", model="m", backend="dartmouth"))[1],
     )
     monkeypatch.setattr(
-        "llmxive.speckit.slash_command.runlog.append_entry", lambda entry: None
+        "llmxive.speckit.slash_command.runlog.append_entry", lambda entry, **kw: None
     )
     ctx = _min_ctx(requirement_overrides=None)
     _RunnableSlashAgent().run(ctx)
@@ -197,7 +208,7 @@ def test_concurrent_reviewers_share_immutable_override_via_real_path(monkeypatch
 
     ov = RequirementOverrides(allow_paid=True, require_paid=True)
     spec = build_plan_reviewspec(
-        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
+        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="PROJ-001-test",
         requirement_overrides=ov,
     )
     # The real engine panel runner — bounded ThreadPoolExecutor over the 5 plan
@@ -231,7 +242,7 @@ def test_reviser_declared_overrides_field_reaches_reasoning_chat(monkeypatch):
 
     ov = RequirementOverrides(allow_paid=True)
     spec = build_plan_reviewspec(
-        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
+        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="PROJ-001-test",
         requirement_overrides=ov,
     )
     invoke_reviser_backend(spec.reviser, [ChatMessage(role="user", content="x")])
@@ -248,7 +259,7 @@ def test_reviser_default_overrides_none(monkeypatch):
         lambda backend, messages, **kw: (captured.update(kw), ChatResponse(text="ok", model="m", backend="dartmouth"))[1],
     )
     spec = build_plan_reviewspec(
-        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
+        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="PROJ-001-test",
     )
     invoke_reviser_backend(spec.reviser, [ChatMessage(role="user", content="x")])
     assert captured["overrides"] is None
@@ -257,7 +268,7 @@ def test_reviser_default_overrides_none(monkeypatch):
 # --- (e) research-tasks bridge: run_tasker_via_engine forwards overrides ----
 
 
-def test_tasker_bridge_forwards_overrides_to_build_tasks_reviewspec(monkeypatch):
+def test_tasker_bridge_forwards_overrides_to_build_tasks_reviewspec(monkeypatch, tmp_path):
     """The research-``tasked`` stage runs its panel/reviser through the bridge
     ``run_tasker_via_engine``, which is called from ``tasks_cmd.py`` WITH a
     SlashCommandContext in scope. Assert the REAL bridge forwards the override
@@ -283,15 +294,16 @@ def test_tasker_bridge_forwards_overrides_to_build_tasks_reviewspec(monkeypatch)
         raise _StopHere
 
     monkeypatch.setattr(bridge, "build_tasks_reviewspec", _fake_build_tasks_reviewspec)
+    feature = _real_feature_dir(tmp_path)
 
     ov = RequirementOverrides(require_paid=True)
     with pytest.raises(_StopHere):
         bridge.run_tasker_via_engine(
             project_id="PROJ-001-test",
-            repo_root=_REPO_ROOT,
-            tasks_path=Path("/tmp/p/specs/001-x/tasks.md"),
-            spec_path=Path("/tmp/p/specs/001-x/spec.md"),
-            plan_path=Path("/tmp/p/specs/001-x/plan.md"),
+            repo_root=tmp_path,
+            tasks_path=feature / "tasks.md",
+            spec_path=feature / "spec.md",
+            plan_path=feature / "plan.md",
             analyze_findings=[],
             backend=_FakeBackend(),
             requirement_overrides=ov,
@@ -299,7 +311,7 @@ def test_tasker_bridge_forwards_overrides_to_build_tasks_reviewspec(monkeypatch)
     assert captured["requirement_overrides"] is ov
 
 
-def test_tasker_bridge_default_overrides_none(monkeypatch):
+def test_tasker_bridge_default_overrides_none(monkeypatch, tmp_path):
     """No override → the bridge forwards the None default (back-compat)."""
     from llmxive.speckit import _tasker_engine_bridge as bridge
 
@@ -313,14 +325,15 @@ def test_tasker_bridge_default_overrides_none(monkeypatch):
         raise _StopHere
 
     monkeypatch.setattr(bridge, "build_tasks_reviewspec", _fake_build_tasks_reviewspec)
+    feature = _real_feature_dir(tmp_path)
 
     with pytest.raises(_StopHere):
         bridge.run_tasker_via_engine(
             project_id="PROJ-001-test",
-            repo_root=_REPO_ROOT,
-            tasks_path=Path("/tmp/p/specs/001-x/tasks.md"),
-            spec_path=Path("/tmp/p/specs/001-x/spec.md"),
-            plan_path=Path("/tmp/p/specs/001-x/plan.md"),
+            repo_root=tmp_path,
+            tasks_path=feature / "tasks.md",
+            spec_path=feature / "spec.md",
+            plan_path=feature / "plan.md",
             analyze_findings=[],
             backend=_FakeBackend(),
         )
