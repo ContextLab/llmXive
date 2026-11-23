@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-23T02:45:35.107941+00:00"
+    "audited_at": "2026-11-23T03:13:47.144686+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-702-weavebench-a-long-horizon-real-world-ben",
-  "updated_at": "2026-11-23T02:45:35.107954+00:00"
+  "updated_at": "2026-11-23T03:13:47.144700+00:00"
 }
