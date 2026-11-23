@@ -217,6 +217,58 @@ where only the maintainer can decide.
    alias map; until one exists the funded class would fail closed.
 8. **[call] Vision ranking.** General score plus the catalog's image-input flag in v1.
 
+### 5.10 Selection, revised 2026-11-23 (supersedes the fixed floors in 5.3-5.5, 5.9.8 and section 7)
+
+Maintainer direction: separate models for planning/reasoning and for writing code; the
+leaderboard changes daily, so selection must be fully automatic; no fixed minimum
+scores, because models keep improving — what matters is a model's score *relative to
+the others available that day*, balanced against cost; and how strong a model a call
+gets must adapt per task, not be fixed.
+
+Scores (checked live 2026-11-23)
+- Primary source: LMArena `lmarena-ai/leaderboard-dataset`, config `text`, split
+  `latest` (CC-BY-4.0). Category `overall` is the **reasoning** score; category
+  `coding` is the **coding** score. 63 routable Hugging Face models matched in each,
+  none ambiguously. OpenRouter's listing has no coding score for any model
+  (`coding_index` is null on every row) and a general index for fewer models, so it is
+  kept only as a recorded cross-check, not used for ranking.
+- Name match: lowercase, alphanumerics only, any parenthesised effort suffix dropped;
+  when several variants of one model are listed, the highest rating is used. A
+  normalised name that matches more than one routable model, or none, makes that model
+  ineligible. No hand-maintained alias list.
+
+Two tracks
+- Each profile names a track: `reasoning` (planning, reviewing, analysis, writing) or
+  `coding` (implementation, repair, anything whose output is code). A model's rank is
+  taken from that track's scores only.
+
+Relative strength, no fixed scores
+- For each track, the day's eligible models are ranked by score and each gets its
+  percentile among them. A call asks for a **strength level**, defined by percentile, not
+  by score: `economy` (at or above the median), `balanced` (top 30%), `strong` (top 10%),
+  `strongest` (the top-scoring model). The percentile cut-offs are reviewed policy; no
+  score value is written anywhere in the repo.
+- Within a level, the pick is the cheapest model that qualifies (worst-case cost for the
+  call), so a cheaper model that scores as well always wins. The rest of the chain is
+  the next-cheapest qualifying models from other families.
+
+Adapting per task
+- Each profile has a default (track, level): `cheap_structured` reasoning/economy;
+  `standard_generation` reasoning/balanced; `deep_review` and `independent_review`
+  reasoning/strong; `deep_code` coding/strong; `vision` reasoning/balanced plus the
+  image-input flag.
+- A caller may raise or lower the level for one call through the existing requirement
+  overrides. The execution and convergence fix-loops raise it one level each time a tier
+  is exhausted, ending at `strongest`; this replaces the "funded best-quality" rung in
+  5.9.5.
+- Budget pressure: when the level's pick does not fit what is left of the allowance,
+  generation and structured calls step down one level and the decision record says so;
+  review calls never step down — they end as an outage until the allowance refills.
+
+Fail closed, as before: scores unavailable or stale → no funded candidate.
+What the maintainer confirms before merge is now only the percentile cut-offs and the
+per-profile defaults above, not score values.
+
 ## 6. Constitution amendment (approved 2026-11-23)
 
 Constitution IV currently recognises free and paid. Proposed addition (version 1.3.0 →
