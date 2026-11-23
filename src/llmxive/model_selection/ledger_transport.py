@@ -252,7 +252,7 @@ def _message_fn(event: dict) -> str:
 
 def _config_from_env(
     *, remote: str | None, require_anchor: bool, remote_env: str, anchor_env: str, ref: str,
-    what: str, bootstrap_cmd: str,
+    what: str, bootstrap_cmd: str, disabled_effect: str,
 ) -> LedgerConfig:
     resolved_remote = (remote or os.environ.get(remote_env, "").strip() or "origin")
     anchor = os.environ.get(anchor_env, "").strip() or None
@@ -260,7 +260,7 @@ def _config_from_env(
         raise LedgerError(
             f"production {what} not fully configured: set {anchor_env} to the "
             f"pinned bootstrap anchor OID (printed by `llmxive {bootstrap_cmd}`) so the "
-            f"ancestry check can reject a wrong/divergent ledger — paid fallback stays disabled "
+            f"ancestry check can reject a wrong/divergent ledger — {disabled_effect} "
             f"until then (fail closed)."
         )
     return LedgerConfig(remote=resolved_remote, expected_anchor=anchor, ref=ref)
@@ -286,6 +286,7 @@ def ledger_config_from_env(*, remote: str | None = None, require_anchor: bool = 
         remote=remote, require_anchor=require_anchor, remote_env=LEDGER_REMOTE_ENV,
         anchor_env=LEDGER_ANCHOR_ENV, ref=LEDGER_REF, what="credit ledger",
         bootstrap_cmd="credits-ledger-bootstrap",
+        disabled_effect="paid fallback stays disabled",
     )
 
 
@@ -298,6 +299,7 @@ def funded_ledger_config_from_env(*, remote: str | None = None, require_anchor: 
         remote=remote, require_anchor=require_anchor, remote_env=FUNDED_LEDGER_REMOTE_ENV,
         anchor_env=FUNDED_LEDGER_ANCHOR_ENV, ref=FUNDED_LEDGER_REF, what="funded ledger",
         bootstrap_cmd="funded-ledger-bootstrap",
+        disabled_effect="funded (Hugging Face) spend stays disabled",
     )
 
 
@@ -312,27 +314,31 @@ def _rev(repo: Path, ref: str) -> str | None:
         return _core_rev(repo, ref, identity=_GIT_IDENTITY)
 
 
-def _append_commit(repo: Path, parent: str | None, event: dict) -> str:
+def _append_commit(
+    repo: Path, parent: str | None, event: dict, config: LedgerConfig | None = None
+) -> str:
     """Build (WITHOUT touching the working tree) a new commit that adds exactly
     one event file onto ``parent``'s tree. Returns the new commit OID."""
     with _as_ledger_error():
-        return _core_append_commit(repo, _log_ref(), parent, event, _message_fn(event))
+        return _core_append_commit(repo, _log_ref(config), parent, event, _message_fn(event))
 
 
-def _push_fast_forward(repo: Path, remote: str, commit: str) -> bool:
+def _push_fast_forward(
+    repo: Path, remote: str, commit: str, config: LedgerConfig | None = None
+) -> bool:
     """Fast-forward-only push of ``commit`` to the authoritative ref. Returns
     True on success, False on a benign non-fast-forward rejection (a concurrent
     event won — retry). Raises :class:`LedgerAuthError` on auth/permission."""
     with _as_ledger_error():
-        return _core_push_fast_forward(repo, _log_ref(), remote, commit)
+        return _core_push_fast_forward(repo, _log_ref(config), remote, commit)
 
 
-def _remote_ledger_oid(repo: Path, remote: str) -> str | None:
+def _remote_ledger_oid(repo: Path, remote: str, config: LedgerConfig | None = None) -> str | None:
     """The OID the ledger ref points at ON THE REMOTE (via ``ls-remote``), or
     ``None`` if the remote genuinely has no such ref. Fails closed
     (:class:`LedgerAuthError`) if the remote cannot be queried."""
     with _as_ledger_error():
-        return _core_remote_log_oid(repo, _log_ref(), remote)
+        return _core_remote_log_oid(repo, _log_ref(config), remote)
 
 
 def _sync_and_verify(repo: Path, config: LedgerConfig) -> None:

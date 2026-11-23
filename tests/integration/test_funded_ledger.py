@@ -107,3 +107,74 @@ def test_bootstrap_funded_ref_on_a_remote(remote_and_clone):
         ["git", "ls-remote", str(remote), "refs/llmxive/credit-ledger"], capture_output=True, text=True
     ).stdout
     assert out2.strip() == ""  # the credit ref was not created
+
+
+def test_two_clones_race_to_reconcile_exactly_one_charge_wins(tmp_path: Path):
+    import threading
+
+    from llmxive.model_selection.ledger_transport import fetch_ledger
+
+    remote = tmp_path / "remote.git"
+    _git(["init", "--bare", "-b", "main", str(remote)], tmp_path)
+    clones = []
+    for name in ("A", "B"):
+        path = tmp_path / f"clone_{name}"
+        _git(["clone", "--quiet", str(remote), str(path)], tmp_path)
+        clones.append(path)
+    anchor = bootstrap_ledger(clones[0], remote="origin", ref=FUNDED_LEDGER_REF)
+    cfg = LedgerConfig(remote="origin", expected_anchor=anchor, ref=FUNDED_LEDGER_REF)
+    _reserve(clones[0], "f1", 0.25, cap=1.0, config=cfg)
+
+    gate = threading.Event()
+    errors: list[BaseException] = []
+
+    def go(clone: Path, charge: float) -> None:
+        try:
+            gate.wait()
+            reconcile(clone, "f1", charged=charge, now=T0, config=cfg)
+        except BaseException as exc:
+            errors.append(exc)
+
+    threads = [
+        threading.Thread(target=go, args=(clones[0], 0.01)),
+        threading.Thread(target=go, args=(clones[1], 0.02)),
+    ]
+    for t in threads:
+        t.start()
+    gate.set()
+    for t in threads:
+        t.join()
+    assert errors == []
+
+    fetch_ledger(clones[0], cfg)
+    events = read_events(clones[0], ref=FUNDED_LEDGER_REF)
+    reconciled = [e for e in events if e["type"] == "reconciled"]
+    assert len(reconciled) == 1  # the loser became a no-op
+    res = project(events)["f1"]
+    assert res.state == STATE_RECONCILED and res.charged in (0.01, 0.02)
+    assert res.charged == reconciled[0]["charged"]
+
+
+def test_funded_ledger_bootstrap_cli_prints_the_anchor_of_the_ref_it_created(repo, monkeypatch, capsys):
+    from llmxive.cli import main
+
+    monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(repo))
+    assert main(["funded-ledger-bootstrap", "--no-remote"]) == 0
+    out = capsys.readouterr().out
+    tip = subprocess.run(
+        ["git", "rev-parse", FUNDED_LEDGER_REF], cwd=str(repo), capture_output=True, text=True, check=True
+    ).stdout.strip()
+    assert f"LLMXIVE_FUNDED_LEDGER_ANCHOR={tip}" in out
+    assert FUNDED_LEDGER_REF in out
+    # idempotent re-run reports the same anchor; credit ref untouched
+    assert main(["funded-ledger-bootstrap", "--no-remote"]) == 0
+    assert tip in capsys.readouterr().out
+    missing = subprocess.run(
+        ["git", "rev-parse", "--verify", "-q", "refs/llmxive/credit-ledger"], cwd=str(repo), capture_output=True
+    )
+    assert missing.returncode != 0
+
+
+# --------------------------------------------------------------------------- #
+# Allowance guard (backends/hf_budget.py, spec 027 section 5.6) over real refs.
+# --------------------------------------------------------------------------- #

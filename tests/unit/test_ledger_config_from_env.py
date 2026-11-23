@@ -76,3 +76,18 @@ def test_funded_config_fails_closed_without_anchor(monkeypatch):
 def test_credit_config_keeps_the_credit_ref(monkeypatch):
     monkeypatch.setenv(LEDGER_ANCHOR_ENV, "abc")
     assert ledger_config_from_env().ref == "refs/llmxive/credit-ledger"
+
+
+def test_error_wording_depends_on_which_ledger(monkeypatch):
+    from llmxive.model_selection.ledger_transport import (
+        FUNDED_LEDGER_ANCHOR_ENV,
+        funded_ledger_config_from_env,
+    )
+
+    monkeypatch.delenv(FUNDED_LEDGER_ANCHOR_ENV, raising=False)
+    with pytest.raises(LedgerError) as funded:
+        funded_ledger_config_from_env()
+    assert "paid fallback" not in str(funded.value) and "funded-ledger-bootstrap" in str(funded.value)
+    with pytest.raises(LedgerError) as credit:
+        ledger_config_from_env()
+    assert "paid fallback stays disabled" in str(credit.value)
