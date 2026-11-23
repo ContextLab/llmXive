@@ -7,7 +7,7 @@ import pytest
 from llmxive.model_selection.policy import FUNDED_POLICY, FundedPolicy
 from llmxive.model_selection.profiles import PROFILES, build_requirement
 from llmxive.model_selection.route import _requirement_digest, resolve_chain
-from llmxive.model_selection.types import CallBudget, RequirementOverrides
+from llmxive.model_selection.types import CallBudget, RequirementOverrides, shift_level
 
 B1 = CallBudget(1_000, 100)
 
@@ -43,4 +43,20 @@ def test_requirement_digest_sees_profile_track_and_level():
     assert a != _requirement_digest(build_requirement("independent_review", B1))
     assert a != _requirement_digest(build_requirement("deep_review", B1, strength="strongest"))
     assert a != _requirement_digest(build_requirement("deep_review", B1, budget_step_down=True))
+    assert a != _requirement_digest(build_requirement("deep_review", B1, track="coding"))   # track alone
     assert a == _requirement_digest(build_requirement("deep_review", B1))
+
+
+def test_requirement_digest_sees_a_level_delta_resolved_through_resolve_chain():
+    base, _ = resolve_chain([], profile="deep_review", max_tokens=1, overrides=RequirementOverrides(level_delta=0))
+    raised, _ = resolve_chain([], profile="deep_review", max_tokens=1, overrides=RequirementOverrides(level_delta=1))
+    assert (base.strength, raised.strength) == ("strong", "strongest")
+    assert _requirement_digest(base) != _requirement_digest(raised)
+
+
+def test_strongest_saturates_under_plus_one():
+    assert shift_level("strongest", 1) == "strongest"
+    once, _ = resolve_chain([], profile="deep_code", max_tokens=1, overrides=RequirementOverrides(level_delta=1))
+    twice, _ = resolve_chain([], profile="deep_code", max_tokens=1, overrides=RequirementOverrides(level_delta=2))
+    assert once.strength == twice.strength == "strongest"
+    assert _requirement_digest(once) == _requirement_digest(twice)
