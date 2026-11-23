@@ -29,7 +29,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 160,
+      "line": 166,
       "models": [
         "glm-5.3"
       ],
@@ -40,7 +40,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 166,
+      "line": 172,
       "models": [
         "qwen3.5"
       ],
@@ -51,7 +51,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 172,
+      "line": 178,
       "models": [
         "gemma-4"
       ],
@@ -62,7 +62,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 178,
+      "line": 184,
       "models": [
         "gpt-oss"
       ],
@@ -73,7 +73,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 184,
+      "line": 190,
       "models": [
         "claude-haiku-4-5"
       ],
@@ -84,7 +84,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 190,
+      "line": 196,
       "models": [
         "qwen3-vl"
       ],
@@ -95,7 +95,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 196,
+      "line": 202,
       "models": [
         "qwen2.5"
       ],
@@ -2566,6 +2566,17 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_model_selection_hf_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 239,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_family_table_select_never_admits_a_funded_model"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_model_selection_inventory.py",
       "kind": "model_id_literal",
       "line": 52,
@@ -2750,6 +2761,28 @@
       ],
       "owning_slice": null,
       "symbol": "test_render_markdown_is_deterministic_with_counts_and_pins"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_leaderboard.py",
+      "kind": "model_id_literal",
+      "line": 50,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_normalise_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_leaderboard.py",
+      "kind": "model_id_literal",
+      "line": 61,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_normalise_repo_uses_the_part_after_the_org"
     },
     {
       "category": "test_double",
@@ -3388,7 +3421,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 88,
+      "line": 101,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3399,7 +3432,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 88,
+      "line": 101,
       "models": [
         "qwen3.5"
       ],
@@ -3410,7 +3443,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 89,
+      "line": 102,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3421,7 +3454,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 103,
+      "line": 120,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3432,7 +3465,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 115,
+      "line": 132,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3443,7 +3476,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 115,
+      "line": 132,
       "models": [
         "qwen3.5"
       ],
@@ -3454,7 +3487,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 116,
+      "line": 133,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3465,7 +3498,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 141,
+      "line": 159,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3476,7 +3509,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 141,
+      "line": 159,
       "models": [
         "qwen3.5"
       ],
@@ -3487,7 +3520,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_snapshot.py",
       "kind": "model_id_literal",
-      "line": 142,
+      "line": 160,
       "models": [
         "qwen.qwen3.5-122b"
       ],

@@ -62,6 +62,7 @@ from llmxive.model_selection.types import (
     ModelUnavailable,
     RequirementOverrides,
     RuntimeSnapshot,
+    shift_level,
 )
 
 __all__ = [
@@ -173,6 +174,10 @@ def _requirement_digest(requirement: ModelRequirement) -> str:
         "max_catalog_age_s": requirement.max_catalog_age_s,
         "max_candidates": requirement.max_candidates,
         "require_fresh_snapshot": requirement.require_fresh_snapshot,
+        "profile": requirement.profile,
+        "track": requirement.track,
+        "strength": requirement.strength,
+        "budget_step_down": requirement.budget_step_down,
         "call_budget": [
             requirement.call_budget.max_input_tokens,
             requirement.call_budget.max_output_tokens,
@@ -300,6 +305,8 @@ def resolve_chain(
             exclude_models=base.exclude_models | overrides.exclude_models,
             max_credits=_tighter_credits(base.max_credits, overrides.max_credits),
         )
+        if base.strength is not None:
+            requirement = replace(requirement, strength=shift_level(base.strength, overrides.level_delta))
         # LEADER EXCLUSION (pure, no I/O): resolve who would lead, then exclude
         # exactly that model — once for ``exclude_leader``, ``exclude_leaders``
         # times for a deeper rung (each pass drops the leader of what remains).

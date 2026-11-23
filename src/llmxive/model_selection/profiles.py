@@ -28,6 +28,8 @@ from llmxive.model_selection.types import (
     IndependenceDim,
     ModelRequirement,
     RequirementOverrides,
+    StrengthLevel,
+    Track,
     canonical_overrides,
 )
 
@@ -60,6 +62,9 @@ class RequirementProfile:
     max_catalog_age_s: int = 3600
     max_candidates: int = 4
     require_fresh_snapshot: bool = False
+    track: Track | None = None
+    strength: StrengthLevel | None = None
+    budget_step_down: bool = False
 
     def build(
         self,
@@ -88,6 +93,10 @@ class RequirementProfile:
             max_catalog_age_s=self.max_catalog_age_s,
             max_candidates=self.max_candidates,
             require_fresh_snapshot=self.require_fresh_snapshot,
+            profile=self.name,
+            track=self.track,
+            strength=self.strength,
+            budget_step_down=self.budget_step_down,
         )
         return replace(req, **overrides) if overrides else req
 
@@ -107,6 +116,9 @@ PROFILES: dict[str, RequirementProfile] = {
         # migration, so this preserves that as-built reachability rather than
         # narrowing it now that the profile is actually exercised.
         max_candidates=8,
+        track="reasoning",
+        strength="economy",
+        budget_step_down=True,
     ),
     "standard_generation": RequirementProfile(
         name="standard_generation",
@@ -120,6 +132,9 @@ PROFILES: dict[str, RequirementProfile] = {
         # growth) so a guarded paid fallback is reachable when all free candidates
         # are down — behavior-preserving vs the legacy qwen→…→claude MODEL_FALLBACKS.
         max_candidates=8,
+        track="reasoning",
+        strength="balanced",
+        budget_step_down=True,
     ),
     "deep_review": RequirementProfile(
         name="deep_review",
@@ -132,12 +147,18 @@ PROFILES: dict[str, RequirementProfile] = {
         # this keeps deep_review from being a narrower surface than the
         # behavior it replaced as the policy/catalog grow.
         max_candidates=8,
+        track="reasoning",
+        strength="strong",
+        budget_step_down=False,
     ),
     "deep_code": RequirementProfile(
         name="deep_code",
         capability="deep",
         # Same rationale as deep_review immediately above.
         max_candidates=8,
+        track="coding",
+        strength="strong",
+        budget_step_down=True,
     ),
     "vision": RequirementProfile(
         name="vision",
@@ -149,6 +170,9 @@ PROFILES: dict[str, RequirementProfile] = {
         # standard_generation cap of 8 was the uniform as-built surface before
         # this slice's per-profile migration.
         max_candidates=8,
+        track="reasoning",
+        strength="balanced",
+        budget_step_down=False,
     ),
     "independent_review": RequirementProfile(
         name="independent_review",
@@ -157,6 +181,9 @@ PROFILES: dict[str, RequirementProfile] = {
         preferred_independence=frozenset({"serving_endpoint"}),
         max_catalog_age_s=900,  # high-stakes: require a fresh-enough snapshot (FR-007)
         require_fresh_snapshot=True,  # gate catalog AND credit/opt-in freshness, fail closed
+        track="reasoning",
+        strength="strong",
+        budget_step_down=False,
     ),
 }
 

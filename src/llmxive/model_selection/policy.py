@@ -70,6 +70,12 @@ What is attributed to ``glm-5.3``, and on what evidence in this repository:
   repository states no context window for this model, so it takes the smallest
   window among its Dartmouth-hosted text peers (gemma-4 / gpt-oss). Raise it
   only with a verified figure.
+
+Funded policy (spec 027): ``FUNDED_POLICY`` holds the reviewed cut-offs that map
+a strength level to a slice of the funded (Hugging Face) candidates. Each
+cut-off is a PERCENT of that day's scored population (``strongest`` is the single
+top-scoring model), approved 2026-11-23 (spec 5.10). No score value, score floor
+or model name lives in the repository: the scores arrive in the daily snapshot.
 """
 
 from __future__ import annotations
@@ -78,7 +84,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 
-from llmxive.model_selection.types import Capability
+from llmxive.model_selection.types import Capability, StrengthLevel
 
 #: Bump when the table below changes in a way that can alter a decision. Part of
 #: ``select``'s pure input so the same snapshot+requirement under a different
@@ -200,4 +206,29 @@ CAPABILITY_POLICY = CapabilityPolicy(
             max_context_tokens=32_768,
         ),
     },
+)
+
+
+@dataclass(frozen=True)
+class FundedPolicy:
+    """Reviewed funded-selection policy (spec 027, section 5.10).
+
+    ``level_top_percent`` maps a strength level to the percent of that day's
+    scored population eligible at that level (``None`` = the top-scoring model,
+    index 0). ``max_publish_age_days`` bounds how old a model's publication may
+    be; ``max_chain_slots`` is the number of funded slots in a chain.
+    """
+
+    level_top_percent: Mapping[StrengthLevel, int | None]
+    max_publish_age_days: int
+    max_chain_slots: int
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "level_top_percent", MappingProxyType(dict(self.level_top_percent)))
+
+
+FUNDED_POLICY = FundedPolicy(
+    level_top_percent=MappingProxyType({"economy": 50, "balanced": 30, "strong": 10, "strongest": None}),
+    max_publish_age_days=7,
+    max_chain_slots=2,
 )

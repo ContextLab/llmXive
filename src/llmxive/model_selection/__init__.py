@@ -35,8 +35,10 @@ from llmxive.model_selection.attempt_hooks import (
 from llmxive.model_selection.execute import ChainExhausted, ExecutionResult, execute
 from llmxive.model_selection.policy import (
     CAPABILITY_POLICY,
+    FUNDED_POLICY,
     SELECTION_POLICY_VERSION,
     CapabilityPolicy,
+    FundedPolicy,
     PolicyEntry,
 )
 from llmxive.model_selection.profiles import (
@@ -76,6 +78,7 @@ from llmxive.model_selection.types import (
 __all__ = [
     "CAPABILITY_POLICY",
     "FUNDED_BACKENDS",
+    "FUNDED_POLICY",
     "PROFILES",
     "SELECTION_POLICY_VERSION",
     "STRENGTH_LEVELS",
@@ -94,6 +97,7 @@ __all__ = [
     "ExecutionOptions",
     "ExecutionResult",
     "FundedGuardSnapshot",
+    "FundedPolicy",
     "IndependenceBaseline",
     "IndependenceDim",
     "ModelChain",
