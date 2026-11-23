@@ -80,9 +80,11 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   `return Stage.HUMAN_INPUT_NEEDED`). Infeasible ideas archive + bounded
   re-brainstorm → `validator_rejected` terminal. When the execution OR
   convergence fix-loop exhausts its per-tier round cap it ESCALATES the
-  model tier (`execution_status` `model_tier` ladder: registered default →
-  `openai.gpt-oss-120b` → optional `LLMXIVE_EXECUTION_PAID_TIERS` via the
-  paid opt-in + credit guard) and retries the cap; when ALL tiers exhaust it
+  model tier (`execution_status` `model_tier` ladder of selection constraints,
+  not model names: the profile's default chain → exclude the leader → exclude
+  the top two → an optional paid rung enabled by
+  `LLMXIVE_EXECUTION_PAID_ESCALATION` via the paid opt-in + credit guard) and
+  retries the cap; when ALL tiers exhaust it
   routes back to `planned`/`paper_planned` with a DETERMINISTIC (no-LLM)
   re-plan report (artifacts produced + failing commands / unresolved panel
   concerns + an "adjust the approach" note) the planner ingests. The
