@@ -102,8 +102,22 @@ _NON_FF_MARKERS = (
 _PUSH_DENY_MARKERS = ("pre-receive hook declined", "protected branch", "protected ref", "gh006")
 
 
+#: Seconds any one git subprocess may run before it is killed and reported as a
+#: :class:`GitLogError` (a stalled fetch must not hang the caller).
+GIT_TIMEOUT_S = 60.0
+
+
 class GitLogError(RuntimeError):
     """An event-log transport failure."""
+
+
+def _run_git(argv: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+    """``subprocess.run(argv, ...)`` bounded by :data:`GIT_TIMEOUT_S`; a timeout raises
+    :class:`GitLogError` naming only the git subcommand (never a remote or argument)."""
+    try:
+        return subprocess.run(argv, timeout=GIT_TIMEOUT_S, **kwargs)  # type: ignore[call-overload]
+    except subprocess.TimeoutExpired as exc:
+        raise GitLogError(f"git {argv[1] if len(argv) > 1 else ''} timed out after {GIT_TIMEOUT_S:g}s") from exc
 
 
 class GitLogAuthError(GitLogError):
@@ -198,7 +212,7 @@ def _git(
     env = {**os.environ, **identity, "GIT_TERMINAL_PROMPT": "0"}
     if extra_env:
         env.update(extra_env)
-    proc = subprocess.run(
+    proc = _run_git(
         ["git", *args], cwd=str(cwd), env=env, capture_output=True, text=True, check=False
     )
     if check and proc.returncode != 0:
@@ -376,7 +390,7 @@ def _cat_file_batch(
         return {}
     env = {**os.environ, **log.git_identity, "GIT_TERMINAL_PROMPT": "0"}
     stdin = "".join(f"{tip}:{p}\n" for p in paths).encode()
-    proc = subprocess.run(
+    proc = _run_git(
         ["git", "cat-file", "--batch"], cwd=str(repo), env=env,
         input=stdin, capture_output=True, check=False,
     )
@@ -467,7 +481,7 @@ def _write_blob(repo: Path, event: dict) -> str:
     """The canonical body of one event, written to the object store. Runs ``hash-object``
     directly (not through :func:`_git`) because the content goes in on stdin; the fixed
     identity env is irrelevant to a pure blob write."""
-    proc = subprocess.run(
+    proc = _run_git(
         ["git", "hash-object", "-w", "--stdin"],
         cwd=str(repo),
         input=_canonical(event),

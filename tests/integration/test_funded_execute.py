@@ -1007,3 +1007,45 @@ def test_paid_still_runs_when_funded_was_skipped_for_another_reason(repo, monkey
                   backend_factory=lambda n: hf if n == "huggingface" else paid,
                   funded_ledger_config=CFG, funded_observer=None, now=NOW, **_paid_kwargs(monkeypatch))
     assert hf.calls == [] and paid.calls == [claude] and res.model_ref.model_id == claude
+
+
+# --- a stalled git cannot hang the route (final review A8) ---
+
+@pytest.fixture
+def stalled_git(tmp_path, monkeypatch):
+    """A real executable named ``git`` first on PATH that never answers."""
+    import os
+
+    import llmxive.git_event_log as gel
+
+    bin_dir = tmp_path / "stalled-bin"
+    bin_dir.mkdir()
+    fake = bin_dir / "git"
+    fake.write_text("#!/bin/sh\nexec sleep 30\n")
+    fake.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
+    assert gel.GIT_TIMEOUT_S == 60.0
+    monkeypatch.setattr(gel, "GIT_TIMEOUT_S", 0.5)  # keep the test fast; the default is pinned above
+    return gel
+
+
+def test_a_stalled_ledger_read_times_out_as_a_ledger_error(repo, stalled_git):
+    from llmxive.model_selection.ledger_transport import LedgerError
+
+    started = time.monotonic()
+    with pytest.raises(LedgerError, match="timed out"):
+        read_events(repo, ref=FUNDED_LEDGER_REF)
+    assert time.monotonic() - started < 10.0
+
+
+def test_a_stalled_ledger_skips_the_funded_candidate_with_a_type_only_note(repo, stalled_git):
+    hf, local = _HF({}), _Local({})
+    started = time.monotonic()
+    res = execute(sel("cheap_structured", snapshot()), MSG, options=ExecutionOptions(max_tokens=512),
+                  ledger_repo=repo, backend_factory=lambda n: local if n == "local" else hf,
+                  funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+    assert time.monotonic() - started < 20.0
+    assert hf.calls == [] and res.model_ref.backend == "local"
+    funded_notes = [n for n in res.notes if "funded" in n]
+    assert funded_notes and all("timed out" not in n for n in funded_notes)  # TYPE only, never text
+    assert any("LedgerError" in n for n in funded_notes)
