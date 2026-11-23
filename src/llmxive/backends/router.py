@@ -64,12 +64,30 @@ def make_backend(name: str) -> BaseBackend:
             _cloud_models_url() + "\0" + os.environ.get("DARTMOUTH_CHAT_API_KEY", "")
         ).encode()).hexdigest()
         return _dartmouth_backend(context)
+    if cls is HuggingFaceBackend:
+        from llmxive.backends.huggingface import BILL_TO_ENV, ROUTER_BASE_URL
+        from llmxive.credentials import HF_TOKEN_NAME
+
+        # As for Dartmouth: the per-model circuit breaker lives on the instance,
+        # so a fresh instance per call would forget an outage and send (and
+        # reserve budget for) every call again. Isolated by endpoint and the
+        # environment credentials; no raw credential is retained.
+        context = hashlib.sha256((
+            ROUTER_BASE_URL + "\0" + os.environ.get(HF_TOKEN_NAME, "")
+            + "\0" + os.environ.get(BILL_TO_ENV, "")
+        ).encode()).hexdigest()
+        return _huggingface_backend(context)
     return cls()
 
 
 @lru_cache(maxsize=8)
 def _dartmouth_backend(context: str) -> DartmouthBackend:
     return DartmouthBackend()
+
+
+@lru_cache(maxsize=8)
+def _huggingface_backend(context: str) -> HuggingFaceBackend:
+    return HuggingFaceBackend()
 
 
 # ---------------------------------------------------------------------------

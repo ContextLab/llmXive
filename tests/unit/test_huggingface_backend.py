@@ -177,3 +177,30 @@ def test_token_and_bill_to_are_stripped():
         HuggingFaceBackend(token="hf_t\n", bill_to=" grp123\n", base_url=srv.base_url).chat(MSG, model=M)
     h = srv.requests[0]["headers"]
     assert h["authorization"] == "Bearer hf_t" and h["x-hf-bill-to"] == "grp123"
+
+
+def test_make_backend_keeps_the_breaker_across_calls(monkeypatch):
+    """A1: the per-model breaker must persist across ``make_backend`` calls, or an
+    outage re-sends (and re-reserves) on every agent call. Failures are recorded
+    through the first instance's real breaker; the second instance must refuse."""
+    monkeypatch.setenv("HF_TOKEN", "hf_breaker_test")
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp_breaker_test")
+    model = "breaker-test/a1-persist:prov-z"
+
+    def _fail():
+        raise TransientBackendError("simulated outage via the real breaker")
+
+    first = make_backend("huggingface")
+    for _ in range(3):
+        with pytest.raises(TransientBackendError):
+            first._breaker(model).call(_fail)
+
+    ran = []
+    second = make_backend("huggingface")
+    with pytest.raises(BackendUnavailable, match="circuit open"):
+        second._breaker(model).call(lambda: ran.append(1))
+    assert ran == []
+    # Different credentials get their own breaker history.
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp_breaker_other")
+    make_backend("huggingface")._breaker(model).call(lambda: ran.append(1))
+    assert ran == [1]
