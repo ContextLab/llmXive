@@ -487,7 +487,7 @@ def test_chain_provenance_fields():
     chain = select(ModelRequirement(capability="deep", call_budget=cb), snap)
     assert chain.resolved_at == snap.observed_at
     assert chain.snapshot_digest == "TEST-DIGEST"
-    assert chain.selection_policy_version == 3
+    assert chain.selection_policy_version == 4
     assert set(chain.snapshot_provenance) == {"catalog", "local", "credit"}
     assert chain.call_budget == cb
 
@@ -671,7 +671,7 @@ def test_policy_v3_names_glm_as_a_non_vision_reasoning_family():
     from llmxive.model_selection.policy import CAPABILITY_POLICY, SELECTION_POLICY_VERSION
     from llmxive.model_selection.snapshot import _family_of, _vendor_of
 
-    assert SELECTION_POLICY_VERSION == 3 == CAPABILITY_POLICY.version
+    assert SELECTION_POLICY_VERSION == 4 == CAPABILITY_POLICY.version
     family = _family_of(GLM, _vendor_of(GLM))
     assert family == "glm-5.3"
     entry = CAPABILITY_POLICY.entry(family)

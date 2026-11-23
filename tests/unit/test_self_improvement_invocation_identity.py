@@ -80,7 +80,7 @@ def _chain(route_id, eid="c"):
     return _ev("ChainResolved", _audit_payload(ChainResolved(
         route_id=route_id, requirement_digest="rq-1", prompt_digest="pd",
         context_digest="cd", snapshot_digest="sd", snapshot_provenance=_PROV,
-        selection_policy_version=3, resolved_at=TS, explanation=("only free family",),
+        selection_policy_version=4, resolved_at=TS, explanation=("only free family",),
         candidates=(_MODEL,),
     )), eid)
 
@@ -128,7 +128,7 @@ def test_success_identity_carries_full_selection_provenance():
     assert (ii.serving_endpoint, ii.vendor) == ("chat", "google")   # reproduce WHY
     assert ii.snapshot_provenance == _PROV_JSON
     assert (ii.prompt_digest, ii.context_digest, ii.snapshot_digest) == ("pd", "cd", "sd")
-    assert ii.selection_policy_version == 3
+    assert ii.selection_policy_version == 4
     assert ii.route_outcome == "success" and ii.degradation is None
     assert ii.actor_instance_id == "R"
 

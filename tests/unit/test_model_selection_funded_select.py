@@ -17,10 +17,14 @@ import pytest
 
 import llmxive.model_selection.snapshot as snap_mod
 from llmxive.model_selection.lkg import LKGEntry, LKGStore
-from llmxive.model_selection.policy import LEADERBOARD_MAX_FETCH_AGE_S
+from llmxive.model_selection.policy import FUNDED_POLICY, LEADERBOARD_MAX_FETCH_AGE_S
 from llmxive.model_selection.profiles import build_requirement
 from llmxive.model_selection.select import select
+from llmxive.model_selection.strength import level_qualifiers, repo_of, track_population
 from llmxive.model_selection.types import (
+    STRENGTH_LEVELS,
+    USD_TO_CREDITS,
+    IndependenceBaseline,
     ModelRequirement,
     ModelUnavailable,
     ObservedModel,
@@ -34,6 +38,7 @@ from tests.helpers.funded import (
     GEMMA4,
     GLM,
     GPT_OSS,
+    LOCAL,
     NOW,
     QWEN,
     REASONING,
@@ -45,6 +50,7 @@ from tests.helpers.funded import (
     E,
     ids,
     order,
+    policy_with,
     sel,
     snapshot,
 )
@@ -52,11 +58,25 @@ from tests.helpers.funded import (
 WIDE = {"max_candidates": 99}
 SCORED_HF = {A, A2, B, C, E, *FX}
 
+#: Task 14 puts every funded candidate through the level filter, the allowance,
+#: one-per-family and ``max_chain_slots``. The eligibility tests below are about
+#: the per-candidate rules UNDER those filters, so they select with a policy in
+#: which every scored repo qualifies at every level and the slots are unbounded,
+#: and take the union with A2 excluded: A and A2 share a family, so one chain can
+#: show only one of them.
+OPEN = policy_with(level_top_percent={lvl: 100 for lvl in STRENGTH_LEVELS}, max_chain_slots=99)
+
+
+def eligible_ids(profile: str, snap: RuntimeSnapshot, **kw) -> set[str]:
+    """Every funded/other candidate that passes per-candidate eligibility."""
+    return ids(sel(profile, snap, OPEN, **WIDE, **kw)) | ids(
+        sel(profile, snap, OPEN, **WIDE, exclude_models=frozenset({A2}), **kw))
+
 
 def test_score_track_and_flags_decide_eligibility():
-    assert ids(sel("cheap_structured", snapshot(local=False), **WIDE)) == SCORED_HF  # D has no score
-    assert ids(sel("deep_code", snapshot(local=False), **WIDE)) == SCORED_HF
-    assert ids(sel("vision", snapshot(), **WIDE)) == {C}  # the only image-input model
+    assert eligible_ids("cheap_structured", snapshot(local=False)) == SCORED_HF  # D has no score
+    assert eligible_ids("deep_code", snapshot(local=False)) == SCORED_HF
+    assert eligible_ids("vision", snapshot()) == {C}  # the only image-input model
 
 
 # Leaderboard freshness follows the 2026-11-23 ruling: fetched within
@@ -139,14 +159,14 @@ def test_a_publish_date_one_day_ahead_passes_and_two_days_ahead_makes_the_leader
 
 def test_leaderboard_lkg_at_exactly_the_limit_is_still_fresh():
     at_limit = {"leaderboard": ("last_known_good", float(LEADERBOARD_MAX_FETCH_AGE_S))}
-    assert A in ids(sel("deep_review", snapshot(sources=at_limit), **WIDE))
+    assert A in eligible_ids("deep_review", snapshot(sources=at_limit))
     # the catalog's max_catalog_age_s (3600) does not judge the leaderboard
     past_catalog_limit = {"leaderboard": ("last_known_good", 3601.0)}
-    assert A in ids(sel("deep_review", snapshot(sources=past_catalog_limit), **WIDE))
+    assert A in eligible_ids("deep_review", snapshot(sources=past_catalog_limit))
 
 
 def test_hf_catalog_lkg_at_exactly_the_limit_is_still_fresh():
-    assert A in ids(sel("deep_review", snapshot(sources={"hf_catalog": ("last_known_good", 3600.0)}), **WIDE))
+    assert A in eligible_ids("deep_review", snapshot(sources={"hf_catalog": ("last_known_good", 3600.0)}))
 
 
 def test_unobservable_features_and_context():
@@ -161,8 +181,8 @@ def test_an_unknown_context_length_fails_a_stated_minimum():
     observed = dict(snap.observed)
     observed[A] = ObservedModel(context_length=None, features=observed[A].features)
     snap = replace(snap, observed=observed)
-    assert A in ids(sel("deep_review", snap, **WIDE))  # no minimum stated
-    assert A not in ids(sel("deep_review", snap, min_context_tokens=1, **WIDE))
+    assert A in eligible_ids("deep_review", snap)  # no minimum stated
+    assert A not in eligible_ids("deep_review", snap, min_context_tokens=1)
 
 
 def test_a_model_without_observed_flags_is_ineligible():
@@ -205,10 +225,10 @@ def test_funded_needs_no_opt_in_and_is_funded_class():
 
 
 def test_funded_ignores_allow_paid_and_the_paid_opt_in():
-    with_paid = ids(sel("cheap_structured", snapshot(local=False, claude=True, paid_opt_in=True),
-                        allow_paid=True, **WIDE))
+    with_paid = eligible_ids("cheap_structured", snapshot(local=False, claude=True, paid_opt_in=True),
+                             allow_paid=True)
     assert SCORED_HF <= with_paid and CLAUDE in with_paid
-    assert SCORED_HF == ids(sel("cheap_structured", snapshot(local=False, claude=True), **WIDE))
+    assert SCORED_HF == eligible_ids("cheap_structured", snapshot(local=False, claude=True))
 
 
 def test_no_hugging_face_models_leaves_existing_behaviour_untouched():
@@ -262,3 +282,181 @@ def test_a_future_stamped_lkg_copy_is_unavailable_not_fresh(monkeypatch, tmp_pat
     s: RuntimeSnapshot = snap_mod.runtime_snapshot(now=NOW, lkg_store=store)
     assert s.sources["hf_catalog"].source == "unavailable"
     assert not [m for m in s.models if m.backend == "huggingface"]
+
+
+# --------------------------------------------------------------------------- #
+# Spec 027 Task 14: level qualification, cheapest-within-level, budget step-down,
+# class order free-remote > funded > local > paid, class-aware review freshness.
+# --------------------------------------------------------------------------- #
+
+FULL = dict(dartmouth=(GLM, QWEN, GEMMA4, GPT_OSS), claude=True, paid_opt_in=True)
+
+
+def test_order_is_free_remote_then_funded_then_local_then_paid():
+    assert order(sel("cheap_structured", snapshot(**FULL), allow_paid=True)) == [
+        GLM, QWEN, GEMMA4, GPT_OSS, B, E, LOCAL, CLAUDE]
+
+
+def test_funded_slots_never_truncate_local_or_paid():
+    chain = sel("standard_generation", snapshot(**FULL), allow_paid=True)
+    assert sum(c.cost_class == "funded" for c in chain.candidates) == 2 and order(chain)[-2:] == [LOCAL, CLAUDE]
+
+
+@pytest.mark.parametrize("profile,want", [
+    ("cheap_structured", [B, E, LOCAL]), ("standard_generation", [E, C, LOCAL]),
+    ("deep_review", [E, A2]), ("deep_code", [B, A2]), ("vision", [C])])
+def test_cheapest_qualifier_leads_then_other_families(profile, want):
+    assert order(sel(profile, snapshot())) == want
+
+
+def test_a_statistically_tied_cheaper_model_wins_its_level():  # F04 is "balanced" only by interval overlap
+    assert order(sel("standard_generation", snapshot(prices={FX[3]: (1e-8, 1e-8)}))) == [FX[3], E, LOCAL]
+
+
+def test_population_ignores_call_filters():  # C is "balanced" among all 20, not "strongest" among vision models
+    assert order(sel("vision", snapshot())) == [C]
+    with pytest.raises(ModelUnavailable):
+        sel("vision", snapshot(), strength="strongest")
+
+
+def test_tracks_are_ranked_separately():
+    assert order(sel("deep_code", snapshot()))[0] == B and order(sel("deep_review", snapshot()))[0] == E
+
+
+def test_level_raise_and_lower_for_one_call():
+    assert order(sel("deep_code", snapshot(), strength="strongest")) == [B]
+    assert order(sel("cheap_structured", snapshot(), strength="balanced")) == [E, C, LOCAL]
+
+
+def test_generation_steps_down_one_level_under_budget_pressure():
+    chain = sel("standard_generation", snapshot(available_usd=0.003))
+    assert order(chain) == [B, LOCAL]
+    assert any("stepped down to economy (budget pressure)" in e for e in chain.explanation)
+
+
+def test_step_down_is_one_level_only():
+    with pytest.raises(ModelUnavailable, match="funded allowance exhausted"):
+        sel("deep_code", snapshot(available_usd=0.001))  # strong → balanced still does not fit
+
+
+def test_review_never_steps_down():
+    with pytest.raises(ModelUnavailable, match="funded allowance exhausted"):
+        sel("deep_review", snapshot(available_usd=0.003))
+    assert order(sel("deep_review", snapshot(available_usd=0.004))) == [E]  # A2 (0.018) no longer fits
+
+
+def test_vision_never_steps_down():
+    with pytest.raises(ModelUnavailable, match="funded allowance exhausted"):
+        sel("vision", snapshot(available_usd=0.001))  # C costs 0.009
+
+
+def test_exhausted_allowance_is_outage_not_paid():
+    snap = snapshot(claude=True, paid_opt_in=True, available_usd=0.001)
+    chain = sel("cheap_structured", snap, allow_paid=True)  # economy cannot step down
+    assert order(chain) == [LOCAL] and any("funded allowance exhausted" in e for e in chain.explanation)
+    with pytest.raises(ModelUnavailable):
+        sel("deep_review", snap, allow_paid=True)
+    assert order(sel("deep_review", snap, allow_paid=True, require_paid=True)) == [CLAUDE]
+
+
+def test_a_stale_funded_class_still_falls_through_to_paid():
+    # Only the allowance suppresses paid; staleness is an ordinary fall-through.
+    snap = snapshot(claude=True, paid_opt_in=True, sources={"leaderboard": ("unavailable", 0.0)})
+    assert order(sel("deep_review", snap, allow_paid=True)) == [CLAUDE]
+
+
+def test_a_guard_with_zero_headroom_admits_nothing():
+    snap = snapshot(available_usd=0.0)
+    assert order(sel("cheap_structured", snap)) == [LOCAL]
+    free = snapshot(available_usd=0.0, prices={B: (0.0, 0.0)})  # even a zero-priced call
+    assert order(sel("cheap_structured", free)) == [LOCAL]
+
+
+def test_max_credits_bounds_funded_like_the_allowance():
+    chain = sel("deep_review", snapshot(), max_credits=10)
+    assert order(chain) == [E]  # 0.0036 USD = 3.6 credits; A2 = 18
+    assert chain.candidates[0].approved_ceiling_credits == pytest.approx(10.0)
+
+
+def test_require_paid_excludes_funded():
+    assert order(sel("deep_review", snapshot(claude=True, paid_opt_in=True), allow_paid=True,
+                     require_paid=True)) == [CLAUDE]
+
+
+def test_independence_dimensions_work_unchanged():
+    base = IndependenceBaseline(families=frozenset({"gpt-oss"}))
+    assert order(sel("independent_review", snapshot(), independence_against=base)) == [A2, FX[0]]
+
+
+def test_chain_explanation_names_track_level_and_population():
+    assert any(e.startswith("funded: reasoning/strong — 3 of 20 models qualify")
+               for e in sel("deep_review", snapshot()).explanation)
+
+
+def test_dartmouth_only_explanations_are_unchanged():
+    # No Hugging Face model in the snapshot → no funded line in the decision record.
+    snap = snapshot(dartmouth=(GLM,), hf=(), available_usd=None)
+    assert not any(e.startswith("funded") for e in sel("deep_review", snap).explanation)
+    assert any(e.startswith("funded candidates not eligible")
+               for e in sel("deep_review", snapshot(dartmouth=(GLM,), available_usd=None)).explanation)
+
+
+STALE = ("last_known_good", 901.0)
+GONE = ("unavailable", 0.0)
+
+
+def test_review_is_served_by_funded_when_dartmouth_is_not_fresh():
+    assert order(sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"catalog": STALE, "credit": GONE}))) == [E, A2]
+
+
+def test_review_is_served_by_dartmouth_when_funded_is_not_fresh():
+    for bad in ({"leaderboard": STALE}, {"hf_catalog": GONE}):
+        assert order(sel("independent_review", snapshot(dartmouth=(QWEN, GEMMA4), sources=bad))) == [QWEN, GEMMA4]
+    assert order(sel("independent_review", snapshot(dartmouth=(QWEN, GEMMA4), available_usd=None))) == [QWEN, GEMMA4]
+
+
+def test_review_is_an_outage_only_when_no_class_is_fresh():
+    with pytest.raises(ModelUnavailable, match="fresh"):
+        sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"credit": GONE, "leaderboard": STALE}))
+
+
+def test_select_stays_byte_identical_and_versioned():
+    s = snapshot(dartmouth=(QWEN,))
+    assert sel("deep_review", s) == sel("deep_review", s)
+    assert sel("deep_review", s).selection_policy_version == 4
+
+
+# Security property (automated review of 2a0d08f): no funded candidate leaves
+# ``select`` without passing the level filter AND the allowance/budget fit.
+_PROFILES = ("cheap_structured", "standard_generation", "deep_review", "independent_review", "deep_code", "vision")
+
+
+@pytest.mark.parametrize("profile", _PROFILES)
+@pytest.mark.parametrize("strength", [None, *STRENGTH_LEVELS])
+@pytest.mark.parametrize("available_usd", [0.0, 0.001, 0.002, 0.003, 0.004, 0.01, 0.02, 5.0])
+@pytest.mark.parametrize("max_credits", [None, 2, 10, 50])
+def test_every_funded_candidate_passed_the_level_filter_and_the_budget(profile, strength, available_usd, max_credits):
+    snap = snapshot(**FULL, available_usd=available_usd)
+    kw = {} if strength is None else {"strength": strength}
+    req = build_requirement(profile, BUDGET, allow_paid=True, max_credits=max_credits, **kw)
+    try:
+        chain = select(req, snap)
+    except ModelUnavailable:
+        return
+    funded = [c for c in chain.candidates if c.cost_class == "funded"]
+    pop = track_population(snap.scores, req.track, today=NOW.date(), max_publish_age_days=7)
+    allowed = {req.strength}
+    stepped = any("(budget pressure)" in e for e in chain.explanation)
+    if stepped:
+        assert req.budget_step_down and req.strength != "economy"
+        allowed = {STRENGTH_LEVELS[STRENGTH_LEVELS.index(req.strength) - 1]}
+    level_ok = set().union(*(level_qualifiers(pop, lvl, FUNDED_POLICY) for lvl in allowed))
+    cap = available_usd * USD_TO_CREDITS if max_credits is None else min(available_usd * USD_TO_CREDITS, max_credits)
+    assert len(funded) <= FUNDED_POLICY.max_chain_slots
+    assert len({c.model_ref.model_family for c in funded}) == len(funded)
+    for c in funded:
+        assert repo_of(c.model_ref.model_id) in level_ok
+        assert available_usd > 0 and c.worst_case_credits <= cap
+        assert c.approved_ceiling_credits == pytest.approx(cap)
+    if any("funded allowance exhausted" in e for e in chain.explanation):
+        assert not funded and CLAUDE not in order(chain)  # never a licence to fall through to paid

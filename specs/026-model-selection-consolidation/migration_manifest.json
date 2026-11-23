@@ -29,7 +29,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 166,
+      "line": 178,
       "models": [
         "glm-5.3"
       ],
@@ -40,7 +40,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 172,
+      "line": 184,
       "models": [
         "qwen3.5"
       ],
@@ -51,7 +51,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 178,
+      "line": 190,
       "models": [
         "gemma-4"
       ],
@@ -62,7 +62,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 184,
+      "line": 196,
       "models": [
         "gpt-oss"
       ],
@@ -73,7 +73,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 190,
+      "line": 202,
       "models": [
         "claude-haiku-4-5"
       ],
@@ -84,7 +84,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 196,
+      "line": 208,
       "models": [
         "qwen3-vl"
       ],
@@ -95,7 +95,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 202,
+      "line": 214,
       "models": [
         "qwen2.5"
       ],
@@ -2634,7 +2634,18 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_funded_select.py",
       "kind": "model_id_literal",
-      "line": 195,
+      "line": 215,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_funded_select.py",
+      "kind": "model_id_literal",
+      "line": 387,
       "models": [
         "gpt-oss"
       ],

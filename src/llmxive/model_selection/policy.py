@@ -71,6 +71,18 @@ What is attributed to ``glm-5.3``, and on what evidence in this repository:
   window among its Dartmouth-hosted text peers (gemma-4 / gpt-oss). Raise it
   only with a verified figure.
 
+v4 (spec 027, 2026-11-23) changes no row of the table below but changes how
+``select`` decides: funded (Hugging Face) candidates are admitted by relative
+strength level on a track (reasoning/coding), the cheapest qualifier within the
+level leads and the rest of the funded slots come from other families, each must
+fit the funded allowance and the caller's budget (a generation/structured call
+may step down one level under budget pressure; reviews and vision never do), and
+the cost class is now the first ordering key: free remote → funded → free local →
+paid. An exhausted allowance suppresses paid candidates (Constitution IV), and a
+fresh-required review is an outage only when neither the Dartmouth nor the
+funded class is fresh. The bump makes every such decision distinguishable from a
+v3 one (SC-001).
+
 Funded policy (spec 027): ``FUNDED_POLICY`` holds the reviewed cut-offs that map
 a strength level to a slice of the funded (Hugging Face) candidates. Each
 cut-off is a PERCENT of that day's scored population (``strongest`` is the single
@@ -89,7 +101,7 @@ from llmxive.model_selection.types import Capability, StrengthLevel
 #: Bump when the table below changes in a way that can alter a decision. Part of
 #: ``select``'s pure input so the same snapshot+requirement under a different
 #: policy version is a DIFFERENT (distinguishable) decision.
-SELECTION_POLICY_VERSION = 3
+SELECTION_POLICY_VERSION = 4
 
 
 @dataclass(frozen=True)

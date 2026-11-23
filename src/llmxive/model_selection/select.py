@@ -30,13 +30,30 @@ Pipeline:
    population; observed flags for vision / ``structured`` / ``tools`` / context
    (other features from the reviewed family entry); a known price; not a
    ``require_paid`` rung. ``allow_paid`` and the paid opt-in are not consulted.
-   A blocked funded component is recorded in the chain's ``explanation``.
-2. **Ordering** by the fixed tie-breaks (FR-008): free-before-paid → preferred
-   quality tier → preferred independence → (health: inactive in v1) → estimated
-   cost → stable canonical model id. Required capabilities/independence are
-   eligibility GATES (already applied), so the survivors are ordered by the
-   remaining rungs.
-3. Truncate to ``max_candidates`` and assemble the ``ModelChain`` (``resolved_at =
+   When the snapshot holds a Hugging Face model, a blocked funded component is
+   recorded in the chain's ``explanation``.
+
+   A ``require_fresh_snapshot`` (judgment) review judges each remote class by
+   ``max_catalog_age_s``: Dartmouth needs ``catalog`` + ``credit``, funded needs
+   ``hf_catalog`` + ``leaderboard`` + a live guard. It is an outage only when
+   NEITHER class is fresh; otherwise the stale class contributes no candidates
+   (local is never gated; spec 027 5.9.3).
+2. **Funded group** (:func:`_funded_group`, spec 027 5.10): only funded
+   candidates whose repo qualifies for the requirement's strength level on its
+   track AND whose worst case fits the funded guard's headroom and
+   ``max_credits`` (zero headroom admits nothing). The cheapest qualifier leads
+   (ties: higher rating, then model id); the rest are the next-cheapest from
+   other families, at most ``max_chain_slots``. Under budget pressure a profile
+   with ``budget_step_down`` steps down ONE level (recorded in ``explanation``);
+   otherwise the funded class is an outage and, unless ``require_paid``, paid
+   candidates are dropped too (Constitution IV).
+3. **Ordering**: the cost class first — free remote → funded group (its own
+   order) → free local → paid — then, within the non-funded classes, the fixed
+   tie-breaks (FR-008): preferred quality tier → preferred independence →
+   (health: inactive in v1) → estimated cost → stable canonical model id.
+   Required capabilities/independence are eligibility GATES (already applied),
+   so the survivors are ordered by the remaining rungs.
+4. Truncate to ``max_candidates`` and assemble the ``ModelChain`` (``resolved_at =
    snapshot.observed_at`` — never a clock call). Empty survivor set →
    ``ModelUnavailable`` (fail closed, Constitution V).
 """
@@ -55,6 +72,7 @@ from llmxive.model_selection.policy import (
 )
 from llmxive.model_selection.strength import (
     MAX_FUTURE_PUBLISH_DAYS,
+    level_qualifiers,
     publish_date_fresh,
     publish_date_invalid,
     repo_of,
@@ -62,6 +80,7 @@ from llmxive.model_selection.strength import (
 )
 from llmxive.model_selection.types import (
     FUNDED_BACKENDS,
+    STRENGTH_LEVELS,
     USD_TO_CREDITS,
     ArenaScore,
     Candidate,
@@ -75,6 +94,10 @@ from llmxive.model_selection.types import (
 )
 
 _LOCAL_BACKEND = "local"
+
+#: Cost classes, the first ordering key (spec 027 5.9.1 / 5.10): free remote
+#: (Dartmouth) → funded (Hugging Face) → free local (the last free resort) → paid.
+_CLASS_FREE_REMOTE, _CLASS_FUNDED, _CLASS_LOCAL, _CLASS_PAID = 0, 1, 2, 3
 
 #: Features a Hugging Face provider reports itself (``ObservedModel.features``).
 #: Any other required feature (e.g. ``reasoning``) is read from the reviewed
@@ -184,6 +207,77 @@ def _funded_admits(
     return True
 
 
+def _funded_group(
+    eligible: list[tuple[ModelRef, float]],
+    requirement: ModelRequirement,
+    snapshot: RuntimeSnapshot,
+    population: Mapping[str, ArenaScore],
+    funded_policy: FundedPolicy,
+) -> tuple[list[tuple[ModelRef, float]], list[str], bool]:
+    """The funded slots of the chain (spec 027 5.10): ``(group, notes,
+    allowance_removed)``.
+
+    ``eligible`` are the funded ``(model, worst_case_credits)`` pairs that passed
+    per-candidate eligibility. Only those whose repo qualifies for the
+    requirement's strength level (:func:`level_qualifiers` over the WHOLE track
+    population, not just the call's eligible models) AND whose worst case fits
+    the budget — the funded guard's headroom, tightened by ``max_credits`` — may
+    enter the group; a guard with no headroom admits nothing. The group is the
+    cheapest fitting qualifier, then the next-cheapest from OTHER families
+    (cost, then higher rating, then model id), at most ``max_chain_slots``.
+
+    Budget pressure: when qualifiers exist at the level but none fits, a
+    requirement with ``budget_step_down`` (and above ``economy``) steps down ONE
+    level, recorded in ``notes``; otherwise — and when the lower level does not
+    fit either — the group is empty and ``allowance_removed`` is True, which the
+    caller treats as an outage for the funded class that must not fall through
+    to paid (Constitution IV)."""
+    assert requirement.track is not None and requirement.strength is not None
+    guard = snapshot.funded
+    assert guard is not None  # a funded candidate implies a live guard
+    available = guard.available_usd * USD_TO_CREDITS
+    cap = available if requirement.max_credits is None else min(available, float(requirement.max_credits))
+    level = requirement.strength
+    notes: list[str] = []
+    while True:
+        qualifiers = level_qualifiers(population, level, funded_policy)
+        at_level = [(m, c) for m, c in eligible if repo_of(m.model_id) in qualifiers]
+        fits = [(m, c) for m, c in at_level if available > 0 and c <= cap]
+        notes.append(
+            f"funded: {requirement.track}/{level} — {len(qualifiers)} of {len(population)} models qualify"
+        )
+        if fits or not at_level:
+            break
+        if not requirement.budget_step_down or level == "economy" or level != requirement.strength:
+            break  # reviews/vision, economy, and an already-stepped level stop here
+        lower = STRENGTH_LEVELS[STRENGTH_LEVELS.index(level) - 1]
+        pick = min(c for _, c in at_level)
+        notes.append(
+            f"funded: {level} pick exceeds the allowance (${pick / USD_TO_CREDITS:.4f} > "
+            f"${max(cap, 0.0) / USD_TO_CREDITS:.4f}) — stepped down to {lower} (budget pressure)"
+        )
+        level = lower
+    if at_level and not fits:
+        notes.append(
+            "funded allowance exhausted — no step-down for this call; paid not reached (Constitution IV)"
+        )
+        return [], notes, True
+
+    def rating(model: ModelRef) -> float:
+        return population[repo_of(model.model_id)].rating
+
+    group: list[tuple[ModelRef, float]] = []
+    families: set[str] = set()
+    for model, cost in sorted(fits, key=lambda mc: (mc[1], -rating(mc[0]), mc[0].model_id)):
+        if model.model_family in families:
+            continue
+        group.append((model, cost))
+        families.add(model.model_family)
+        if len(group) == funded_policy.max_chain_slots:
+            break
+    return group, notes, False
+
+
 def _differs_from_baseline(model: ModelRef, dim: IndependenceDim, req: ModelRequirement) -> bool:
     """True iff ``model`` DIFFERS from the ``independence_against`` baseline on
     ``dim`` (i.e. independence is satisfied for that dimension)."""
@@ -218,31 +312,49 @@ def _effective_per_call_cap(req: ModelRequirement, available_headroom: float) ->
     return min(float(req.max_credits), available_headroom)
 
 
-#: Components a fresh-required (judgment) review must observe fresh-enough (FR-007):
-#: the catalog (model presence/pricing) AND the credit/opt-in observation. The local
-#: fallback inventory is NOT gated (FR-007 names catalog + credit/opt-in only).
+#: Components a fresh-required (judgment) review must observe fresh-enough, per
+#: candidate class (spec 026 FR-007 as amended by spec 027 5.9.3): the Dartmouth
+#: catalog (presence/pricing) AND the credit/opt-in observation for Dartmouth
+#: candidates (free and paid); the Hugging Face catalog AND the leaderboard (plus a
+#: ``live`` funded guard) for funded candidates. The local fallback inventory is
+#: never gated.
 _FRESH_REQUIRED_COMPONENTS = ("catalog", "credit")
+_FRESH_REQUIRED_FUNDED_COMPONENTS = ("hf_catalog", "leaderboard")
 
 
-def _enforce_fresh_snapshot(requirement: ModelRequirement, snapshot: RuntimeSnapshot) -> None:
-    """For a ``require_fresh_snapshot`` (spec-025 judgment) review, FAIL CLOSED
-    (``ModelUnavailable``) if the catalog OR the credit/opt-in component is
-    unavailable or older than ``max_catalog_age_s`` — the freshness limit applies to
-    BOTH components (FR-007), independent of whether the chosen model is free."""
-    for comp in _FRESH_REQUIRED_COMPONENTS:
-        prov = snapshot.sources.get(comp)
-        if prov is None or prov.source == "unavailable":
-            src = prov.source if prov is not None else "missing"
-            raise ModelUnavailable(
-                f"fresh-required review: {comp!r} component is unavailable (source={src!r}) — "
-                "a judgment review cannot rest on a stale/absent snapshot (FR-007)"
-            )
-        if prov.source == "last_known_good" and prov.age_s > requirement.max_catalog_age_s:
-            raise ModelUnavailable(
-                f"fresh-required review: {comp!r} component is stale (age {prov.age_s:.0f}s > "
-                f"max_catalog_age_s {requirement.max_catalog_age_s}s) — FR-007 requires a "
-                "fresh-enough catalog AND credit/opt-in observation"
-            )
+def _fresh_classes(
+    requirement: ModelRequirement, snapshot: RuntimeSnapshot
+) -> tuple[str | None, str | None]:
+    """For a ``require_fresh_snapshot`` (spec-025 judgment) review, why each
+    remote candidate class is NOT fresh enough to serve it: ``(dartmouth_reason,
+    funded_reason)``, ``None`` for a class that is fresh. Every component is judged
+    by ``max_catalog_age_s`` (an ``unavailable``/missing component, or a
+    ``last_known_good`` copy older than that, is not fresh); the funded class also
+    needs a ``live`` funded guard.
+
+    FAIL CLOSED (``ModelUnavailable``) only when NEITHER class is fresh (spec 027
+    5.9.3); otherwise the caller drops the candidates of the class that is not."""
+    age = requirement.max_catalog_age_s
+
+    def first_reason(components: tuple[str, ...]) -> str | None:
+        for comp in components:
+            reason = _stale_or_unavailable(snapshot, comp, age)
+            if reason is not None:
+                return reason
+        return None
+
+    dartmouth = first_reason(_FRESH_REQUIRED_COMPONENTS)
+    funded = first_reason(_FRESH_REQUIRED_FUNDED_COMPONENTS)
+    if funded is None and (snapshot.funded is None or snapshot.funded.source != "live"):
+        src = snapshot.funded.source if snapshot.funded is not None else "missing"
+        funded = f"funded guard is unavailable (source={src!r})"
+    if dartmouth is not None and funded is not None:
+        raise ModelUnavailable(
+            "fresh-required review: no candidate class is fresh enough "
+            f"(max_catalog_age_s {age}s) — Dartmouth: {dartmouth}; funded: {funded}. "
+            "A judgment review cannot rest on a stale/absent snapshot (FR-007, spec 027 5.9.3)"
+        )
+    return dartmouth, funded
 
 
 def select(
@@ -261,11 +373,15 @@ def select(
     """
     pol = policy if policy is not None else CAPABILITY_POLICY
     fpol = funded_policy if funded_policy is not None else FUNDED_POLICY
+    has_hf = any(m.backend in FUNDED_BACKENDS for m in snapshot.models)
 
-    # FR-007: a judgment review fails closed on a stale/unavailable catalog OR
-    # credit/opt-in component BEFORE any per-model work (even for a free result).
+    # FR-007 as amended by spec 027 5.9.3: a judgment review fails closed when NO
+    # remote candidate class is fresh, BEFORE any per-model work; a class that is
+    # not fresh contributes no candidates.
+    dartmouth_stale: str | None = None
+    funded_stale: str | None = None
     if requirement.require_fresh_snapshot:
-        _enforce_fresh_snapshot(requirement, snapshot)
+        dartmouth_stale, funded_stale = _fresh_classes(requirement, snapshot)
 
     credit = snapshot.credit
     cap = _effective_per_call_cap(requirement, credit.available_headroom)
@@ -275,12 +391,15 @@ def select(
     paid_admissible = requirement.allow_paid and credit.source == "live" and credit.paid_opt_in
 
     explanation: list[str] = []
-    eligible: list[tuple[ModelRef, float, bool]] = []  # (ref, worst_case_credits, is_free)
+    eligible: list[tuple[ModelRef, float, bool]] = []  # non-funded: (ref, worst_case_credits, is_free)
+    funded_eligible: list[tuple[ModelRef, float]] = []  # (ref, worst_case_credits)
 
     # Funded (Hugging Face) candidates: the components that decide them are judged
     # ONCE, fail closed (spec 027 5.10); the track's scored population is the
     # day's leaderboard rows with a fresh publish date.
     funded_block = _funded_block_reason(requirement, snapshot, fpol)
+    if funded_block is None and funded_stale is not None:
+        funded_block = f"fresh-required review: {funded_stale}"
     population: Mapping[str, ArenaScore] = {}
     if funded_block is None:
         assert requirement.track is not None  # checked by _funded_block_reason
@@ -290,8 +409,10 @@ def select(
             today=snapshot.observed_at.date(),
             max_publish_age_days=fpol.max_publish_age_days,
         )
-    elif requirement.track is not None and requirement.strength is not None:
+    elif has_hf and requirement.track is not None and requirement.strength is not None:
         explanation.append(f"funded candidates not eligible: {funded_block}")
+    if dartmouth_stale is not None:
+        explanation.append(f"Dartmouth candidates not eligible: fresh-required review: {dartmouth_stale}")
 
     for model in snapshot.models:
         family = model.model_family
@@ -304,7 +425,10 @@ def select(
             ):
                 continue
         else:
-            # (a) snapshot freshness for this model's component.
+            # (a) snapshot freshness for this model's component (and, for a
+            # fresh-required review, its candidate class).
+            if dartmouth_stale is not None and model.backend != _LOCAL_BACKEND:
+                continue
             prov = snapshot.sources.get(_component_of(model))
             if prov is None or prov.source == "unavailable":
                 continue
@@ -341,49 +465,72 @@ def select(
         pricing = snapshot.pricing.get(model.model_id)
         if pricing is None or not pricing.is_known:
             continue  # no priced cost → cannot admit (unknown is never free)
+        cost = worst_case_credits(pricing, requirement.call_budget)
+        if cost is None:
+            continue
         if is_funded:
-            # Never free whatever the price; the allowance and max_credits are
-            # applied after ranking (spec 027 Task 14), not here.
-            cost = worst_case_credits(pricing, requirement.call_budget)
-            if cost is not None:
-                eligible.append((model, cost, False))
+            # Never free whatever the price; the level filter, the allowance and
+            # max_credits are applied by _funded_group below.
+            funded_eligible.append((model, cost))
             continue
         is_free = pricing.is_free
         if requirement.require_paid and is_free:
             continue  # require_paid rung: exclude every free candidate (spec 026 slice 6)
-        cost = worst_case_credits(pricing, requirement.call_budget)
-        if cost is None:
-            continue
         if not is_free:
             if not paid_admissible or cost > cap:
                 continue
 
         eligible.append((model, cost, is_free))
 
-    if not eligible:
-        raise ModelUnavailable(_no_candidate_reason(requirement, snapshot, pol, funded_block))
+    # The funded slots (spec 027 5.10): level qualification, cheapest-within-level,
+    # allowance/budget fit, one budget step-down where the profile allows it. No
+    # funded candidate reaches the chain except through this group.
+    funded_group: list[tuple[ModelRef, float]] = []
+    if funded_block is None and has_hf:
+        funded_group, notes, allowance_removed = _funded_group(
+            funded_eligible, requirement, snapshot, population, fpol
+        )
+        explanation.extend(notes)
+        if allowance_removed and not requirement.require_paid:
+            # Exhausting the allowance is never a licence to fall through to paid
+            # (Constitution IV); an explicit require_paid rung is still paid.
+            eligible = [item for item in eligible if item[2]]
 
-    # Ordering (FR-008). Required capabilities/independence are eligibility gates
-    # (already applied), so survivors sort by the remaining rungs. All keys
-    # ascending; lower sorts earlier (= preferred).
+    if not eligible and not funded_group:
+        raise ModelUnavailable(_no_candidate_reason(requirement, snapshot, pol, explanation))
+
+    # Ordering (FR-008, spec 027 5.5/5.10). The first key is the cost class: free
+    # remote → funded → free local → paid. Required capabilities/independence are
+    # eligibility gates (already applied), so the non-funded survivors sort by the
+    # remaining rungs; the funded group keeps its own order (cheapest qualifier
+    # first). All keys ascending; lower sorts earlier (= preferred).
     pref_dims = tuple(requirement.preferred_independence)
+
+    def class_rank(model: ModelRef, is_free: bool) -> int:
+        if not is_free:
+            return _CLASS_PAID
+        return _CLASS_LOCAL if model.backend == _LOCAL_BACKEND else _CLASS_FREE_REMOTE
 
     def sort_key(item: tuple[ModelRef, float, bool]) -> tuple:
         model, cost, is_free = item
-        free_rank = 0 if is_free else 1  # rung 3: free before paid
         quality = -pol.quality_tier(model.model_family)  # rung 4: higher tier first
         unmet_pref = sum(  # rung 5: fewer unmet preferred-independence dims first
             0 if _differs_from_baseline(model, dim, requirement) else 1 for dim in pref_dims
         )
         # rung 6 (health) inactive in v1. rung 7: estimated cost. rung 8: model id.
-        return (free_rank, quality, unmet_pref, cost, model.model_id)
+        return (class_rank(model, is_free), quality, unmet_pref, cost, model.model_id)
 
     eligible.sort(key=sort_key)
+    ranked: list[tuple[ModelRef, float, bool]] = [
+        item for item in eligible if class_rank(item[0], item[2]) < _CLASS_FUNDED
+    ]
+    ranked += [(model, cost, False) for model, cost in funded_group]
+    ranked += [item for item in eligible if class_rank(item[0], item[2]) > _CLASS_FUNDED]
 
     # Record any preferred-independence dimension that NO survivor satisfies
     # (degraded toward the baseline — FR-009 scenario 3).
     for dim in sorted(pref_dims):
-        if all(not _differs_from_baseline(m, dim, requirement) for m, _, _ in eligible):
+        if all(not _differs_from_baseline(m, dim, requirement) for m, _, _ in ranked):
             explanation.append(
                 f"preferred_independence '{dim}' unmet: no candidate differs from the baseline"
             )
@@ -393,12 +540,12 @@ def select(
             f"paid_opt_in={credit.paid_opt_in}) — free candidates only"
         )
 
-    chosen = eligible[: requirement.max_candidates]
+    chosen = ranked[: requirement.max_candidates]
 
     def ceiling(model: ModelRef, is_free: bool) -> float:
         if model.backend in FUNDED_BACKENDS:
             assert snapshot.funded is not None  # a funded survivor implies a live guard
-            return snapshot.funded.available_usd * USD_TO_CREDITS
+            return _effective_per_call_cap(requirement, snapshot.funded.available_usd * USD_TO_CREDITS)
         return 0.0 if is_free else cap
 
     candidates = tuple(
@@ -425,18 +572,19 @@ def _no_candidate_reason(
     requirement: ModelRequirement,
     snapshot: RuntimeSnapshot,
     policy: CapabilityPolicy,
-    funded_block: str | None,
+    explanation: list[str],
 ) -> str:
     """A human-readable reason for the ``ModelUnavailable`` (fail-fast clarity):
-    the requirement, each component's source, and why funded candidates were
-    blocked (if they were)."""
+    the requirement, each component's source, and the decision record so far —
+    why funded candidates were blocked, the funded level/population lines, any
+    budget step-down and an exhausted allowance."""
     n = len(snapshot.models)
 
     def source(component: str) -> str:
         prov = snapshot.sources.get(component)
         return prov.source if prov is not None else "missing"
 
-    funded = f"; funded candidates not eligible: {funded_block}" if funded_block else ""
+    record = "".join(f"; {line}" for line in explanation)
     return (
         f"no model satisfies capability={requirement.capability!r} "
         f"(required_features={set(requirement.required_features) or '∅'}, "
@@ -447,5 +595,5 @@ def _no_candidate_reason(
         f"against {n} snapshot model(s); catalog source={source('catalog')!r}, "
         f"hf_catalog source={source('hf_catalog')!r}, "
         f"leaderboard source={source('leaderboard')!r}, funded source={source('funded')!r}, "
-        f"policy_version={policy.version}{funded}"
+        f"policy_version={policy.version}{record}"
     )
