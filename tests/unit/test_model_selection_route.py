@@ -748,3 +748,27 @@ def test_content_digest_value_unhandled_part_type_raises_type_error():
 
     with pytest.raises(TypeError, match="unhandled ContentPart type"):
         _content_digest_value((_FutureContentPart(payload="x"),))
+
+
+def test_snapshot_cache_expiry_is_stamped_after_a_slow_build(monkeypatch):
+    # A2: a build slower than the TTL must not be stored already expired, or every
+    # route_chat during an outage repeats the failing fetches.
+    from llmxive.model_selection import route as route_mod
+
+    route_mod.reset_snapshot_cache()
+    clock = {"t": 1000.0}
+    fetches = {"n": 0}
+    snap = _snapshot()
+
+    def _slow_fetch(*a, **k):
+        fetches["n"] += 1
+        clock["t"] += route_mod._SNAPSHOT_TTL_S + 5.0  # the build outlasts the TTL
+        return snap
+
+    monkeypatch.setattr(route_mod, "runtime_snapshot", _slow_fetch)
+    monkeypatch.setattr(route_mod, "_now", lambda: clock["t"])
+    assert route_mod._acquire_snapshot() is snap
+    clock["t"] += 1.0  # well inside the TTL measured from the END of the build
+    assert route_mod._acquire_snapshot() is snap
+    assert fetches["n"] == 1
+    route_mod.reset_snapshot_cache()

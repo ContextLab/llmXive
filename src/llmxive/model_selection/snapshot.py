@@ -31,6 +31,7 @@ import json
 import logging
 import math
 import re
+import time
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from typing import TypeVar
@@ -71,6 +72,25 @@ _T = TypeVar("_T")
 #: ``runtime_snapshot(refresh=True)`` bypasses them. ``funded`` is never reused.
 LEADERBOARD_REFRESH_S = 6 * 3600.0
 HF_CATALOG_REFRESH_S = 15 * 60.0
+
+#: After a remote fetch fails (Dartmouth catalog, Dartmouth credit balance, Hugging
+#: Face catalog, leaderboard), the same fetch is not attempted again for this many
+#: seconds: snapshot builds inside the interval resolve that component as if the
+#: fetch had failed (last-known-good, else unavailable). ``refresh=True`` bypasses
+#: it. The funded guard and the local inventory are never held back.
+FETCH_FAILURE_BACKOFF_S = 120.0
+
+#: Monotonic clock for :data:`FETCH_FAILURE_BACKOFF_S` (module-level so tests can
+#: freeze it); separate from the snapshot's ``now``, which is an observation time.
+_monotonic: Callable[[], float] = time.monotonic
+
+#: Component name -> monotonic time of its last failed remote fetch.
+_FETCH_FAILED_AT: dict[str, float] = {}
+
+
+def reset_fetch_failures() -> None:
+    """Forget every remembered failed remote fetch."""
+    _FETCH_FAILED_AT.clear()
 
 
 def _vendor_of(model_id: str) -> str:
@@ -400,6 +420,8 @@ def _resolve_component(
     updates: dict[str, LKGEntry],
     *,
     reuse_within_s: float | None = None,
+    remote: bool = False,
+    refresh: bool = False,
 ) -> tuple[_T, SnapshotProvenance]:
     """The one live → last_known_good → unavailable resolver every LKG-backed
     component goes through. ``from_payload`` receives the entry's original
@@ -408,7 +430,11 @@ def _resolve_component(
     ``reuse_within_s``: when the stored entry is younger than this (and not from
     the future), it is served WITHOUT fetching, as ``last_known_good`` with its
     true observed time and age — never restamped as fresh. A stored entry stamped
-    in the future is never served: after a failed fetch it counts as absent."""
+    in the future is never served: after a failed fetch it counts as absent.
+
+    ``remote``: a failed fetch is remembered, and for
+    :data:`FETCH_FAILURE_BACKOFF_S` afterwards the fetch is skipped and treated as
+    failed, unless ``refresh`` is set."""
     entry = lkg.get(name)
     if reuse_within_s is not None and entry is not None:
         age = (now - entry.observed_at).total_seconds()
@@ -420,7 +446,16 @@ def _resolve_component(
             else:
                 return data, SnapshotProvenance("last_known_good", entry.observed_at, age)
 
-    live = fetch()
+    failed_at = _FETCH_FAILED_AT.get(name) if remote and not refresh else None
+    if failed_at is not None and 0.0 <= _monotonic() - failed_at < FETCH_FAILURE_BACKOFF_S:
+        live = None
+    else:
+        live = fetch()
+        if remote:
+            if live is None:
+                _FETCH_FAILED_AT[name] = _monotonic()
+            else:
+                _FETCH_FAILED_AT.pop(name, None)
     if live is not None:
         updates[name] = LKGEntry(observed_at=now, payload=to_payload(live))
         return live, SnapshotProvenance(source="live", observed_at=now, age_s=0.0)
@@ -448,10 +483,13 @@ def _resolve_models_component(
     lkg: dict[str, LKGEntry],
     now: datetime,
     updates: dict[str, LKGEntry],
+    *,
+    remote: bool = False,
+    refresh: bool = False,
 ) -> tuple[_ModelsData, SnapshotProvenance]:
     return _resolve_component(
         name, fetch, _models_to_payload, lambda p, _at: _models_from_payload(p),
-        ([], {}), lkg, now, updates,
+        ([], {}), lkg, now, updates, remote=remote, refresh=refresh,
     )
 
 
@@ -459,6 +497,8 @@ def _resolve_credit_component(
     lkg: dict[str, LKGEntry],
     now: datetime,
     updates: dict[str, LKGEntry],
+    *,
+    refresh: bool = False,
 ) -> tuple[CreditGuardSnapshot, SnapshotProvenance]:
     unavailable = CreditGuardSnapshot(
         balance=0.0, spend=0.0, max_budget=0.0, paid_opt_in=False,
@@ -468,6 +508,7 @@ def _resolve_credit_component(
     return _resolve_component(
         "credit", lambda: _fetch_credit(now=now), _credit_to_payload,
         lambda p, at: _credit_from_payload(p, observed_at=at), unavailable, lkg, now, updates,
+        remote=True, refresh=refresh,
     )
 
 
@@ -558,7 +599,8 @@ def runtime_snapshot(
     purely. ``now`` and ``lkg_store`` are injectable for deterministic tests.
     ``refresh=True`` fetches ``hf_catalog`` and ``leaderboard`` even when their
     stored copy is within :data:`HF_CATALOG_REFRESH_S` / :data:`LEADERBOARD_REFRESH_S`
-    (preflight / reports).
+    (preflight / reports), and retries a remote fetch that failed within
+    :data:`FETCH_FAILURE_BACKOFF_S`.
     """
     observed_at = now or datetime.now(UTC)
     store = lkg_store or LKGStore()
@@ -566,21 +608,21 @@ def runtime_snapshot(
     updates: dict[str, LKGEntry] = {}
 
     (d_refs, d_pricing), d_prov = _resolve_models_component(
-        "catalog", _fetch_dartmouth, lkg, observed_at, updates
+        "catalog", _fetch_dartmouth, lkg, observed_at, updates, remote=True, refresh=refresh
     )
     (l_refs, l_pricing), l_prov = _resolve_models_component(
         "local", _fetch_local, lkg, observed_at, updates
     )
-    credit, c_prov = _resolve_credit_component(lkg, observed_at, updates)
+    credit, c_prov = _resolve_credit_component(lkg, observed_at, updates, refresh=refresh)
     (h_refs, h_pricing, h_observed), h_prov = _resolve_component(
         "hf_catalog", _fetch_huggingface, _hf_catalog_to_payload,
         lambda p, _at: _hf_catalog_from_payload(p), ([], {}, {}), lkg, observed_at, updates,
-        reuse_within_s=None if refresh else HF_CATALOG_REFRESH_S,
+        reuse_within_s=None if refresh else HF_CATALOG_REFRESH_S, remote=True, refresh=refresh,
     )
     arena, lb_prov = _resolve_component(
         "leaderboard", _fetch_leaderboard, _arena_to_payload,
         lambda p, _at: _arena_from_payload(p), {}, lkg, observed_at, updates,
-        reuse_within_s=None if refresh else LEADERBOARD_REFRESH_S,
+        reuse_within_s=None if refresh else LEADERBOARD_REFRESH_S, remote=True, refresh=refresh,
     )
     funded = _fetch_funded_guard(now=observed_at)  # no LKG: live or unavailable
     f_prov = SnapshotProvenance(

@@ -53,7 +53,7 @@ from llmxive.model_selection.ledger_transport import LedgerConfig
 from llmxive.model_selection.policy import FundedPolicy
 from llmxive.model_selection.profiles import build_requirement
 from llmxive.model_selection.select import select
-from llmxive.model_selection.snapshot import runtime_snapshot
+from llmxive.model_selection.snapshot import reset_fetch_failures, runtime_snapshot
 from llmxive.model_selection.tokens import call_budget_for
 from llmxive.model_selection.types import (
     ExecutionOptions,
@@ -99,21 +99,24 @@ _SNAPSHOT_CACHE: tuple[RuntimeSnapshot, float] | None = None
 
 
 def reset_snapshot_cache() -> None:
-    """Drop the bounded snapshot cache (test isolation / forced refresh)."""
+    """Drop the bounded snapshot cache and the snapshot layer's memory of failed
+    remote fetches (test isolation / forced refresh)."""
     global _SNAPSHOT_CACHE
     _SNAPSHOT_CACHE = None
+    reset_fetch_failures()
 
 
 def _acquire_snapshot() -> RuntimeSnapshot:
     """The REAL, LKG-inclusive snapshot, served from the bounded cache when a
-    prior acquisition is still within the TTL (negative caching included)."""
+    prior acquisition is still within the TTL (negative caching included).
+    The expiry is stamped when the build FINISHES, so a build slower than the
+    TTL is still reused for a full TTL."""
     global _SNAPSHOT_CACHE
-    now = _now()
     cached = _SNAPSHOT_CACHE
-    if cached is not None and cached[1] > now:
+    if cached is not None and cached[1] > _now():
         return cached[0]
     snap = runtime_snapshot()
-    _SNAPSHOT_CACHE = (snap, now + _SNAPSHOT_TTL_S)
+    _SNAPSHOT_CACHE = (snap, _now() + _SNAPSHOT_TTL_S)
     return snap
 
 

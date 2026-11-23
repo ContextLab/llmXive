@@ -177,3 +177,59 @@ def test_digest_binds_full_snapshot_and_contracts_are_immutable(
     for mapping in (a.pricing, a.sources, a.health):
         with pytest.raises(TypeError):
             mapping["x"] = 1  # MappingProxyType — read-only
+
+
+def test_failed_remote_fetch_is_not_retried_inside_the_backoff(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """A2: a failed remote fetch (Dartmouth catalog, credit, HF catalog, leaderboard)
+    is remembered for FETCH_FAILURE_BACKOFF_S so a down service is not re-attempted
+    on every snapshot build; after the interval, or with refresh=True, it is retried.
+    The funded guard is never held back."""
+    import llmxive.model_selection.snapshot as snap_mod
+    from llmxive.model_selection.lkg import LKGStore
+    from llmxive.model_selection.types import FundedGuardSnapshot
+
+    assert snap_mod.FETCH_FAILURE_BACKOFF_S == 120.0
+    snap_mod.reset_fetch_failures()
+    calls = {"catalog": 0, "credit": 0, "hf_catalog": 0, "leaderboard": 0, "funded": 0, "local": 0}
+
+    def _count(name, result):
+        def _f(*a, **k):
+            calls[name] += 1
+            return result
+        return _f
+
+    monkeypatch.setattr(snap_mod, "_fetch_dartmouth", _count("catalog", None))
+    monkeypatch.setattr(snap_mod, "_fetch_credit", _count("credit", None))
+    monkeypatch.setattr(snap_mod, "_fetch_huggingface", _count("hf_catalog", None))
+    monkeypatch.setattr(snap_mod, "_fetch_leaderboard", _count("leaderboard", None))
+    monkeypatch.setattr(snap_mod, "_fetch_local", _count("local", ([], {})))
+    monkeypatch.setattr(
+        snap_mod, "_fetch_funded_guard",
+        _count("funded", FundedGuardSnapshot(50.0, 0.0, 0.0, 0.0, None, 6.0, 6.0, "2026-07",
+                                             datetime(2026, 7, 16, tzinfo=UTC), "live")),
+    )
+    clock = {"t": 5000.0}
+    monkeypatch.setattr(snap_mod, "_monotonic", lambda: clock["t"])
+    store = LKGStore(tmp_path / "lkg.json")
+    now = datetime(2026, 7, 16, tzinfo=UTC)
+
+    first = snap_mod.runtime_snapshot(now=now, lkg_store=store)
+    assert first.sources["catalog"].source == "unavailable"
+    remote = ("catalog", "credit", "hf_catalog", "leaderboard")
+    assert all(calls[c] == 1 for c in remote)
+
+    clock["t"] += snap_mod.FETCH_FAILURE_BACKOFF_S - 1.0
+    second = snap_mod.runtime_snapshot(now=now, lkg_store=store)
+    assert all(calls[c] == 1 for c in remote)  # not re-attempted inside the interval
+    assert second.sources["catalog"].source == "unavailable"
+    assert calls["funded"] == 2 and calls["local"] == 2  # never held back
+
+    snap_mod.runtime_snapshot(now=now, lkg_store=store, refresh=True)
+    assert all(calls[c] == 2 for c in remote)  # refresh bypasses the memory
+
+    clock["t"] += snap_mod.FETCH_FAILURE_BACKOFF_S + 1.0
+    snap_mod.runtime_snapshot(now=now, lkg_store=store)
+    assert all(calls[c] == 3 for c in remote)  # retried after the interval
+    snap_mod.reset_fetch_failures()
