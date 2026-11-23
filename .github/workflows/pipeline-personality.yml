@@ -8,8 +8,10 @@ name: Pipeline — Personality (simulated public-figure personas)
 # all run-step content is static.
 
 on:
-  schedule:
-    - cron: '0 */2 * * *'
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '0 */2 * * *'
   workflow_dispatch:
 
 permissions:

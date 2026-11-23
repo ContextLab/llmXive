@@ -263,11 +263,14 @@ Changing the key invalidates old receipts. Keep signing keys outside the reposit
 and generated research subprocesses. Zenodo publication requires its own token;
 sandbox publication tests use a separate sandbox token.
 
-The [main pipeline](.github/workflows/llmxive-pipeline.yml) is scheduled every
+**All schedules are paused as of 2026-11-23**: every workflow's `schedule:`
+trigger is commented out and runs start by manual dispatch only
+(`gh workflow run <file>`). The cadences recorded in the commented blocks are:
+the [main pipeline](.github/workflows/llmxive-pipeline.yml) every
 three hours, with additional [advance workers](.github/workflows/advance.yml)
-and stage-specific workflows. [Submission intake](.github/workflows/submission-intake.yml)
-is hourly; [publication sign-off polling](.github/workflows/signoff-poll.yml)
-is every two hours. Workflow files are the authoritative schedules. A successful
+and stage-specific workflows; [submission intake](.github/workflows/submission-intake.yml)
+hourly; [publication sign-off polling](.github/workflows/signoff-poll.yml)
+every two hours. Workflow files are the authoritative schedules. A successful
 worker exit can mean no eligible progress; inspect stage transitions and artifacts.
 
 ## Platform self-repair

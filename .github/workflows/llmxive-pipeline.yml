@@ -1,9 +1,11 @@
 name: llmXive Pipeline
 
 on:
-  schedule:
-    # FR-001 default cadence: every 3 hours.
-    - cron: "0 */3 * * *"
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   # FR-001 default cadence: every 3 hours.
+  #   - cron: "0 */3 * * *"
   workflow_dispatch:
     # FR-002: optional inputs to scope a manual run to a project and/or stage.
     inputs:

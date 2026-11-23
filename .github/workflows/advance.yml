@@ -31,17 +31,19 @@ name: Pipeline — Advance (deterministic matrix workers)
 # CAS-verified push make overlapping ticks safe.
 
 on:
-  schedule:
-    # Hourly (was */30). issue #1139 round 2: a matrix JOB runs 60-90 min (setup +
-    # the multi-tick loop + a single convergence step observed at ~77 min + commit)
-    # — LONGER than a 30-min interval. Under the per-worker `cancel-in-progress:
-    # false` group, GitHub keeps at most one running + one pending and CANCELS the
-    # older pending when a third fire arrives, so ~2/3 of */30 fires cancelled (did
-    # no work) — polluting history and skipping ticks. At hourly cadence most jobs
-    # (setup + a few quick ticks ≈ 15-45 min) finish BEFORE the next fire, so no
-    # pending accumulates and nothing is evicted. Effective throughput RISES:
-    # ~24 productive fires/day beats ~16 (48 fires × ~1/3 surviving).
-    - cron: '0 * * * *'      # top of every hour
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   # Hourly (was */30). issue #1139 round 2: a matrix JOB runs 60-90 min (setup +
+  #   # the multi-tick loop + a single convergence step observed at ~77 min + commit)
+  #   # — LONGER than a 30-min interval. Under the per-worker `cancel-in-progress:
+  #   # false` group, GitHub keeps at most one running + one pending and CANCELS the
+  #   # older pending when a third fire arrives, so ~2/3 of */30 fires cancelled (did
+  #   # no work) — polluting history and skipping ticks. At hourly cadence most jobs
+  #   # (setup + a few quick ticks ≈ 15-45 min) finish BEFORE the next fire, so no
+  #   # pending accumulates and nothing is evicted. Effective throughput RISES:
+  #   # ~24 productive fires/day beats ~16 (48 fires × ~1/3 surviving).
+  #   - cron: '0 * * * *'      # top of every hour
   workflow_dispatch:
     inputs:
       workers:

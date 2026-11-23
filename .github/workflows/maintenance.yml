@@ -14,8 +14,10 @@ name: Pipeline — Maintenance (intake + generation)
 # GitHub API, never echoed into a shell.
 
 on:
-  schedule:
-    - cron: '5 * * * *'   # hourly, at :05
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '5 * * * *'   # hourly, at :05
   workflow_dispatch: {}
 
 permissions:

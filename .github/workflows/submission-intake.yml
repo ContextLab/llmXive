@@ -9,8 +9,10 @@ name: Submission Intake
 # echoed into a shell.)
 
 on:
-  schedule:
-    - cron: "0 * * * *"     # hourly, at :00
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: "0 * * * *"     # hourly, at :00
   workflow_dispatch: {}       # for the one-time manual exercise + ad-hoc runs
 
 permissions:
