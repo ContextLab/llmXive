@@ -533,6 +533,11 @@ class BaseBackend(abc.ABC):
 
 #: The open circuit's wait grows to at most this many base cooldowns.
 _MAX_COOLDOWN_FACTOR = 8
+#: Default breaker thresholds, shared by every backend (Dartmouth applies env
+#: overrides on top of these).
+DEFAULT_BREAKER_MAX_CONSECUTIVE = 3
+DEFAULT_BREAKER_WINDOW_S = 1800.0  # 30 min
+DEFAULT_BREAKER_COOLDOWN_S = 900.0
 _T = TypeVar("_T")
 
 
@@ -566,10 +571,10 @@ class CircuitBreaker:
     def __init__(
         self,
         *,
-        max_consecutive: int = 3,
-        window_s: float = 1800.0,
+        max_consecutive: int = DEFAULT_BREAKER_MAX_CONSECUTIVE,
+        window_s: float = DEFAULT_BREAKER_WINDOW_S,
         clock: Callable[[], float] = time.monotonic,
-        cooldown_s: float = 900.0,
+        cooldown_s: float = DEFAULT_BREAKER_COOLDOWN_S,
         liveness: Callable[[str], bool | None] | None = None,
         label: str = "Dartmouth",
     ) -> None:

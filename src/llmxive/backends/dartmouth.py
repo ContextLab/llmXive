@@ -17,6 +17,9 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Any, NoReturn, TypeVar
 
 from llmxive.backends.base import (
+    DEFAULT_BREAKER_COOLDOWN_S,
+    DEFAULT_BREAKER_MAX_CONSECUTIVE,
+    DEFAULT_BREAKER_WINDOW_S,
     BackendUnavailable,
     BaseBackend,
     ChatMessage,
@@ -31,9 +34,7 @@ from llmxive.backends.base import (
     invoke_with_deadline,
 )
 from llmxive.backends.base import CircuitBreaker as _CircuitBreaker
-from llmxive.backends.base import (
-    openai_content as _lc_content,
-)
+from llmxive.backends.base import openai_content as _lc_content
 
 if TYPE_CHECKING:
     # Type-checking only: ``backends`` must not import ``model_selection`` at
@@ -164,19 +165,15 @@ def _dartmouth_model_kwargs(model: str) -> dict[str, object]:
 # what lets the router's peer-model fallback route around a single down model.
 # Both thresholds are constants, env-overridable.
 _DEFAULT_BREAKER_MAX_CONSECUTIVE = int(
-    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_MAX_CONSECUTIVE", "3")
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_MAX_CONSECUTIVE", DEFAULT_BREAKER_MAX_CONSECUTIVE)
 )
 _DEFAULT_BREAKER_WINDOW_S = float(
-    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", "1800.0")  # 30 min
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", DEFAULT_BREAKER_WINDOW_S)
 )
 
 _DEFAULT_BREAKER_COOLDOWN_S = float(
-    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", "900.0")
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", DEFAULT_BREAKER_COOLDOWN_S)
 )
-
-#: The open circuit's wait grows to at most this many base cooldowns (2 hours at
-#: the default 900 s).
-_MAX_COOLDOWN_FACTOR = 8
 
 # A recovery probe asks ONE question: is this model answering at all? Asking it
 # with the next real request made the answer cost a full request budget --

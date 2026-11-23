@@ -4,7 +4,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
-      "line": 103,
+      "line": 104,
       "models": [
         "glm-5",
         "gpt-oss",

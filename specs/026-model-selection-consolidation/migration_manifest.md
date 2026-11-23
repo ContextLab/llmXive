@@ -17,7 +17,7 @@ Checked artifact: regenerate with `python -m llmxive.model_selection.inventory` 
 
 |file|line|kind|symbol|models|
 |-|-|-|-|-|
-|src/llmxive/backends/dartmouth.py|103|module_constant|_REASONING_MODELS|glm-5, gpt-oss, qwen3, qwen3.5|
+|src/llmxive/backends/dartmouth.py|104|module_constant|_REASONING_MODELS|glm-5, gpt-oss, qwen3, qwen3.5|
 |src/llmxive/backends/local.py|38|model_id_literal|list_models|Qwen/Qwen2.5-3B-Instruct|
 |src/llmxive/model_selection/policy.py|160|model_id_literal|entries|glm-5.3|
 |src/llmxive/model_selection/policy.py|166|model_id_literal|entries|qwen3.5|

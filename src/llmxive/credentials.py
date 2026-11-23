@@ -335,27 +335,8 @@ def load_kaggle_creds() -> tuple[str, str] | None:
     return None
 
 
-__all__ = [
-    "DARTMOUTH_KEY_NAME",
-    "SEMANTIC_SCHOLAR_KEY_NAME",
-    "ZENODO_SANDBOX_TOKEN_NAME",
-    "ZENODO_TOKEN_NAME",
-    "CredentialsCheck",
-    "MissingCredentialError",
-    "check_permissions",
-    "clear_dartmouth_key",
-    "credentials_path",
-    "load_dartmouth_key",
-    "load_kaggle_creds",
-    "load_semantic_scholar_key",
-    "load_zenodo_token",
-    "mask_key",
-    "save_dartmouth_key",
-    "save_semantic_scholar_key",
-]
 
-
-def load_hf_token(*, platform: str | None = None, security_bin: str = "security") -> str | None:
+def load_hf_token(*, platform: str | None = None, security_bin: str = "security", timeout_s: float = 10.0) -> str | None:
     """Load the Hugging Face token (spec 027): ``HF_TOKEN`` env, then macOS Keychain.
 
     Resolution order:
@@ -367,7 +348,8 @@ def load_hf_token(*, platform: str | None = None, security_bin: str = "security"
     Deliberately NOT read: the plaintext huggingface_hub cache (``$HF_HOME/token``),
     the legacy ``HUGGING_FACE_HUB_TOKEN`` variable, and any ``.env`` file.
 
-    ``platform`` defaults to ``sys.platform``; ``security_bin`` is the Keychain CLI.
+    ``platform`` defaults to ``sys.platform``; ``security_bin`` is the Keychain CLI;
+    a Keychain call slower than ``timeout_s`` counts as "no token".
     Returns the stripped token or ``None``. Never prompts and never logs the value.
     """
     value = os.environ.get(HF_TOKEN_NAME, "").strip()
@@ -381,8 +363,33 @@ def load_hf_token(*, platform: str | None = None, security_bin: str = "security"
             capture_output=True,
             text=True,
             check=False,
+            timeout=timeout_s,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         return None
     out = result.stdout.strip()
     return out if result.returncode == 0 and out else None
+
+
+__all__ = [
+    "DARTMOUTH_KEY_NAME",
+    "HF_KEYCHAIN_SERVICE",
+    "HF_TOKEN_NAME",
+    "SEMANTIC_SCHOLAR_KEY_NAME",
+    "ZENODO_SANDBOX_TOKEN_NAME",
+    "ZENODO_TOKEN_NAME",
+    "CredentialsCheck",
+    "MissingCredentialError",
+    "check_permissions",
+    "clear_dartmouth_key",
+    "credentials_path",
+    "load_dartmouth_key",
+    "load_hf_token",
+    "load_kaggle_creds",
+    "load_semantic_scholar_key",
+    "load_zenodo_token",
+    "mask_key",
+    "save_dartmouth_key",
+    "save_semantic_scholar_key",
+]
+

@@ -7,6 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from llmxive import credentials
+
 SPEC = importlib.util.spec_from_file_location(
     "hf_pilot", Path(__file__).parents[2] / "scripts/hf/pilot.py"
 )
@@ -17,7 +19,12 @@ SPEC.loader.exec_module(pilot)
 def test_environment_secret_precedes_keychain(monkeypatch):
     monkeypatch.setenv("HF_TOKEN", "test-secret")
     monkeypatch.setattr(
-        subprocess, "run", lambda *a, **kw: pytest.fail("unexpected Keychain read")
+        credentials,
+        "subprocess",
+        SimpleNamespace(
+            run=lambda *a, **kw: pytest.fail("unexpected Keychain read"),
+            TimeoutExpired=subprocess.TimeoutExpired,
+        ),
     )
     assert pilot.token() == "test-secret"
 

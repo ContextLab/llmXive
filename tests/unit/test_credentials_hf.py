@@ -38,3 +38,9 @@ def test_plaintext_hub_cache_is_never_read(monkeypatch, tmp_path):
     monkeypatch.setenv("HF_HOME", str(tmp_path))
     monkeypatch.setenv("HUGGING_FACE_HUB_TOKEN", "hf_legacy")
     assert load_hf_token(platform="linux") is None
+
+
+def test_slow_keychain_times_out_as_no_token(monkeypatch, tmp_path):
+    monkeypatch.delenv("HF_TOKEN", raising=False)
+    sec = _fake_security(tmp_path, "sleep 5; echo hf_kc")
+    assert load_hf_token(platform="darwin", security_bin=sec, timeout_s=0.3) is None
