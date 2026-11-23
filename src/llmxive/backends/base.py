@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import abc
 import threading
+import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import TypeVar
@@ -317,6 +318,8 @@ class ChatResponse:
     model: str
     backend: str
     cost_estimate_usd: float = 0.0  # v1 invariant: 0.0 for every free backend
+    input_tokens: int | None = None  # provider-reported usage; None when not reported
+    output_tokens: int | None = None
 
 
 class BackendError(RuntimeError):
@@ -528,12 +531,212 @@ class BaseBackend(abc.ABC):
         """Return True iff a minimal probe succeeds (used by preflight)."""
 
 
+#: The open circuit's wait grows to at most this many base cooldowns.
+_MAX_COOLDOWN_FACTOR = 8
+_T = TypeVar("_T")
+
+
+class CircuitBreaker:
+    """Trips OPEN on a sustained outage so callers abort fast.
+
+    Tracks consecutive fully-failed calls (a call that exhausted the backend's
+    retries and raised :class:`TransientBackendError`) and the wall-clock time
+    of the first failure in the current run of failures. Trips when EITHER:
+
+      * ``max_consecutive`` consecutive full failures accumulate, OR
+      * no success occurs within ``window_s`` of the first failure
+        (a slow-drip outage that never quite reaches ``max_consecutive``),
+
+    whichever comes first. When OPEN, :meth:`call` raises
+    :class:`BackendUnavailable` immediately WITHOUT invoking the inner callable
+    (so the retry budget is not burned). After a cooldown, allow one recovery
+    probe while concurrent callers still fail fast. A failed probe restarts the
+    cooldown; success resets the breaker. The cooldown doubles each time a real
+    request is lost with no real answer in between (see ``_cooldown``). An explicit ModelDownError opens the
+    circuit immediately because its full request budget has already been spent.
+
+    Only :class:`TransientBackendError` counts as a failure — a
+    :class:`PermanentBackendError` (e.g. the paid-model guard) is not an outage
+    signal and passes straight through without advancing the breaker.
+
+    ``clock`` is injectable for deterministic tests (defaults to
+    ``time.monotonic``).
+    """
+
+    def __init__(
+        self,
+        *,
+        max_consecutive: int = 3,
+        window_s: float = 1800.0,
+        clock: Callable[[], float] = time.monotonic,
+        cooldown_s: float = 900.0,
+        liveness: Callable[[str], bool | None] | None = None,
+        label: str = "Dartmouth",
+    ) -> None:
+        #: Backend name used in the open-circuit error message.
+        self._label = label
+        #: Optional cheap recovery check, called with :attr:`name` when the
+        #: cooldown expires. ``True`` closes the circuit and the caller's real
+        #: request proceeds with its FULL budget; ``False`` leaves it open and
+        #: restarts the cooldown without burning a request; ``None`` means "no
+        #: cheap check available" (a paid model, whose call must stay behind the
+        #: credit guard) and falls back to probing with the real request. Left
+        #: ``None`` by default, so a breaker constructed without it behaves
+        #: exactly as before.
+        self.liveness = liveness
+        #: The resolved model this breaker guards; set by ``_breaker_for``.
+        self.name = ""
+        self._max_consecutive = max_consecutive
+        self._window_s = window_s
+        self._clock = clock
+        self._cooldown_s = cooldown_s
+        self._opened_at: float | None = None
+        self._probe_in_flight = False
+        self._lock = threading.Lock()
+        self._consecutive_failures = 0
+        self._first_failure_at: float | None = None
+        #: Real requests lost since the last real answer. A model that answers
+        #: the small liveness request and then hangs on the next real one would
+        #: otherwise cost a full deadline every cooldown, for as long as the
+        #: process runs; the wait doubles with each such loss instead.
+        self._relapses = 0
+
+    def _cooldown(self) -> float:
+        """How long the circuit stays open now: the base cooldown, doubled for
+        every real request lost since the last real answer, up to
+        :data:`_MAX_COOLDOWN_FACTOR` times."""
+        return self._cooldown_s * min(2 ** max(self._relapses - 1, 0), _MAX_COOLDOWN_FACTOR)
+
+    def _is_open(self) -> bool:
+        if self._opened_at is not None:
+            return True
+        if self._consecutive_failures >= self._max_consecutive:
+            return True
+        if (
+            self._first_failure_at is not None
+            and (self._clock() - self._first_failure_at) >= self._window_s
+        ):
+            return True
+        return False
+
+    def _open_error(self) -> BackendUnavailable:
+        mins = self._window_s / 60.0
+        return BackendUnavailable(
+            f"circuit open: {self._label} endpoint persistently unavailable after "
+            f"{self._consecutive_failures} consecutive failures / {mins:.0f} min"
+        )
+
+    def call(self, fn: Callable[[], _T]) -> _T:
+        """Run ``fn()`` unless the breaker is OPEN (then raise immediately).
+
+        Records a full failure on :class:`TransientBackendError`; resets on
+        success. Other exceptions (PermanentBackendError, programming bugs)
+        pass through unchanged and do NOT advance the breaker.
+        """
+        probe = False
+        with self._lock:
+            if self._is_open():
+                now = self._clock()
+                if self._opened_at is None:
+                    self._opened_at = now
+                if self._probe_in_flight or now - self._opened_at < self._cooldown():
+                    raise self._open_error()
+                self._probe_in_flight = probe = True
+        if probe and self.liveness is not None:
+            try:
+                alive = self.liveness(self.name)
+            except BaseException:  # a probe must never raise into the caller
+                alive = False
+            if alive is not None:
+                with self._lock:
+                    self._probe_in_flight = False
+                    if not alive:
+                        # Still sick. Restart the cooldown and fail fast, WITHOUT
+                        # spending the caller's full request budget to find out.
+                        self._opened_at = self._clock()
+                        raise self._open_error()
+                    self._reset()
+                # The model answers: this is now an ordinary call, not a probe,
+                # so it gets the full deadline and does not re-open the circuit
+                # on a single transient failure.
+                probe = False
+        try:
+            result = fn()
+        except TransientBackendError as exc:
+            with self._lock:
+                self._record_failure()
+                # A hard deadline / explicit model-down response has already
+                # consumed a full request budget. Route around it immediately.
+                if probe or isinstance(exc, ModelDownError) or self._is_open():
+                    self._opened_at = self._clock()
+                    self._relapses += 1
+            raise
+        except BaseException:
+            # A failed/cancelled recovery probe must not leave the circuit stuck
+            # half-open, nor cause all waiting callers to immediately retry it.
+            if probe:
+                with self._lock:
+                    self._opened_at = self._clock()
+            raise
+        else:
+            with self._lock:
+                self._reset()
+                self._relapses = 0  # a real answer, not a ping
+            return result
+        finally:
+            if probe:
+                with self._lock:
+                    self._probe_in_flight = False
+
+    def _record_failure(self) -> None:
+        if self._first_failure_at is None:
+            self._first_failure_at = self._clock()
+        self._consecutive_failures += 1
+
+    def _reset(self) -> None:
+        self._opened_at = None
+        self._consecutive_failures = 0
+        self._first_failure_at = None
+
+
+def openai_content(content: str | tuple[ContentPart, ...]) -> str | list[dict]:
+    """Serialize canonical ChatMessage content for an OpenAI-compatible endpoint. A plain ``str``
+    passes through unchanged (byte-identical payloads for every existing caller);
+    a parts tuple becomes langchain's content-block list, which the
+    OpenAI-compatible endpoint renders as the multimodal content array."""
+    if isinstance(content, str):
+        return content
+    blocks: list[dict] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            blocks.append({"type": "text", "text": part.text})
+        elif isinstance(part, ImagePart):
+            import base64
+
+            b64 = base64.b64encode(part.data).decode()
+            blocks.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:{part.mime};base64,{b64}"},
+            })
+        else:  # pragma: no cover - the union is closed
+            raise PermanentBackendError(f"unknown content part {type(part).__name__}")
+    return blocks
+
+
+class BackendCredentialError(PermanentBackendError):
+    """A backend's credential is missing or rejected (e.g. HTTP 401/403). The
+    candidate cannot serve ANY request, but a peer backend may: the router SKIPs
+    it instead of aborting the chain."""
+
+
 __all__ = [
+    "BackendCredentialError",
     "BackendError",
     "BackendUnavailable",
     "BaseBackend",
     "ChatMessage",
     "ChatResponse",
+    "CircuitBreaker",
     "ContentPart",
     "DeadlineExceededError",
     "EmptyReplyError",
@@ -546,6 +749,7 @@ __all__ = [
     "TransientBackendError",
     "UnsupportedFeatureError",
     "invoke_with_deadline",
+    "openai_content",
     "parse_image_dimensions",
     "render_text_content",
 ]

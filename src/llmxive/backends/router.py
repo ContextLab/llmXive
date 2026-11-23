@@ -16,6 +16,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from llmxive.backends.base import (
+    BackendCredentialError,
     BackendUnavailable,
     BaseBackend,
     ChatMessage,
@@ -171,6 +172,8 @@ def disposition_of(exc: BaseException) -> CandidateDisposition:
     """
     if isinstance(exc, PaidGuardDenied):
         return CandidateDisposition.SKIP
+    if isinstance(exc, BackendCredentialError):
+        return CandidateDisposition.SKIP  # no usable credential for this backend: try a peer
     if isinstance(exc, UnsupportedFeatureError):
         return CandidateDisposition.SKIP  # candidate can't serve this feature → advance
     if isinstance(exc, BackendUnavailable):
