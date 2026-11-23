@@ -401,7 +401,8 @@ def test_dartmouth_only_explanations_are_unchanged():
                for e in sel("deep_review", snapshot(dartmouth=(GLM,), available_usd=None)).explanation)
 
 
-STALE = ("last_known_good", 901.0)
+STALE = ("last_known_good", 901.0)  # past independent_review's max_catalog_age_s (900 s)
+LB_TOO_OLD = ("last_known_good", LEADERBOARD_MAX_FETCH_AGE_S + 1.0)
 GONE = ("unavailable", 0.0)
 
 
@@ -409,15 +410,52 @@ def test_review_is_served_by_funded_when_dartmouth_is_not_fresh():
     assert order(sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"catalog": STALE, "credit": GONE}))) == [E, A2]
 
 
+def test_review_judges_the_leaderboard_by_its_own_limits_and_the_catalog_by_max_catalog_age():
+    # A leaderboard copy 901 s old is fine for a fresh-required review (it is reused for
+    # hours with its true age); only the catalog is held to the tight 900 s limit.
+    assert order(sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"leaderboard": STALE}))) == [QWEN, E, A2]
+    assert order(sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"catalog": STALE, "credit": GONE,
+                                                                                 "leaderboard": STALE}))) == [E, A2]
+    assert order(sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"hf_catalog": STALE}))) == [QWEN]
+
+
 def test_review_is_served_by_dartmouth_when_funded_is_not_fresh():
-    for bad in ({"leaderboard": STALE}, {"hf_catalog": GONE}):
-        assert order(sel("independent_review", snapshot(dartmouth=(QWEN, GEMMA4), sources=bad))) == [QWEN, GEMMA4]
-    assert order(sel("independent_review", snapshot(dartmouth=(QWEN, GEMMA4), available_usd=None))) == [QWEN, GEMMA4]
+    old_publish = {"publish_dates": {r: date(2026, 11, 1) for r in REASONING}}
+    for kw in ({"sources": {"leaderboard": LB_TOO_OLD}}, {"sources": {"hf_catalog": GONE}},
+               {"sources": {"hf_catalog": STALE}}, old_publish, {"available_usd": None}):
+        assert order(sel("independent_review", snapshot(dartmouth=(QWEN, GEMMA4), **kw))) == [QWEN, GEMMA4]
 
 
 def test_review_is_an_outage_only_when_no_class_is_fresh():
-    with pytest.raises(ModelUnavailable, match="fresh"):
-        sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"credit": GONE, "leaderboard": STALE}))
+    for funded_bad in ({"leaderboard": LB_TOO_OLD}, {"hf_catalog": STALE}):
+        with pytest.raises(ModelUnavailable, match="fresh"):
+            sel("independent_review", snapshot(dartmouth=(QWEN,), sources={"credit": GONE, **funded_bad}))
+
+
+def test_budget_notes_name_the_bound_that_failed():
+    by_allowance = sel("standard_generation", snapshot(available_usd=0.003))
+    assert any("pick exceeds the allowance headroom ($0.0036 > $0.0030) — stepped down to economy"
+               in e for e in by_allowance.explanation)
+    by_caller = sel("standard_generation", snapshot(), max_credits=3)  # E = 3.6 credits; headroom is $5
+    assert order(by_caller) == [B, LOCAL]
+    assert any("pick exceeds the caller's max_credits ($0.0036 > $0.0030) — stepped down to economy"
+               in e for e in by_caller.explanation)
+    assert not any("allowance" in e for e in by_caller.explanation)
+    with pytest.raises(ModelUnavailable, match=r"funded over the caller's budget: strong pick exceeds the caller's max_credits"):
+        sel("deep_review", snapshot(), max_credits=1)
+    with pytest.raises(ModelUnavailable, match=r"funded allowance exhausted: strong pick exceeds the allowance headroom"):
+        sel("deep_review", snapshot(available_usd=0.001), max_credits=1)  # both fail: the allowance is named
+
+
+def test_only_the_allowance_suppresses_paid_not_the_callers_max_credits():
+    cheap_paid = {CLAUDE: (1e-8, 1e-8)}  # 0.12 credits: within any max_credits below
+    snap = snapshot(claude=True, paid_opt_in=True, prices=cheap_paid)
+    chain = sel("deep_review", snap, allow_paid=True, max_credits=1)  # funded removed by max_credits only
+    assert order(chain) == [CLAUDE]
+    assert any(e.startswith("funded over the caller's budget") for e in chain.explanation)
+    starved = snapshot(claude=True, paid_opt_in=True, prices=cheap_paid, available_usd=0.001)
+    with pytest.raises(ModelUnavailable, match="funded allowance exhausted"):
+        sel("deep_review", starved, allow_paid=True)  # funded removed by the allowance → no paid
 
 
 def test_select_stays_byte_identical_and_versioned():
@@ -460,3 +498,5 @@ def test_every_funded_candidate_passed_the_level_filter_and_the_budget(profile, 
         assert c.approved_ceiling_credits == pytest.approx(cap)
     if any("funded allowance exhausted" in e for e in chain.explanation):
         assert not funded and CLAUDE not in order(chain)  # never a licence to fall through to paid
+    if any(e.startswith("funded over the caller's budget") for e in chain.explanation):
+        assert not funded and max_credits is not None

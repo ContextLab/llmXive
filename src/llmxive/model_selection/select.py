@@ -33,20 +33,25 @@ Pipeline:
    When the snapshot holds a Hugging Face model, a blocked funded component is
    recorded in the chain's ``explanation``.
 
-   A ``require_fresh_snapshot`` (judgment) review judges each remote class by
-   ``max_catalog_age_s``: Dartmouth needs ``catalog`` + ``credit``, funded needs
-   ``hf_catalog`` + ``leaderboard`` + a live guard. It is an outage only when
-   NEITHER class is fresh; otherwise the stale class contributes no candidates
-   (local is never gated; spec 027 5.9.3).
+   A ``require_fresh_snapshot`` (judgment) review judges each remote class:
+   Dartmouth needs ``catalog`` + ``credit`` within ``max_catalog_age_s``; funded
+   needs ``hf_catalog`` within ``max_catalog_age_s``, the ``leaderboard`` within
+   its OWN limits (``LEADERBOARD_MAX_FETCH_AGE_S`` and the publish age, as for
+   every call) and a live guard. It is an outage only when NEITHER class is
+   fresh; otherwise the stale class contributes no candidates (local is never
+   gated; spec 027 5.9.3).
 2. **Funded group** (:func:`_funded_group`, spec 027 5.10): only funded
    candidates whose repo qualifies for the requirement's strength level on its
    track AND whose worst case fits the funded guard's headroom and
    ``max_credits`` (zero headroom admits nothing). The cheapest qualifier leads
    (ties: higher rating, then model id); the rest are the next-cheapest from
    other families, at most ``max_chain_slots``. Under budget pressure a profile
-   with ``budget_step_down`` steps down ONE level (recorded in ``explanation``);
-   otherwise the funded class is an outage and, unless ``require_paid``, paid
-   candidates are dropped too (Constitution IV).
+   with ``budget_step_down`` steps down ONE level (recorded in ``explanation``,
+   naming the bound that failed: allowance headroom or ``max_credits``);
+   otherwise the funded class is an outage. When the ALLOWANCE emptied it,
+   paid candidates are dropped too unless ``require_paid`` (Constitution IV);
+   when only the caller's ``max_credits`` did, paid stays (that bound already
+   applies to paid).
 3. **Ordering**: the cost class first — free remote → funded group (its own
    order) → free local → paid — then, within the non-funded classes, the fixed
    tie-breaks (FR-008): preferred quality tier → preferred independence →
@@ -132,18 +137,31 @@ def _funded_block_reason(
     requirement: ModelRequirement, snapshot: RuntimeSnapshot, funded_policy: FundedPolicy
 ) -> str | None:
     """Why NO funded candidate may serve this call, or ``None`` if funded
-    candidates may be considered one by one (spec 027 5.10, fail closed).
-
-    The Hugging Face catalog is judged by ``max_catalog_age_s``; the leaderboard by
-    its own limits: fetched within :data:`LEADERBOARD_MAX_FETCH_AGE_S` and its
-    newest publish date fresh by the shared rule in
-    :func:`~llmxive.model_selection.strength.publish_date_fresh` (at most
-    ``max_publish_age_days`` old; more than one day in the future is invalid). The funded guard must
-    be present and ``live``; the requirement must name a track and a strength level.
-    """
+    candidates may be considered one by one (spec 027 5.10, fail closed): the
+    requirement must name a track and a strength level, and the funded components
+    must pass :func:`_funded_components_reason`."""
     if requirement.track is None or requirement.strength is None:
         return "the requirement names no track and strength level"
-    reason = _stale_or_unavailable(snapshot, "hf_catalog", requirement.max_catalog_age_s)
+    return _funded_components_reason(snapshot, requirement.max_catalog_age_s, funded_policy)
+
+
+def _funded_components_reason(
+    snapshot: RuntimeSnapshot, max_catalog_age_s: float, funded_policy: FundedPolicy
+) -> str | None:
+    """Why the funded components cannot be relied on, or ``None`` if they can.
+    The ONE freshness rule for the funded class, used by every call and by a
+    fresh-required review alike.
+
+    The Hugging Face catalog is judged by ``max_catalog_age_s`` (the requirement's
+    limit, tight for a review); the leaderboard ALWAYS by its own limits: fetched
+    within :data:`LEADERBOARD_MAX_FETCH_AGE_S` and its newest publish date fresh by
+    the shared rule in :func:`~llmxive.model_selection.strength.publish_date_fresh`
+    (at most ``max_publish_age_days`` old; more than one day in the future is
+    invalid). The snapshot reuses a leaderboard copy for hours with its true age,
+    so a review's tight catalog limit must not judge it. The funded guard must be
+    present and ``live``.
+    """
+    reason = _stale_or_unavailable(snapshot, "hf_catalog", max_catalog_age_s)
     if reason is None:
         reason = _stale_or_unavailable(snapshot, "leaderboard", LEADERBOARD_MAX_FETCH_AGE_S)
     if reason is not None:
@@ -229,9 +247,14 @@ def _funded_group(
     Budget pressure: when qualifiers exist at the level but none fits, a
     requirement with ``budget_step_down`` (and above ``economy``) steps down ONE
     level, recorded in ``notes``; otherwise — and when the lower level does not
-    fit either — the group is empty and ``allowance_removed`` is True, which the
-    caller treats as an outage for the funded class that must not fall through
-    to paid (Constitution IV)."""
+    fit either — the group is empty. Every note names the bound that actually
+    failed: the allowance headroom, or the caller's ``max_credits``.
+    ``allowance_removed`` is True only when the ALLOWANCE is what emptied the
+    group (the cheapest qualifier exceeds the headroom, or there is none): the
+    caller treats that as an outage for the funded class that must not fall
+    through to paid (Constitution IV). When only the caller's ``max_credits``
+    emptied it, paid candidates stay — the same ``max_credits`` already bounds
+    them."""
     assert requirement.track is not None and requirement.strength is not None
     guard = snapshot.funded
     assert guard is not None  # a funded candidate implies a live guard
@@ -239,6 +262,17 @@ def _funded_group(
     cap = available if requirement.max_credits is None else min(available, float(requirement.max_credits))
     level = requirement.strength
     notes: list[str] = []
+
+    def failed_bound(pick: float) -> tuple[bool, str]:
+        """``(is_allowance, "<bound> (<pick> > <limit>)")`` for the cheapest pick."""
+        if available <= 0 or pick > available:
+            return True, f"the allowance headroom (${pick / USD_TO_CREDITS:.4f} > ${max(available, 0.0) / USD_TO_CREDITS:.4f})"
+        assert requirement.max_credits is not None  # pick <= available, so max_credits bound it
+        return False, (
+            f"the caller's max_credits (${pick / USD_TO_CREDITS:.4f} > "
+            f"${requirement.max_credits / USD_TO_CREDITS:.4f})"
+        )
+
     while True:
         qualifiers = level_qualifiers(population, level, funded_policy)
         at_level = [(m, c) for m, c in eligible if repo_of(m.model_id) in qualifiers]
@@ -251,17 +285,22 @@ def _funded_group(
         if not requirement.budget_step_down or level == "economy" or level != requirement.strength:
             break  # reviews/vision, economy, and an already-stepped level stop here
         lower = STRENGTH_LEVELS[STRENGTH_LEVELS.index(level) - 1]
-        pick = min(c for _, c in at_level)
-        notes.append(
-            f"funded: {level} pick exceeds the allowance (${pick / USD_TO_CREDITS:.4f} > "
-            f"${max(cap, 0.0) / USD_TO_CREDITS:.4f}) — stepped down to {lower} (budget pressure)"
-        )
+        _, bound = failed_bound(min(c for _, c in at_level))
+        notes.append(f"funded: {level} pick exceeds {bound} — stepped down to {lower} (budget pressure)")
         level = lower
     if at_level and not fits:
-        notes.append(
-            "funded allowance exhausted — no step-down for this call; paid not reached (Constitution IV)"
-        )
-        return [], notes, True
+        is_allowance, bound = failed_bound(min(c for _, c in at_level))
+        if is_allowance:
+            notes.append(
+                f"funded allowance exhausted: {level} pick exceeds {bound} — no step-down for this "
+                "call; paid not reached (Constitution IV)"
+            )
+        else:
+            notes.append(
+                f"funded over the caller's budget: {level} pick exceeds {bound} — no step-down for "
+                "this call; paid candidates stay bounded by the same max_credits"
+            )
+        return [], notes, is_allowance
 
     def rating(model: ModelRef) -> float:
         return population[repo_of(model.model_id)].rating
@@ -315,39 +354,35 @@ def _effective_per_call_cap(req: ModelRequirement, available_headroom: float) ->
 #: Components a fresh-required (judgment) review must observe fresh-enough, per
 #: candidate class (spec 026 FR-007 as amended by spec 027 5.9.3): the Dartmouth
 #: catalog (presence/pricing) AND the credit/opt-in observation for Dartmouth
-#: candidates (free and paid); the Hugging Face catalog AND the leaderboard (plus a
-#: ``live`` funded guard) for funded candidates. The local fallback inventory is
-#: never gated.
+#: candidates (free and paid). The funded class is judged by
+#: :func:`_funded_components_reason` (the Hugging Face catalog by
+#: ``max_catalog_age_s``; the leaderboard by its own fetch-age and publish-date
+#: limits; a ``live`` guard). The local fallback inventory is never gated.
 _FRESH_REQUIRED_COMPONENTS = ("catalog", "credit")
-_FRESH_REQUIRED_FUNDED_COMPONENTS = ("hf_catalog", "leaderboard")
 
 
 def _fresh_classes(
-    requirement: ModelRequirement, snapshot: RuntimeSnapshot
+    requirement: ModelRequirement, snapshot: RuntimeSnapshot, funded_policy: FundedPolicy
 ) -> tuple[str | None, str | None]:
     """For a ``require_fresh_snapshot`` (spec-025 judgment) review, why each
     remote candidate class is NOT fresh enough to serve it: ``(dartmouth_reason,
-    funded_reason)``, ``None`` for a class that is fresh. Every component is judged
-    by ``max_catalog_age_s`` (an ``unavailable``/missing component, or a
-    ``last_known_good`` copy older than that, is not fresh); the funded class also
-    needs a ``live`` funded guard.
+    funded_reason)``, ``None`` for a class that is fresh. The Dartmouth catalog and
+    credit components are judged by ``max_catalog_age_s`` (an
+    ``unavailable``/missing component, or a ``last_known_good`` copy older than
+    that, is not fresh). The funded class is judged by
+    :func:`_funded_components_reason`: its catalog by ``max_catalog_age_s``, the
+    leaderboard by its OWN limits (:data:`LEADERBOARD_MAX_FETCH_AGE_S`, publish
+    age), and a ``live`` guard.
 
     FAIL CLOSED (``ModelUnavailable``) only when NEITHER class is fresh (spec 027
     5.9.3); otherwise the caller drops the candidates of the class that is not."""
     age = requirement.max_catalog_age_s
-
-    def first_reason(components: tuple[str, ...]) -> str | None:
-        for comp in components:
-            reason = _stale_or_unavailable(snapshot, comp, age)
-            if reason is not None:
-                return reason
-        return None
-
-    dartmouth = first_reason(_FRESH_REQUIRED_COMPONENTS)
-    funded = first_reason(_FRESH_REQUIRED_FUNDED_COMPONENTS)
-    if funded is None and (snapshot.funded is None or snapshot.funded.source != "live"):
-        src = snapshot.funded.source if snapshot.funded is not None else "missing"
-        funded = f"funded guard is unavailable (source={src!r})"
+    dartmouth: str | None = None
+    for comp in _FRESH_REQUIRED_COMPONENTS:
+        dartmouth = _stale_or_unavailable(snapshot, comp, age)
+        if dartmouth is not None:
+            break
+    funded = _funded_components_reason(snapshot, age, funded_policy)
     if dartmouth is not None and funded is not None:
         raise ModelUnavailable(
             "fresh-required review: no candidate class is fresh enough "
@@ -377,11 +412,12 @@ def select(
 
     # FR-007 as amended by spec 027 5.9.3: a judgment review fails closed when NO
     # remote candidate class is fresh, BEFORE any per-model work; a class that is
-    # not fresh contributes no candidates.
+    # not fresh contributes no candidates. The funded class's freshness is the
+    # same rule every call applies (_funded_components_reason), so a stale funded
+    # class surfaces below as ``funded_block``.
     dartmouth_stale: str | None = None
-    funded_stale: str | None = None
     if requirement.require_fresh_snapshot:
-        dartmouth_stale, funded_stale = _fresh_classes(requirement, snapshot)
+        dartmouth_stale, _ = _fresh_classes(requirement, snapshot, fpol)
 
     credit = snapshot.credit
     cap = _effective_per_call_cap(requirement, credit.available_headroom)
@@ -398,8 +434,6 @@ def select(
     # ONCE, fail closed (spec 027 5.10); the track's scored population is the
     # day's leaderboard rows with a fresh publish date.
     funded_block = _funded_block_reason(requirement, snapshot, fpol)
-    if funded_block is None and funded_stale is not None:
-        funded_block = f"fresh-required review: {funded_stale}"
     population: Mapping[str, ArenaScore] = {}
     if funded_block is None:
         assert requirement.track is not None  # checked by _funded_block_reason
