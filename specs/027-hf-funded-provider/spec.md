@@ -2,8 +2,9 @@
 
 Status: approved by the maintainer 2026-11-23 (design, funded-tier classification,
 Hugging Face ranked ahead of the local model, three-day borrow-ahead, and the
-constitution paragraph in section 6). Numeric floors and per-call ceilings are still to
-be confirmed by the maintainer before merge to `main`.
+constitution paragraph in section 6). Selection was revised the same day (section 5.10):
+there are no score floors and no per-profile cost ceilings; where sections 5.3-5.6, 7
+and 8 mention them, 5.10 governs.
 
 ## 1. Intent
 
@@ -277,6 +278,9 @@ Adapting per task
   review calls never step down — they end as an outage until the allowance refills.
 
 Fail closed, as before: scores unavailable or stale → no funded candidate.
+A leaderboard whose `leaderboard_publish_date` is more than 7 days old is stale.
+There is no per-profile cost ceiling: a call is bounded by what is left of the allowance
+and by the caller's own budget.
 The percentile cut-offs and per-profile defaults above were approved by the maintainer
 on 2026-11-23; nothing numeric remains to confirm before merge.
 
