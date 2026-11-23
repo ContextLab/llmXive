@@ -479,13 +479,30 @@ def test_reservation_opened_states_both_units(repo):
 
 # --- replay on the audited path (fix round 3) ---
 
-@pytest.fixture
-def lane_repo(repo):
-    """The same real git repo, also carrying the spec-025 lane log the real sink writes."""
+@pytest.fixture(scope="session")
+def _lane_template(tmp_path_factory):
+    """ONE real git repo carrying a bootstrapped spec-025 lane log, built once per
+    session; each test gets its own copy (``_copy_lane_repo``)."""
+    r = tmp_path_factory.mktemp("lane-template") / "repo"
+    subprocess.run(["git", "init", "-b", "main", str(r)], capture_output=True, text=True, check=True)
     for args in (["config", "user.email", "t@t"], ["config", "user.name", "t"]):
-        subprocess.run(["git", *args], cwd=str(repo), check=True, capture_output=True, text=True)
-    bootstrap_lane_log(repo, config=LaneLogConfig())
-    return repo
+        subprocess.run(["git", *args], cwd=str(r), check=True, capture_output=True, text=True)
+    bootstrap_lane_log(r, config=LaneLogConfig())
+    return r
+
+
+def _copy_lane_repo(template: Path, dest: Path) -> Path:
+    if dest.exists():
+        shutil.rmtree(dest)
+    shutil.copytree(template, dest, symlinks=True)
+    return dest
+
+
+@pytest.fixture
+def lane_repo(repo, _lane_template):
+    """The test's real git repo (``repo``), replaced by a copy of the session's
+    bootstrapped repo: it also carries the spec-025 lane log the real sink writes."""
+    return _copy_lane_repo(_lane_template, repo)
 
 
 def _sink(repo):
@@ -634,15 +651,10 @@ def _outcomes(repo):
 
 
 @pytest.fixture
-def audit_repo(tmp_path):
+def audit_repo(tmp_path, _lane_template):
     """A second real git repo holding ONLY the lane log, so the funded ledger's repo can
     become unreadable while the production audit sink keeps working."""
-    r = tmp_path / "audit"
-    subprocess.run(["git", "init", "-b", "main", str(r)], capture_output=True, text=True, check=True)
-    for args in (["config", "user.email", "t@t"], ["config", "user.name", "t"]):
-        subprocess.run(["git", *args], cwd=str(r), check=True, capture_output=True, text=True)
-    bootstrap_lane_log(r, config=LaneLogConfig())
-    return r
+    return _copy_lane_repo(_lane_template, tmp_path / "audit")
 
 
 def _audited(ledger, sink, hf, local, **kw):
