@@ -295,3 +295,23 @@ def test_a_boolean_index_is_not_treated_as_an_integer_position():
     )), "candidate_index": True}, "d")
     with pytest.raises(InvocationIdentityError, match="not a valid position"):
         _build([_chain("R"), ev])
+
+
+def test_paid_reservation_opened_payload_is_unchanged_by_the_funded_usd_field():
+    """A paid ``ReservationOpened`` (``reserved_usd`` None) serializes exactly as it did
+    before the field existed, so replaying a route recorded earlier is not a conflicting
+    payload; a funded one carries its USD hold."""
+    from llmxive.model_selection.attempt_hooks import ReservationOpened
+
+    paid = ReservationOpened("r1", 0, _MODEL, "rid-1", 12.5)
+    before_the_field = {
+        "route_id": "r1", "candidate_index": 0,
+        "candidate": {"backend": _MODEL.backend, "serving_endpoint": _MODEL.serving_endpoint,
+                      "model_id": _MODEL.model_id, "model_family": _MODEL.model_family,
+                      "vendor": _MODEL.vendor},
+        "reservation_id": "rid-1", "reserved_credits": 12.5, "audit_event_id": paid.event_id,
+    }
+    assert _audit_payload(paid) == before_the_field and "reserved_usd" not in _audit_payload(paid)
+    assert json.dumps(_audit_payload(paid), sort_keys=True) == json.dumps(before_the_field, sort_keys=True)
+    funded = ReservationOpened("r1", 0, _MODEL, "rid-1", 1.8, reserved_usd=0.0018)
+    assert _audit_payload(funded)["reserved_usd"] == 0.0018

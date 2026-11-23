@@ -325,7 +325,16 @@ def _release_unsent_hold_if_created(
         logger.warning("execute: %s", msg)
         notes.append(msg)
         return
-    if hold is None or hold.owner != owner or hold.state == STATE_RECONCILED:
+    if hold is None:
+        msg = (
+            f"funded hold {reservation_id}: ownership unknown (not on the local ledger ref after a "
+            "failed reserve); if it landed remotely it is left for the lease expiry and the funded "
+            "ledger's sweep"
+        )
+        logger.warning("execute: %s", msg)
+        notes.append(msg)
+        return
+    if hold.owner != owner or hold.state == STATE_RECONCILED:
         return
     _settle_funded_hold(ledger_repo, reservation_id, charged_usd=0.0, now=now, config=config, notes=notes)
 
@@ -342,16 +351,15 @@ def _open_funded_reservation(
     now: datetime,
     call_id: str,
     owner: str,
-    dispatch_gated: bool,
     notes: list[str],
-) -> tuple[str | None, float, bool, str | None]:
+) -> tuple[str | None, float, str | None]:
     """Reserve a funded (Hugging Face) candidate's worst case x 1, in USD, on the funded
-    ledger. Returns ``(reservation_id, reserved_usd, created, skip_reason)`` — exactly
-    one of ``reservation_id`` / ``skip_reason`` is non-None; ``created`` says whether
-    THIS call wrote the hold (its ``owner`` token is on the ``open`` event) or found one
-    already there under the same id. ANY failure (a denial, a ledger error, a refused
-    guard, or an unexpected exception from the observer) is a skip: a funded candidate
-    is never dispatched without a successful reservation.
+    ledger. Returns ``(reservation_id, reserved_usd, skip_reason)`` — exactly one of
+    ``reservation_id`` / ``skip_reason`` is non-None, and a ``reservation_id`` is
+    returned ONLY for a hold THIS call created (its ``owner`` token is on the hold's
+    ``open`` event). ANY failure (a denial, a ledger error, a refused guard, or an
+    unexpected exception from the observer) is a skip: a funded candidate is never
+    dispatched without a reservation of its own.
 
     The hold is priced by ``funded_observer`` when one is injected (FR-015 seam),
     else by :func:`hf_budget.reserve_funded` against the runtime snapshot's live
@@ -359,21 +367,23 @@ def _open_funded_reservation(
     not live or is from another month). ``reservation_authority`` (Dartmouth credits)
     is not consulted. Only ``worst_case x 1`` is held: the candidate is dispatched once.
 
-    A hold found already there (not created) is dispatched under only when
-    ``dispatch_gated`` (a ``route_audit`` sink whose atomic ``claim_dispatch`` lets at
-    most one caller send under it); without that gate the candidate is skipped, since
-    the other call may be sending under the same hold. If the reserve raised after its
-    ``open`` event may have landed, :func:`_release_unsent_hold_if_created` releases the
-    hold at zero only when it is provably this call's."""
+    A hold found already there under the same id (a replay, a shared ``call_id``, two
+    Attempts sharing a route) belongs to the call that created it: only that call may
+    dispatch under it and settle it, so this candidate is skipped — nothing is sent and
+    that hold is never settled or released here, gated by ``route_audit`` or not (the
+    dispatch claim is keyed by route and candidate, not by reservation, so it cannot
+    stop two routes sending under one hold). If the reserve raised after its ``open``
+    event may have landed, :func:`_release_unsent_hold_if_created` releases the hold at
+    zero only when it is provably this call's."""
     ref = candidate.model_ref
     fprov = chain.snapshot_provenance.get("funded")
     if fprov is None or fprov.source != "live":
         src = fprov.source if fprov is not None else "missing"
-        return None, 0.0, False, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: funded guard source={src!r} != 'live'"
     if ledger_repo is None or config is None:
-        return None, 0.0, False, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded ledger configured (fail closed)"
     if funded_observer is None and funded_guard is None:
-        return None, 0.0, False, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: no funded guard to price the hold (fail closed)"
 
     reserve_usd = candidate.worst_case_credits / USD_TO_CREDITS
     rid = _sanitize_reservation_id(ref.model_id, call_id)
@@ -393,17 +403,16 @@ def _open_funded_reservation(
                 owner=owner,
             )
     except LedgerDenied as exc:  # no allowance headroom, or an id collision: nothing written
-        return None, 0.0, False, f"funded {ref.model_id!r} skipped: reservation denied ({exc})"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: reservation denied ({exc})"
     except Exception as exc:
         _release_unsent_hold_if_created(ledger_repo, rid, owner=owner, now=now, config=config, notes=notes)
-        return None, 0.0, False, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})"
-    created = hold.owner == owner
-    if not created and not dispatch_gated:
-        return None, 0.0, False, (
-            f"funded {ref.model_id!r} skipped: hold {rid} already exists for another call and no "
-            "dispatch claim gate is active (would send twice under one hold)"
+        return None, 0.0, f"funded {ref.model_id!r} skipped: could not reserve ({type(exc).__name__})"
+    if hold.owner != owner:
+        return None, 0.0, (
+            f"funded {ref.model_id!r} skipped: hold {rid} already exists for another call "
+            "(only the call that created a funded hold may send under or settle it)"
         )
-    return rid, reserve_usd, created, None
+    return rid, reserve_usd, None
 
 
 def _provably_no_inference(exc: BaseException, *, sent: bool) -> bool:
@@ -474,8 +483,9 @@ def execute(
     charge as ``response.cost_estimate_usd`` and ``ExecutionResult.charged_usd``; a
     failed settle is logged + noted and never fails the reply. Every funded hold
     carries this call's ``owner`` token: a hold found under the same id (a replay, a
-    shared ``call_id``) is never released by this call, and is dispatched under only
-    behind the ``route_audit`` claim gate.
+    shared ``call_id``, two Attempts on one route) is another call's, so that candidate
+    is skipped — never sent, settled or released by this call, with or without
+    ``route_audit``.
 
     **Attempt budget (FR-033b).** An optional ``reservation_authority`` is consulted
     per paid candidate, BEFORE the 026 daily reserve: a refusal (``False``) skips the
@@ -624,17 +634,18 @@ def execute(
         reserved_credits = 0.0
         funded = candidate.cost_class == "funded"
         reserved_usd = 0.0
-        funded_created = False
 
         if funded:
             if funded_config_error is not None:
                 skip = f"funded {ref.model_id!r} skipped: funded ledger not configured ({funded_config_error}) — fail closed"
             else:
-                reservation_id, reserved_usd, funded_created, skip = _open_funded_reservation(
+                # Invariant: a funded reservation_id below is always a hold THIS call
+                # created, so every settle/release of it on any path is this call's own.
+                reservation_id, reserved_usd, skip = _open_funded_reservation(
                     candidate, chain, options=options, ledger_repo=ledger_repo,
                     config=funded_ledger_config, funded_observer=funded_observer,
                     funded_guard=funded_guard, now=now, call_id=call_id,
-                    owner=funded_owner, dispatch_gated=route_audit is not None, notes=notes,
+                    owner=funded_owner, notes=notes,
                 )
             if skip is not None:
                 notes.append(skip)
@@ -694,14 +705,12 @@ def execute(
                 claimed = True  # no audit sink → no idempotency (compat path, unchanged behavior)
         except RouteAuditError:
             if reservation_id is not None and funded:
-                # Not dispatched by THIS call. Release at zero only a hold this call
-                # created; a hold found under the same id belongs to another call
-                # (possibly mid-dispatch), whose own settlement records its charge.
-                if funded_created:
-                    _settle_funded_hold(
-                        ledger_repo, reservation_id, charged_usd=0.0, now=now,  # type: ignore[arg-type]
-                        config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
-                    )
+                # Not dispatched: release this call's own hold (the only kind a funded
+                # reservation_id can name — see the invariant above) at zero.
+                _settle_funded_hold(
+                    ledger_repo, reservation_id, charged_usd=0.0, now=now,  # type: ignore[arg-type]
+                    config=funded_ledger_config, notes=notes,  # type: ignore[arg-type]
+                )
             elif reservation_id is not None:
                 # F3: run BOTH cleanups independently — a failing release() must not
                 # suppress settle(), and neither must mask the primary RouteAuditError.

@@ -349,10 +349,15 @@ def test_missing_credentials_are_charged_zero_and_send_nothing(repo):
 
 # --- a hold this call did not create is never released or dispatched under by it ---
 
+def _rid(model: str, call_id: str) -> str:
+    return execute_mod._sanitize_reservation_id(model, call_id)
+
+
 def test_audit_failure_never_zeroes_another_calls_in_flight_hold(repo):
     """Two calls share a call id. While the first is mid-dispatch, the second (audited)
-    finds the SAME hold, then its audit sink fails before dispatch: it must leave the
-    hold alone, and the first call's real charge is what the ledger records."""
+    finds the SAME hold for B — another call's — so it skips B without touching it, then
+    its audit sink fails on E: B's hold is unchanged, and the first call's real charge
+    is what the ledger records for it."""
     seen: dict = {}
 
     def second_call():
@@ -361,12 +366,74 @@ def test_audit_failure_never_zeroes_another_calls_in_flight_hold(repo):
                     backend_factory=lambda n: _HF({}), ledger_repo=repo, funded_ledger_config=CFG,
                     funded_observer=OBS(), now=NOW, call_id="shared",
                     route_audit=FailingRecorder({"DispatchStarted"}))
-        seen["holds"] = {rid: (r.state, r.charged) for rid, r in project(events(repo)).items()}
+        hold = project(events(repo))[_rid(B, "shared")]
+        seen["b"] = (hold.state, hold.charged)
         return "ok"
 
     res = _run(repo, _HF({B: second_call}), sel("cheap_structured", snapshot(local=False)), call_id="shared")
-    assert list(seen["holds"].values()) == [(STATE_OPEN, None)]                # untouched by the second call
-    assert list(charged(repo).values()) == [pytest.approx(B_COST)] and res.charged_usd == pytest.approx(B_COST)
+    assert seen["b"] == (STATE_OPEN, None)                                      # untouched by the second call
+    assert charged(repo)[_rid(B, "shared")] == pytest.approx(B_COST) and res.charged_usd == pytest.approx(B_COST)
+
+
+class _NestOnce:
+    """A real backend that, the first time it is asked for ``model``, runs ``inner()``
+    (a second, concurrent call) before sending its own request."""
+
+    def __init__(self, real, model, inner):
+        self.real, self.model, self.inner, self.done = real, model, inner, False
+
+    def chat(self, messages, **kw):
+        if kw.get("model") == self.model and not self.done:
+            self.done = True
+            self.inner()
+        return self.real.chat(messages, **kw)
+
+
+def _gated(repo, backend, *, route_id):
+    return execute(sel("cheap_structured", snapshot(local=False)), MSG, options=ExecutionOptions(max_tokens=512),
+                   backend_factory=lambda n: backend, ledger_repo=repo, funded_ledger_config=CFG,
+                   funded_observer=OBS(), now=NOW, call_id="shared", route_id=route_id,
+                   route_audit=FailingRecorder(set()))
+
+
+def test_two_gated_calls_on_one_hold_send_once_and_settle_once(repo):
+    """(i)+(iii) Same call id, different route ids, both behind a dispatch-claim gate
+    (whose key is the route, not the hold): only the hold's creator reaches the provider
+    for B, and B's hold is settled exactly once, at the creator's real cost."""
+    def route(req):
+        return (200, _chat_ok(req["json"]["model"]))
+
+    with ReplayServer({("POST", "/chat/completions"): route}) as srv:
+        inner: dict = {}
+        first = _NestOnce(_hf(srv), B, lambda: inner.setdefault("res", _gated(repo, _hf(srv), route_id="route-2")))
+        res = _gated(repo, first, route_id="route-1")
+        assert [r["json"]["model"] for r in srv.requests].count(B) == 1
+    assert res.model_ref.model_id == B and inner["res"].model_ref.model_id == E
+    b_hold = _rid(B, "shared")
+    assert sum(1 for e in events(repo) if e["type"] == "reconciled" and e["reservation_id"] == b_hold) == 1
+    assert charged(repo)[b_hold] == pytest.approx(B_COST)
+
+
+def test_second_call_raising_cannot_change_the_first_calls_hold(repo):
+    """(ii) The second call (gated, another route) finds B's hold, skips it, then fails on
+    its own E candidate and raises: B's hold is untouched while the first call is
+    mid-dispatch, and afterwards carries the first call's real cost."""
+    def route(req):
+        return (503, {"error": "down"}) if req["json"]["model"] == E else (200, _chat_ok(req["json"]["model"]))
+
+    with ReplayServer({("POST", "/chat/completions"): route}) as srv:
+        seen: dict = {}
+
+        def second():
+            with pytest.raises(ChainExhausted):
+                _gated(repo, _hf(srv), route_id="route-2")
+            hold = project(events(repo))[_rid(B, "shared")]
+            seen["b"] = (hold.state, hold.charged)
+
+        res = _gated(repo, _NestOnce(_hf(srv), B, second), route_id="route-1")
+        assert [r["json"]["model"] for r in srv.requests].count(B) == 1
+    assert seen["b"] == (STATE_OPEN, None)
+    assert res.model_ref.model_id == B and charged(repo)[_rid(B, "shared")] == pytest.approx(B_COST)
 
 
 def test_ungated_call_never_dispatches_under_another_calls_hold(repo):

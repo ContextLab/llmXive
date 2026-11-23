@@ -31,7 +31,7 @@ eagerly from the package root — unlike ``snapshot``/``route``.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 from llmxive.model_selection.types import ModelRef, SnapshotProvenance
@@ -98,6 +98,11 @@ class ReservationAuthority(Protocol):
         retained``); the lane's reconciler later moves it to ``reconciled``."""
 
 
+#: Dataclass field metadata key: a field added to an existing audit event after
+#: records were already persisted. When its value is ``None`` the serialized record
+#: omits it, so a record that does not use the field keeps its earlier exact shape.
+OMIT_IF_NONE = "omit_if_none"
+
 @dataclass(frozen=True)
 class ChainResolved:
     """Emitted once after ``select`` succeeds, before any dispatch. Carries the
@@ -148,7 +153,10 @@ class ReservationOpened:
 
     ``reserved_credits`` is always in credits (1 credit = $0.001). ``reserved_usd`` is
     the USD amount held on the funded ledger for a funded candidate, and ``None`` for a
-    paid one (whose hold is on the Dartmouth credit ledger, in credits)."""
+    paid one (whose hold is on the Dartmouth credit ledger, in credits). A ``None``
+    ``reserved_usd`` is left out of the serialized audit record (field metadata
+    :data:`OMIT_IF_NONE`), so a paid record is byte-identical to one written before the
+    field existed and a replay of it is not a conflicting payload."""
 
     route_id: str
     candidate_index: int
@@ -156,7 +164,7 @@ class ReservationOpened:
     reservation_id: str
     reserved_credits: float
     event_id: str = ""
-    reserved_usd: float | None = None
+    reserved_usd: float | None = field(default=None, metadata={OMIT_IF_NONE: True})
 
     def __post_init__(self) -> None:
         object.__setattr__(

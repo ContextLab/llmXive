@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from llmxive.model_selection.attempt_hooks import (
+    OMIT_IF_NONE,
     DispatchStarted,
     DispatchUnknown,
     RouteAuditEvent,
@@ -102,11 +103,16 @@ def _jsonable(value: object) -> object:
 def _audit_payload(event: RouteAuditEvent) -> dict:
     """The event's fields, JSON-safe. The slice-0 ``event_id`` is carried as
     ``audit_event_id``: the lane envelope has its own ``event_id`` (a hash of this one),
-    and two differently-scoped keys with the same name would be a trap for every reader."""
+    and two differently-scoped keys with the same name would be a trap for every reader.
+    A field marked :data:`OMIT_IF_NONE` is left out while it is ``None`` (a field added
+    after records were persisted must not change the bytes of a record that does not
+    use it)."""
     if not is_dataclass(event):
         raise ValueError(f"audit event {type(event).__name__} is not a dataclass")
     payload = {f.name: _jsonable(getattr(event, f.name))
-               for f in fields(event) if f.name != "event_id"}
+               for f in fields(event)
+               if f.name != "event_id"
+               and not (f.metadata.get(OMIT_IF_NONE) and getattr(event, f.name) is None)}
     payload["audit_event_id"] = event.event_id
     return payload
 
