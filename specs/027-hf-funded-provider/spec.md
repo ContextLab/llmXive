@@ -252,6 +252,17 @@ Relative strength, no fixed scores
   call), so a cheaper model that scores as well always wins. The rest of the chain is
   the next-cheapest qualifying models from other families.
 
+Near-ties (approved 2026-11-23)
+- Each LMArena row carries `rating_lower` / `rating_upper` (verified live). Two models
+  are tied when their intervals overlap. So a model qualifies for a level when its
+  `rating_upper` is at or above the `rating_lower` of the model sitting at that level's
+  percentile cut-off; for `strongest`, at or above the top model's `rating_lower`. The
+  cheapest qualifying model still wins, so a statistically indistinguishable cheaper
+  model beats a dearer one at every level. A row without both bounds is treated as a
+  zero-width interval.
+- Freshness is judged from the row's `leaderboard_publish_date` as well as from when
+  the snapshot was fetched.
+
 Adapting per task
 - Each profile has a default (track, level): `cheap_structured` reasoning/economy;
   `standard_generation` reasoning/balanced; `deep_review` and `independent_review`
@@ -266,8 +277,8 @@ Adapting per task
   review calls never step down — they end as an outage until the allowance refills.
 
 Fail closed, as before: scores unavailable or stale → no funded candidate.
-What the maintainer confirms before merge is now only the percentile cut-offs and the
-per-profile defaults above, not score values.
+The percentile cut-offs and per-profile defaults above were approved by the maintainer
+on 2026-11-23; nothing numeric remains to confirm before merge.
 
 ## 6. Constitution amendment (approved 2026-11-23)
 
