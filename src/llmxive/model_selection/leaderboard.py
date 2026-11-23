@@ -155,20 +155,31 @@ def fetch_arena_category(
             page_total = body.get("num_rows_total")
             if isinstance(page_total, bool) or not isinstance(page_total, int) or page_total < 0:
                 raise LeaderboardError(f"datasets server gave no usable num_rows_total: {page_total!r}")
-            total = page_total
+            if total is None:
+                if page_total == 0:
+                    raise LeaderboardError(f"leaderboard category {category!r} is empty")
+                total = page_total
+            elif page_total != total:
+                raise LeaderboardError(f"num_rows_total changed mid-fetch: {total} -> {page_total}")
             page = body.get("rows")
             if not isinstance(page, list):
                 raise LeaderboardError("datasets server page has no rows list")
-            if offset >= total:
-                break
             if not page:
                 raise LeaderboardError(f"empty page at offset {offset} before total {total}")
-            for item in page:
+            if len(page) > PAGE_LENGTH:
+                raise LeaderboardError(f"page at offset {offset} has {len(page)} rows > {PAGE_LENGTH}")
+            for i, item in enumerate(page):
                 row = item.get("row") if isinstance(item, dict) else None
                 if not isinstance(row, dict):
                     raise LeaderboardError("datasets server row has no 'row' object")
+                if item.get("row_idx") != offset + i:
+                    raise LeaderboardError(
+                        f"page at offset {offset} returned row_idx {item.get('row_idx')!r}, expected {offset + i}"
+                    )
                 rows.append(row)
             offset += len(page)
+    if len(rows) != total:
+        raise LeaderboardError(f"fetched {len(rows)} rows but num_rows_total is {total}")
     return rows
 
 

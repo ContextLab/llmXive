@@ -137,6 +137,49 @@ def test_short_or_inconsistent_paging_fails_closed():
                 fetch_arena_category("coding", base_url=srv.base_url + "/filter")
 
 
+def _envelope(rows, start, total):
+    return 200, {
+        "rows": [{"row_idx": start + i, "row": r, "truncated_cells": []} for i, r in enumerate(rows)],
+        "num_rows_total": total, "partial": False,
+    }
+
+
+def test_inconsistent_pages_fail_closed():
+    rows = [_row(f"M{i}", 1000.0 + i, "coding") for i in range(250)]
+    good = _pager(rows)
+
+    def changing_total(req):
+        status, body = good(req)
+        if req["query"]["offset"] != "0":
+            body["num_rows_total"] = 251
+        return status, body
+
+    def repeated_page(req):  # the server ignores offset
+        return _envelope(rows[:100], 0, 250)
+
+    def oversized(req):
+        return _envelope(rows[:101], int(req["query"]["offset"]), 250)
+
+    def overshoot(req):  # pages deliver more rows than the total says
+        return _envelope(rows[:100], int(req["query"]["offset"]), 50)
+
+    for route in (changing_total, repeated_page, oversized, overshoot, lambda req: _envelope([], 0, 0)):
+        with ReplayServer({("GET", "/filter"): route}) as srv:
+            with pytest.raises(LeaderboardError):
+                fetch_arena_category("coding", base_url=srv.base_url + "/filter")
+    with ReplayServer({("GET", "/filter"): lambda req: _envelope([], 0, 0)}) as srv:
+        with pytest.raises(LeaderboardError, match="empty"):
+            fetch_arena_category("coding", base_url=srv.base_url + "/filter")
+        assert fetch_arena_scores(base_url=srv.base_url + "/filter") is None
+
+
+def test_row_missing_category_fails_closed():
+    row = _row("M", 1000.0)
+    del row["category"]
+    with pytest.raises(LeaderboardError):
+        parse_arena_rows([row], category="overall")
+
+
 def test_transient_5xx_is_retried_then_succeeds_and_persistent_5xx_is_bounded():
     rows = [_row("M0", 1000.0, "coding")]
     ok = _pager(rows)
