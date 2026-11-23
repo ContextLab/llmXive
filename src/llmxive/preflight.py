@@ -1,7 +1,8 @@
 """Fail-fast preamble (T013).
 
 Runs as the first step of every scheduled workflow. Validates:
-  * required secrets are present and non-empty
+  * at least one usable model provider is configured: the Dartmouth key, or
+    both HF_TOKEN and LLMXIVE_HF_BILL_TO
   * required CLI tools (git, pdflatex, uv/uvx) are on PATH
   * agent registry parses and validates against its schema
   * every prompt template referenced by the registry exists
@@ -45,10 +46,8 @@ from llmxive.model_selection.types import (
 
 REQUIRED_TOOLS = ["git"]
 OPTIONAL_TOOLS = ["pdflatex", "uvx", "uv", "pipx"]
-REQUIRED_SECRETS = ["DARTMOUTH_CHAT_API_KEY"]
 OPTIONAL_SECRETS = [
     "DARTMOUTH_API_KEY",
-    "HF_TOKEN",
     "GITHUB_TOKEN",
     "LLMXIVE_HF_BILL_TO",
     "LLMXIVE_FUNDED_LEDGER_ANCHOR",
@@ -70,25 +69,47 @@ def _check_tools() -> list[str]:
     return missing
 
 
-def _check_secrets() -> list[str]:
-    """Resolve required secrets via env → credentials file → unset.
+def _dartmouth_configured() -> tuple[bool, list[str]]:
+    """Dartmouth key via env -> credentials file. Second item: problems found."""
+    if os.environ.get(cred_mod.DARTMOUTH_KEY_NAME):
+        return True, []
+    try:
+        if cred_mod.load_dartmouth_key(prompt_if_missing=False):
+            return True, []
+    except PermissionError as exc:
+        return False, [str(exc)]
+    return False, []
 
-    The Dartmouth Chat key may live in ~/.config/llmxive/credentials.toml
-    so we admit a stored credential as satisfying the requirement.
-    """
-    missing: list[str] = []
-    for name in REQUIRED_SECRETS:
-        if os.environ.get(name):
-            continue
-        if name == cred_mod.DARTMOUTH_KEY_NAME:
-            try:
-                if cred_mod.load_dartmouth_key(prompt_if_missing=False):
-                    continue
-            except PermissionError as exc:
-                missing.append(str(exc))
-                continue
-        missing.append(name)
-    return missing
+
+def _hf_configured() -> tuple[bool, list[str]]:
+    """Hugging Face pair: a token (env or Keychain) AND the bill-to variable.
+    Second item: the names of whichever half is missing (never values)."""
+    missing = []
+    if not cred_mod.load_hf_token():
+        missing.append("HF_TOKEN")
+    if not os.environ.get("LLMXIVE_HF_BILL_TO", "").strip():
+        missing.append("LLMXIVE_HF_BILL_TO")
+    return not missing, missing
+
+
+def _check_secrets() -> tuple[list[str], list[str]]:
+    """At least one usable model provider is required: the Dartmouth key, or the
+    Hugging Face pair (``HF_TOKEN`` + ``LLMXIVE_HF_BILL_TO``). Returns
+    ``(failures, info)``; messages carry names only, never values."""
+    dartmouth, problems = _dartmouth_configured()
+    hf, hf_missing = _hf_configured()
+    if not dartmouth and not hf:
+        detail = f" ({'; '.join(problems)})" if problems else ""
+        hf_detail = f"; Hugging Face is missing {hf_missing}" if len(hf_missing) < 2 else ""
+        return [
+            "no usable model provider: set DARTMOUTH_CHAT_API_KEY (env or credentials "
+            f"file){detail}, or both HF_TOKEN and LLMXIVE_HF_BILL_TO{hf_detail}"
+        ], []
+    if dartmouth and not hf:
+        return [], [f"providers: dartmouth configured; huggingface not configured (missing {hf_missing})"]
+    if hf and not dartmouth:
+        return [], ["providers: huggingface configured; dartmouth not configured (DARTMOUTH_CHAT_API_KEY unset)"]
+    return [], ["providers: dartmouth and huggingface configured"]
 
 
 def _check_registry() -> list[str]:
@@ -197,9 +218,9 @@ def main() -> int:
         if not shutil.which(opt):
             info.append(f"optional tool not on PATH: {opt}")
 
-    missing_secrets = _check_secrets()
-    if missing_secrets:
-        failures.append(f"required secrets missing: {missing_secrets}")
+    secret_failures, secret_info = _check_secrets()
+    failures.extend(secret_failures)
+    info.extend(secret_info)
     for opt in OPTIONAL_SECRETS:
         if not os.environ.get(opt):
             info.append(f"optional secret not set: {opt}")
@@ -209,7 +230,7 @@ def main() -> int:
     info.extend(_check_about_page())
     if not failures:  # fail fast (FR-024): never spend network time on a run that cannot start
         try:
-            info.extend(selection_report(runtime_snapshot(refresh=True)))
+            info.extend(selection_report(runtime_snapshot()))
         except Exception as exc:  # informational: never change preflight's outcome
             info.append(f"selection report unavailable: {type(exc).__name__}")
 
