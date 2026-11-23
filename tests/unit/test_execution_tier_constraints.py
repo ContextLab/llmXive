@@ -160,3 +160,46 @@ def test_workflows_set_the_paid_escalation_variable_the_code_reads(
             # The value is a boolean the reader accepts, never a model-id list.
             monkeypatch.setenv(es.PAID_ESCALATION_ENV, value)
             assert es._paid_escalation_enabled() is True, (name, value)
+
+
+# --- Spec 027 section 5.10: each free rung raises the funded strength level ---------
+
+
+def test_each_free_rung_raises_the_funded_level_by_its_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    assert [c.to_overrides().level_delta for c in es.model_tier_ladder()] == [0, 1, 2]
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    ladder = es.model_tier_ladder()
+    assert ladder[-1].to_overrides().level_delta == 0 and len(ladder) == 4
+
+
+def test_rungs_climb_levels_and_end_at_strongest_when_dartmouth_is_down() -> None:
+    from llmxive.model_selection.route import resolve_chain
+    from tests.helpers.funded import B, E, snapshot
+
+    snap = snapshot(local=False)
+
+    def walk(profile: str) -> tuple[list[str | None], list[str]]:
+        out = [
+            resolve_chain([], profile=profile, max_tokens=1,
+                          overrides=c.to_overrides(), snapshot=snap)
+            for c in es.model_tier_ladder()
+        ]
+        return [r.strength for r, _ in out], [ch.candidates[0].model_ref.model_id for _, ch in out]
+
+    assert walk("cheap_structured") == (["economy", "balanced", "strong"], [B, E, E])
+    assert walk("deep_code") == (["strong", "strongest", "strongest"], [B, B, B])
+
+
+def test_funded_leader_is_never_excluded() -> None:
+    from llmxive.model_selection.route import resolve_chain
+    from llmxive.model_selection.types import RequirementOverrides
+    from tests.helpers.funded import B, snapshot
+
+    req, chain = resolve_chain(
+        [], profile="deep_code", max_tokens=1, snapshot=snapshot(local=False),
+        overrides=RequirementOverrides(exclude_leaders=2, level_delta=1),
+    )
+    assert [c.model_ref.model_id for c in chain.candidates] == [B]
+    assert req.exclude_models == frozenset()

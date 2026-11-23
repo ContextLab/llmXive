@@ -54,15 +54,26 @@ MAX_REPLAN_ROUNDS = 3
 #: each rung is resolved to a :class:`RequirementOverrides` at dispatch so the
 #: unified selector (not this layer) picks the actual model from the live catalog.
 #:
-#:   tier 0 → the free-only base requirement (no override).
+#:   tier 0 → the free-only base requirement (no override); funded models are
+#:            asked for the profile's default strength level.
 #:   tier 1 → a free "second opinion": ``exclude_leader`` drops whatever
 #:            ``select`` ranks FIRST so the policy's next-best FREE model leads
-#:            (SSoT — no id hardcoded here, no model id threaded into dispatch).
+#:            (SSoT — no id hardcoded here, no model id threaded into dispatch),
+#:            AND ``level_delta=1`` asks funded models for one strength level
+#:            above the profile's default.
 #:   tier 2 → a THIRD free family: ``exclude_leaders=2`` drops the top TWO ranked
-#:            candidates so the policy's third-best FREE model leads.
+#:            FREE candidates so the policy's third-best FREE model leads, AND
+#:            ``level_delta=2`` asks funded models for two levels above the default.
 #:   paid rung → a single OPTIONAL paid escalation, appended only when paid
 #:            escalation is enabled (``LLMXIVE_EXECUTION_PAID_ESCALATION``) AND
 #:            usable NOW (opt-in + fresh credit headroom); otherwise SKIPPED.
+#:            It does not raise the funded level (``level_delta=0``).
+#:
+#: The level raise saturates at ``strongest`` (``shift_level``). A funded leader is
+#: NEVER excluded (``resolve_chain`` stops leader exclusion at the first non-free
+#: leader): the funded group is already ranked by level and cost, so for funded
+#: models a rung's escalation IS the level raise (spec 027 section 5.10, which
+#: replaces the 5.9.5 "funded best-quality" rung). Funded needs no paid opt-in.
 #:
 #: This keeps the default behavior FREE-FIRST (tier0 → tier1 → tier2 → re-plan); paid
 #: escalation is enabled later by config, no code change and no model-id pin.
@@ -85,6 +96,9 @@ class TierConstraint:
     max_credits: int | None = None
     #: Drop the top N ranked candidates (see ``RequirementOverrides.exclude_leaders``).
     exclude_leaders: int = 0
+    #: Raise the funded strength level this many steps above the profile's default
+    #: (see ``RequirementOverrides.level_delta``; clamped at ``strongest``).
+    level_delta: int = 0
 
     @property
     def is_paid(self) -> bool:
@@ -97,17 +111,19 @@ class TierConstraint:
             exclude_leader=self.exclude_leader,
             exclude_leaders=self.exclude_leaders,
             max_credits=self.max_credits,
+            level_delta=self.level_delta,
         )
 
 
 #: The free rungs (indices stable): tier 0 = base free; tier 1 = free second opinion
 #: (exclude whatever ``select`` ranks first so the policy's next-best free leads);
 #: tier 2 = a THIRD free family (exclude the top two, so the policy's third-best
-#: free model leads) — the free ladder is tier0 → tier1 → tier2 → re-plan.
+#: free model leads) — the free ladder is tier0 → tier1 → tier2 → re-plan. Rung N
+#: also raises the funded strength level by N (spec 027 section 5.10).
 _FREE_RUNGS: tuple[TierConstraint, ...] = (
     TierConstraint(allow_paid=False),
-    TierConstraint(allow_paid=False, exclude_leader=True),
-    TierConstraint(allow_paid=False, exclude_leaders=2),
+    TierConstraint(allow_paid=False, exclude_leader=True, level_delta=1),
+    TierConstraint(allow_paid=False, exclude_leaders=2, level_delta=2),
 )
 #: The single paid rung appended when paid escalation is enabled.
 _PAID_RUNG = TierConstraint(allow_paid=True, require_paid=True)

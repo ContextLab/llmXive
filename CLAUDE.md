@@ -81,8 +81,10 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   re-brainstorm → `validator_rejected` terminal. When the execution OR
   convergence fix-loop exhausts its per-tier round cap it ESCALATES the
   model tier (`execution_status` `model_tier` ladder of selection constraints,
-  not model names: the profile's default chain → exclude the leader → exclude
-  the top two → an optional paid rung enabled by
+  not model names: the profile's default chain → exclude the free leader → exclude
+  the top two free candidates, each free rung also raising the strength level asked
+  of funded Hugging Face models by one, ending at `strongest`, with a funded leader
+  never excluded → an optional paid rung enabled by
   `LLMXIVE_EXECUTION_PAID_ESCALATION` via the paid opt-in + credit guard) and
   retries the cap; when ALL tiers exhaust it
   routes back to `planned`/`paper_planned` with a DETERMINISTIC (no-LLM)

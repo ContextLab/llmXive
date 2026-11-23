@@ -320,12 +320,20 @@ def resolve_chain(
         # times for a deeper rung (each pass drops the leader of what remains).
         # If a pass raises ModelUnavailable it propagates immediately — there is
         # no leader left to exclude and the deciding pass never runs.
+        # Only a FREE leader is excluded: exclusion stops at the first funded (or
+        # paid) leader. The funded group is already ranked by level and cost, so
+        # dropping its leader could remove the only model that qualifies at the
+        # raised level; for funded models a rung's escalation is ``level_delta``
+        # (spec 027 section 5.10).
         for _ in range(max(int(overrides.exclude_leader), overrides.exclude_leaders)):
             leader = _select_audited(
                 requirement, snap, route_audit, route_id, funded_policy=funded_policy
-            ).candidates[0].model_ref.model_id
+            ).candidates[0]
+            if leader.cost_class != "free":
+                break
             requirement = replace(
-                requirement, exclude_models=requirement.exclude_models | {leader}
+                requirement,
+                exclude_models=requirement.exclude_models | {leader.model_ref.model_id},
             )
     chain = _select_audited(requirement, snap, route_audit, route_id, funded_policy=funded_policy)   # THE decision
     return requirement, chain
