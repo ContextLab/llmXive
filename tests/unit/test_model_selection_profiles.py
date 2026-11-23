@@ -73,3 +73,14 @@ def test_build_requirement_convenience_matches_profile_build():
 def test_unknown_profile_raises():
     with pytest.raises(KeyError):
         profile("no_such_profile")
+
+
+def test_snapshot_catalog_reuse_never_outlives_the_fresh_review_limit():
+    """Final review B2: the snapshot reuses a stored Hugging Face catalog for
+    HF_CATALOG_REFRESH_S; a fresh-required review rejects a catalog older than its
+    max_catalog_age_s. One constant drives both, so a reused copy always passes."""
+    import llmxive.model_selection.snapshot as snap_mod
+    from llmxive.model_selection.profiles import FRESH_REVIEW_MAX_CATALOG_AGE_S, PROFILES
+
+    assert PROFILES["independent_review"].max_catalog_age_s == FRESH_REVIEW_MAX_CATALOG_AGE_S
+    assert snap_mod.HF_CATALOG_REFRESH_S == FRESH_REVIEW_MAX_CATALOG_AGE_S

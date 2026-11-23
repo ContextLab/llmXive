@@ -33,7 +33,13 @@ from llmxive.model_selection.types import (
     canonical_overrides,
 )
 
+#: The catalog-age limit of a fresh-required (high-stakes) review profile. The
+#: snapshot reuses a stored Hugging Face catalog for exactly this long
+#: (``snapshot.HF_CATALOG_REFRESH_S``), so a reused copy always meets it.
+FRESH_REVIEW_MAX_CATALOG_AGE_S = 900
+
 __all__ = [
+    "FRESH_REVIEW_MAX_CATALOG_AGE_S",
     "PROFILES",
     "RequirementProfile",
     "build_requirement",
@@ -179,7 +185,7 @@ PROFILES: dict[str, RequirementProfile] = {
         capability="deep",
         required_independence=frozenset({"family"}),
         preferred_independence=frozenset({"serving_endpoint"}),
-        max_catalog_age_s=900,  # high-stakes: require a fresh-enough snapshot (FR-007)
+        max_catalog_age_s=FRESH_REVIEW_MAX_CATALOG_AGE_S,  # high-stakes: fresh-enough snapshot (FR-007)
         require_fresh_snapshot=True,  # gate catalog AND credit/opt-in freshness, fail closed
         track="reasoning",
         strength="strong",

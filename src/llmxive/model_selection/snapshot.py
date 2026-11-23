@@ -37,6 +37,7 @@ from datetime import UTC, date, datetime
 from typing import TypeVar
 
 from llmxive.model_selection.lkg import LKGEntry, LKGStore
+from llmxive.model_selection.profiles import FRESH_REVIEW_MAX_CATALOG_AGE_S
 from llmxive.model_selection.types import (
     ArenaScore,
     CreditGuardSnapshot,
@@ -71,7 +72,7 @@ _T = TypeVar("_T")
 #: catalog every time the route cache (``route._SNAPSHOT_TTL_S``) expires.
 #: ``runtime_snapshot(refresh=True)`` bypasses them. ``funded`` is never reused.
 LEADERBOARD_REFRESH_S = 6 * 3600.0
-HF_CATALOG_REFRESH_S = 15 * 60.0
+HF_CATALOG_REFRESH_S = float(FRESH_REVIEW_MAX_CATALOG_AGE_S)  # a reused copy meets a fresh review
 
 #: After a remote fetch fails (Dartmouth catalog, Dartmouth credit balance, Hugging
 #: Face catalog, leaderboard), the same fetch is not attempted again for this many
