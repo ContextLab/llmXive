@@ -429,6 +429,9 @@ def select(
     explanation: list[str] = []
     eligible: list[tuple[ModelRef, float, bool]] = []  # non-funded: (ref, worst_case_credits, is_free)
     funded_eligible: list[tuple[ModelRef, float]] = []  # (ref, worst_case_credits)
+    funded_no_context: list[str] = []  # funded ids whose provider reports no context length
+    funded_short_context: list[str] = []  # funded ids whose context cannot hold the call budget
+    budget_tokens = requirement.call_budget.max_input_tokens + requirement.call_budget.max_output_tokens
 
     # Funded (Hugging Face) candidates: the components that decide them are judged
     # ONCE, fail closed (spec 027 5.10); the track's scored population is the
@@ -503,6 +506,16 @@ def select(
         if cost is None:
             continue
         if is_funded:
+            # The provider's reported context window must hold the whole call
+            # budget (input bound + output bound): an over-long request is
+            # rejected after the reservation and charged in full.
+            context_length = snapshot.observed[model.model_id].context_length
+            if context_length is None:
+                funded_no_context.append(model.model_id)
+                continue
+            if context_length < budget_tokens:
+                funded_short_context.append(model.model_id)
+                continue
             # Never free whatever the price; the level filter, the allowance and
             # max_credits are applied by _funded_group below.
             funded_eligible.append((model, cost))
@@ -520,6 +533,16 @@ def select(
     # allowance/budget fit, one budget step-down where the profile allows it. No
     # funded candidate reaches the chain except through this group.
     funded_group: list[tuple[ModelRef, float]] = []
+    if funded_short_context:
+        explanation.append(
+            f"funded: skipped {len(funded_short_context)} provider(s) whose context length is "
+            f"below the call budget's {budget_tokens} tokens: {', '.join(sorted(funded_short_context))}"
+        )
+    if funded_no_context:
+        explanation.append(
+            f"funded: skipped {len(funded_no_context)} provider(s) that report no context length: "
+            f"{', '.join(sorted(funded_no_context))}"
+        )
     if funded_block is None and has_hf:
         funded_group, notes, allowance_removed = _funded_group(
             funded_eligible, requirement, snapshot, population, fpol

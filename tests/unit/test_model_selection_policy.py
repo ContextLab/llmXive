@@ -19,7 +19,7 @@ _EXPECTED_FAMILIES = {
 
 
 def test_policy_version_matches_constant():
-    assert CAPABILITY_POLICY.version == SELECTION_POLICY_VERSION == 4
+    assert CAPABILITY_POLICY.version == SELECTION_POLICY_VERSION == 5
 
 
 def test_expected_families_present_and_gemma3_absent():

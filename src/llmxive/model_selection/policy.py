@@ -83,6 +83,12 @@ fresh-required review is an outage only when neither the Dartmouth nor the
 funded class is fresh. The bump makes every such decision distinguishable from a
 v3 one (SC-001).
 
+v5 (spec 027 final review, 2026-11-23) changes no row of the table below: a
+funded candidate is now eligible only when its provider's reported
+``context_length`` is at least the call budget's input bound plus output bound,
+and a provider that reports no context length is ineligible; both skips are
+named in the decision's explanation.
+
 Funded policy (spec 027): ``FUNDED_POLICY`` holds the reviewed cut-offs that map
 a strength level to a slice of the funded (Hugging Face) candidates. Each
 cut-off is a PERCENT of that day's scored population (``strongest`` is the single
@@ -101,7 +107,7 @@ from llmxive.model_selection.types import Capability, StrengthLevel
 #: Bump when the table below changes in a way that can alter a decision. Part of
 #: ``select``'s pure input so the same snapshot+requirement under a different
 #: policy version is a DIFFERENT (distinguishable) decision.
-SELECTION_POLICY_VERSION = 4
+SELECTION_POLICY_VERSION = 5
 
 
 @dataclass(frozen=True)

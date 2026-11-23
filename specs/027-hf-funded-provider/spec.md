@@ -203,6 +203,9 @@ where only the maintainer can decide.
    eligible only for requirements that do not list `reasoning`, and the backend budgets
    tokens and deadlines for it as if it were a reasoning model (the conservative case).
    `min_context_tokens` is checked against the catalog's per-provider `context_length`.
+   The code also requires that `context_length` be at least the call budget's input
+   bound plus output bound; a provider reporting no `context_length` is ineligible
+   (selection policy version 5).
 5. **[call] Interaction with paid controls.** Funded needs no `allow_paid` and no opt-in
    flag. `require_paid` excludes funded (it means paid). In the `execution_status` tier
    ladder the rungs become: default selection → funded best-quality (ignores the

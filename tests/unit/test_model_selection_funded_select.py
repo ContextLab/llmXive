@@ -181,8 +181,11 @@ def test_an_unknown_context_length_fails_a_stated_minimum():
     observed = dict(snap.observed)
     observed[A] = ObservedModel(context_length=None, features=observed[A].features)
     snap = replace(snap, observed=observed)
-    assert A in eligible_ids("deep_review", snap)  # no minimum stated
+    # Final-review A3: an unknown context cannot be shown to hold the call budget,
+    # so the provider is ineligible even when no minimum is stated.
+    assert A not in eligible_ids("deep_review", snap)
     assert A not in eligible_ids("deep_review", snap, min_context_tokens=1)
+    assert A in eligible_ids("deep_review", snapshot(local=False))  # its known context is eligible
 
 
 def test_a_model_without_observed_flags_is_ineligible():
@@ -461,7 +464,7 @@ def test_only_the_allowance_suppresses_paid_not_the_callers_max_credits():
 def test_select_stays_byte_identical_and_versioned():
     s = snapshot(dartmouth=(QWEN,))
     assert sel("deep_review", s) == sel("deep_review", s)
-    assert sel("deep_review", s).selection_policy_version == 4
+    assert sel("deep_review", s).selection_policy_version == 5
 
 
 # Security property (automated review of 2a0d08f): no funded candidate leaves
@@ -500,3 +503,43 @@ def test_every_funded_candidate_passed_the_level_filter_and_the_budget(profile, 
         assert not funded and CLAUDE not in order(chain)  # never a licence to fall through to paid
     if any(e.startswith("funded over the caller's budget") for e in chain.explanation):
         assert not funded and max_credits is not None
+
+
+def _with_context(snap: RuntimeSnapshot, model_id: str, context_length: int | None) -> RuntimeSnapshot:
+    observed = dict(snap.observed)
+    observed[model_id] = ObservedModel(context_length=context_length, features=observed[model_id].features)
+    return replace(snap, observed=observed)
+
+
+def test_a_provider_whose_context_cannot_hold_the_call_budget_is_skipped():
+    """A3: a funded provider is eligible only when its reported context length holds
+    the call budget's input bound + output bound; otherwise a long prompt sent to the
+    cheapest qualifier is rejected (HTTP 400) and charged in full."""
+    from llmxive.model_selection.types import CallBudget
+
+    assert order(sel("cheap_structured", snapshot())) == [B, E, LOCAL]  # B leads as cheapest
+    small_ctx = _with_context(snapshot(), B, 4_096)
+    large = sel("cheap_structured", small_ctx)  # BUDGET = 10_000 + 2_000 tokens
+    assert B not in ids(large) and order(large)[0] == E  # next-cheapest qualifier leads
+    notes = [e for e in large.explanation if "context" in e]
+    assert len(notes) == 1 and B in notes[0] and "12000" in notes[0]
+
+    small_budget = CallBudget(3_000, 1_096)  # exactly 4_096: fits
+    chosen = select(build_requirement("cheap_structured", small_budget), small_ctx)
+    assert order(chosen)[0] == B
+    over_by_one = CallBudget(3_000, 1_097)
+    assert B not in ids(select(build_requirement("cheap_structured", over_by_one), small_ctx))
+
+
+def test_a_provider_reporting_no_context_length_is_ineligible_and_noted():
+    snap = _with_context(snapshot(), B, None)
+    chain = sel("cheap_structured", snap)
+    assert B not in ids(chain) and order(chain)[0] == E
+    notes = [e for e in chain.explanation if "no context length" in e]
+    assert len(notes) == 1 and B in notes[0]
+
+
+def test_the_context_rule_bumped_the_policy_version():
+    from llmxive.model_selection.policy import SELECTION_POLICY_VERSION
+
+    assert SELECTION_POLICY_VERSION == 5
