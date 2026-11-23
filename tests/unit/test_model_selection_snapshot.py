@@ -107,8 +107,10 @@ def test_runtime_snapshot_is_deterministic_and_provenanced(
     _patch_spec027_live(monkeypatch)
 
     store = LKGStore(tmp_path / "lkg.json")
-    a = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store)
-    b = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store)
+    # refresh=True: both snapshots fetch (no reuse of the stored hf_catalog /
+    # leaderboard copy), so the inputs really are identical.
+    a = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store, refresh=True)
+    b = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store, refresh=True)
     assert a.digest == b.digest  # same inputs -> same digest
     assert {k: p.source for k, p in a.sources.items()} == {
         "catalog": "live", "local": "live", "credit": "live",

@@ -64,6 +64,14 @@ _ArenaData = dict[Track, dict[str, ArenaScore]]
 
 _T = TypeVar("_T")
 
+#: Per-component refresh intervals (seconds): a stored LKG entry younger than this
+#: is served (with its TRUE observed time and age, as ``last_known_good``) instead
+#: of re-fetching, so routed calls do not re-page the leaderboard or re-read the
+#: catalog every time the route cache (``route._SNAPSHOT_TTL_S``) expires.
+#: ``runtime_snapshot(refresh=True)`` bypasses them. ``funded`` is never reused.
+LEADERBOARD_REFRESH_S = 6 * 3600.0
+HF_CATALOG_REFRESH_S = 15 * 60.0
+
 
 def _vendor_of(model_id: str) -> str:
     """Vendor = the id's leading namespace (``openai.gpt-oss-120b`` → ``openai``;
@@ -202,7 +210,9 @@ def _usd_per_million(value: object) -> float | None:
 def _parse_hf_catalog(raw: dict) -> _HFCatalogData:
     """Router ``/models`` body → one ``ModelRef`` per (repo, provider) whose status is
     ``live``. ``model_id`` is ``<repo>:<provider>``; family and vendor come from the
-    repo id alone. Raises ``ValueError`` when the body has no ``data`` list."""
+    repo id alone. Raises ``ValueError`` when the body has no ``data`` list or yields
+    no live provider at all (an empty catalog is a failed fetch, so it never
+    overwrites a good last-known-good copy)."""
     data = raw.get("data") if isinstance(raw, dict) else None
     if not isinstance(data, list):
         raise ValueError("Hugging Face catalog has no 'data' list")
@@ -229,7 +239,9 @@ def _parse_hf_catalog(raw: dict) -> _HFCatalogData:
                 continue  # a repeated (repo, provider) row: the first one stands
             refs.append(ModelRef(_HF_BACKEND, provider, mid, family, vendor))
             price = prov.get("pricing") if isinstance(prov.get("pricing"), dict) else {}
-            pricing[mid] = ModelPricing(_usd_per_million(price.get("input")), _usd_per_million(price.get("output")))
+            pricing[mid] = ModelPricing(
+                _usd_per_million(price.get("input")), _usd_per_million(price.get("output"))
+            )
             ctx = prov.get("context_length")
             features = {
                 name for name, on in (
@@ -242,6 +254,8 @@ def _parse_hf_catalog(raw: dict) -> _HFCatalogData:
                 context_length=ctx if isinstance(ctx, int) and not isinstance(ctx, bool) else None,
                 features=frozenset(features),
             )
+    if not refs:
+        raise ValueError("Hugging Face catalog lists no live provider")
     return refs, pricing, observed
 
 
@@ -266,7 +280,8 @@ def _fetch_leaderboard() -> _ArenaData | None:
 
 def _fetch_funded_guard(*, now: datetime) -> FundedGuardSnapshot | None:
     """The funded allowance guard, or ``None`` when funded spend is unavailable
-    (no bill-to id / token / ledger anchor, or the ledger cannot sync). The guard
+    (no bill-to id / token / ledger anchor, the ledger cannot sync, or ANY other
+    failure — ``runtime_snapshot`` never raises). The guard
     fetches the org balance ONCE and records it as ``org_balance_usd``; whatever
     reserves against this snapshot passes the guard itself to
     ``hf_budget.reserve_funded`` so it prices with that same balance."""
@@ -278,6 +293,9 @@ def _fetch_funded_guard(*, now: datetime) -> FundedGuardSnapshot | None:
         return funded_guard(repo_root(), now=now)
     except (FundedUnavailable, LedgerError) as exc:
         logger.warning("funded guard unavailable: %s: %s", type(exc).__name__, exc)
+        return None
+    except Exception as exc:  # unexpected: log the type only (a message could carry secrets)
+        logger.warning("funded guard unavailable: unexpected %s", type(exc).__name__)
         return None
 
 
@@ -373,16 +391,32 @@ def _resolve_component(
     lkg: dict[str, LKGEntry],
     now: datetime,
     updates: dict[str, LKGEntry],
+    *,
+    reuse_within_s: float | None = None,
 ) -> tuple[_T, SnapshotProvenance]:
     """The one live → last_known_good → unavailable resolver every LKG-backed
     component goes through. ``from_payload`` receives the entry's original
-    ``observed_at``; ``empty`` is the cold-start value."""
+    ``observed_at``; ``empty`` is the cold-start value.
+
+    ``reuse_within_s``: when the stored entry is younger than this (and not from
+    the future), it is served WITHOUT fetching, as ``last_known_good`` with its
+    true observed time and age — never restamped as fresh."""
+    entry = lkg.get(name)
+    if reuse_within_s is not None and entry is not None:
+        age = (now - entry.observed_at).total_seconds()
+        if 0.0 <= age < reuse_within_s:
+            try:
+                data = from_payload(entry.payload, entry.observed_at)
+            except (KeyError, TypeError, ValueError, IndexError, AttributeError) as exc:
+                logger.warning("LKG %s payload invalid (%s); refetching", name, exc)
+            else:
+                return data, SnapshotProvenance("last_known_good", entry.observed_at, age)
+
     live = fetch()
     if live is not None:
         updates[name] = LKGEntry(observed_at=now, payload=to_payload(live))
         return live, SnapshotProvenance(source="live", observed_at=now, age_s=0.0)
 
-    entry = lkg.get(name)
     if entry is not None:
         try:
             data = from_payload(entry.payload, entry.observed_at)
@@ -502,11 +536,16 @@ def _digest(
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
 
 
-def runtime_snapshot(*, now: datetime | None = None, lkg_store: LKGStore | None = None) -> RuntimeSnapshot:
+def runtime_snapshot(
+    *, now: datetime | None = None, lkg_store: LKGStore | None = None, refresh: bool = False
+) -> RuntimeSnapshot:
     """Assemble the composite runtime snapshot across all backends + credit guard.
 
     The single networked/env-reading entry point; ``select`` consumes its result
     purely. ``now`` and ``lkg_store`` are injectable for deterministic tests.
+    ``refresh=True`` fetches ``hf_catalog`` and ``leaderboard`` even when their
+    stored copy is within :data:`HF_CATALOG_REFRESH_S` / :data:`LEADERBOARD_REFRESH_S`
+    (preflight / reports).
     """
     observed_at = now or datetime.now(UTC)
     store = lkg_store or LKGStore()
@@ -523,10 +562,12 @@ def runtime_snapshot(*, now: datetime | None = None, lkg_store: LKGStore | None 
     (h_refs, h_pricing, h_observed), h_prov = _resolve_component(
         "hf_catalog", _fetch_huggingface, _hf_catalog_to_payload,
         lambda p, _at: _hf_catalog_from_payload(p), ([], {}, {}), lkg, observed_at, updates,
+        reuse_within_s=None if refresh else HF_CATALOG_REFRESH_S,
     )
     arena, lb_prov = _resolve_component(
         "leaderboard", _fetch_leaderboard, _arena_to_payload,
         lambda p, _at: _arena_from_payload(p), {}, lkg, observed_at, updates,
+        reuse_within_s=None if refresh else LEADERBOARD_REFRESH_S,
     )
     funded = _fetch_funded_guard(now=observed_at)  # no LKG: live or unavailable
     f_prov = SnapshotProvenance(

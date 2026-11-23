@@ -33,6 +33,7 @@ from llmxive.model_selection.types import (
 from tests.helpers.replay_server import ReplayServer
 
 _FIX = Path(__file__).parents[1] / "fixtures" / "hf_funded"
+_REAL_FETCH_HF = snap_mod._fetch_huggingface  # the real fetch, before any test patches it
 T0 = datetime(2026, 11, 23, 12, 0, 0, tzinfo=UTC)
 
 
@@ -141,7 +142,8 @@ def test_lkg_leaderboard_joins_against_the_live_catalog(monkeypatch, tmp_path):
     gone = next(iter(snap_mod.runtime_snapshot(now=T0, lkg_store=store).scores)).rsplit(":", 1)[0]
     kept = [r for r in refs if not r.model_id.startswith(gone + ":")]
     _patch(monkeypatch, hf=lambda: (kept, pricing, observed), lb=lambda: None, guard=lambda *, now: None)
-    s = snap_mod.runtime_snapshot(now=T0 + timedelta(seconds=60), lkg_store=store)
+    s = snap_mod.runtime_snapshot(now=T0 + timedelta(seconds=60), lkg_store=store, refresh=True)
+    assert s.sources["hf_catalog"].source == "live"
     assert s.sources["leaderboard"].source == "last_known_good" and s.scores
     assert not any(k.startswith(gone + ":") for k in s.scores)
 
@@ -242,3 +244,107 @@ def test_family_table_select_never_admits_a_funded_model(monkeypatch, tmp_path):
     snap = snap_mod.runtime_snapshot(now=T0, lkg_store=LKGStore(tmp_path / "lkg.json"))
     with pytest.raises(ModelUnavailable):
         select(ModelRequirement(capability="standard", call_budget=CallBudget(1000, 500), allow_paid=True), snap)
+
+
+
+def _good_lkg(monkeypatch, store):
+    hf = _parse_hf_catalog(CAT)
+    _patch(monkeypatch, hf=lambda: hf, lb=lambda: None, guard=lambda *, now: None)
+    first = snap_mod.runtime_snapshot(now=T0, lkg_store=store)
+    assert first.sources["hf_catalog"].source == "live"
+    return first
+
+
+@pytest.mark.parametrize("body", [
+    {"data": []},
+    {"data": [{"id": "acme/a", "providers": [{"provider": "p", "status": "staging",
+                                               "pricing": {"input": 1, "output": 1}}]}]},
+])
+def test_an_empty_catalog_is_a_failed_fetch_and_keeps_the_lkg(monkeypatch, tmp_path, body):
+    with pytest.raises(ValueError):
+        _parse_hf_catalog(body)
+    store = LKGStore(tmp_path / "lkg.json")
+    first = _good_lkg(monkeypatch, store)
+    with ReplayServer({("GET", "/models"): [(200, body)]}) as srv:
+        monkeypatch.setattr(snap_mod, "_fetch_huggingface", lambda: _REAL_FETCH_HF(base_url=srv.base_url))
+        later = T0 + timedelta(seconds=snap_mod.HF_CATALOG_REFRESH_S + 5)
+        s = snap_mod.runtime_snapshot(now=later, lkg_store=store)
+        assert len(srv.requests) == 1  # it did fetch (outside the refresh interval)
+    prov = s.sources["hf_catalog"]
+    assert (prov.source, prov.observed_at, prov.age_s) == ("last_known_good", T0, snap_mod.HF_CATALOG_REFRESH_S + 5)
+    assert len(s.models) == len(first.models)
+    assert store.load()["hf_catalog"].observed_at == T0  # the good copy was not overwritten
+
+
+def _serve_both(srv_cat, srv_lb):
+    """Real fetch functions pointed at local servers."""
+    from llmxive.model_selection.leaderboard import fetch_arena_scores
+
+    return (lambda: _REAL_FETCH_HF(base_url=srv_cat.base_url),
+            lambda: fetch_arena_scores(base_url=srv_lb.base_url + "/filter"))
+
+
+def _lb_route(record):
+    cat = record["query"]["where"].split("'")[1]
+    rows = _load(f"lmarena_text_{cat}.json")["payload"]["rows"]
+    off, n = int(record["query"]["offset"]), int(record["query"]["length"])
+    page = rows[off:off + n]
+    return 200, {"num_rows_total": len(rows), "partial": False,
+                 "rows": [{"row_idx": off + i, "row": r} for i, r in enumerate(page)]}
+
+
+def test_stored_components_are_reused_within_their_refresh_interval(monkeypatch, tmp_path):
+    store = LKGStore(tmp_path / "lkg.json")
+    with ReplayServer({("GET", "/models"): [(200, CAT)]}) as cat, \
+            ReplayServer({("GET", "/filter"): _lb_route}) as lb:
+        hf, board = _serve_both(cat, lb)
+        _patch(monkeypatch, hf=hf, lb=board, guard=lambda *, now: None)
+        s1 = snap_mod.runtime_snapshot(now=T0, lkg_store=store)
+        n_cat, n_lb = len(cat.requests), len(lb.requests)
+        assert s1.sources["hf_catalog"].source == s1.sources["leaderboard"].source == "live"
+        assert n_cat == 1 and n_lb >= 2
+
+        # inside both intervals: zero requests, original observed time, true age
+        t = T0 + timedelta(seconds=snap_mod.HF_CATALOG_REFRESH_S - 1)
+        s2 = snap_mod.runtime_snapshot(now=t, lkg_store=store)
+        assert (len(cat.requests), len(lb.requests)) == (n_cat, n_lb)
+        for c in ("hf_catalog", "leaderboard"):
+            assert (s2.sources[c].source, s2.sources[c].observed_at, s2.sources[c].age_s) == \
+                ("last_known_good", T0, snap_mod.HF_CATALOG_REFRESH_S - 1)
+        assert dict(s2.scores) == dict(s1.scores) and len(s2.models) == len(s1.models)
+
+        # past the catalog interval only: the catalog is refetched, the leaderboard is not
+        t = T0 + timedelta(seconds=snap_mod.HF_CATALOG_REFRESH_S + 1)
+        s3 = snap_mod.runtime_snapshot(now=t, lkg_store=store)
+        assert (len(cat.requests), len(lb.requests)) == (n_cat + 1, n_lb)
+        assert s3.sources["hf_catalog"].source == "live"
+        assert s3.sources["leaderboard"].source == "last_known_good"
+
+        # refresh=True fetches both even inside the intervals
+        s4 = snap_mod.runtime_snapshot(now=t, lkg_store=store, refresh=True)
+        assert len(cat.requests) == n_cat + 2 and len(lb.requests) == 2 * n_lb
+        assert s4.sources["leaderboard"].source == "live"
+
+        # past the leaderboard interval: refetched
+        t2 = t + timedelta(seconds=snap_mod.LEADERBOARD_REFRESH_S + 1)
+        s5 = snap_mod.runtime_snapshot(now=t2, lkg_store=store)
+        assert len(lb.requests) == 3 * n_lb and s5.sources["leaderboard"].source == "live"
+    # servers gone: a failed refetch past the interval still falls back to the LKG
+    t3 = t2 + timedelta(seconds=snap_mod.LEADERBOARD_REFRESH_S + 1)
+    s6 = snap_mod.runtime_snapshot(now=t3, lkg_store=store)
+    for c in ("hf_catalog", "leaderboard"):
+        assert (s6.sources[c].source, s6.sources[c].observed_at) == ("last_known_good", t2)
+        assert s6.sources[c].age_s == (t3 - t2).total_seconds()
+    assert dict(s6.scores) == dict(s5.scores)
+
+
+def test_fetch_funded_guard_is_total(monkeypatch, caplog):
+    import llmxive.backends.hf_budget as hf_budget
+
+    def boom(*_a, **_k):
+        raise RuntimeError("hf_SECRET_TOKEN_VALUE")
+
+    monkeypatch.setattr(hf_budget, "funded_guard", boom)
+    with caplog.at_level(logging.WARNING, logger=snap_mod.__name__):
+        assert snap_mod._fetch_funded_guard(now=T0) is None
+    assert "RuntimeError" in caplog.text and "hf_SECRET_TOKEN_VALUE" not in caplog.text
