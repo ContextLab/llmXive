@@ -203,3 +203,48 @@ def test_funded_leader_is_never_excluded() -> None:
     )
     assert [c.model_ref.model_id for c in chain.candidates] == [B]
     assert req.exclude_models == frozenset()
+
+
+def test_free_leader_is_excluded_then_exclusion_stops_at_a_funded_leader() -> None:
+    from llmxive.model_selection.route import resolve_chain
+    from llmxive.model_selection.types import RequirementOverrides
+    from tests.helpers.funded import GLM, B, snapshot
+
+    snap = snapshot(dartmouth=(GLM,), local=False)
+    _, base = resolve_chain([], profile="deep_code", max_tokens=1, snapshot=snap)
+    assert base.candidates[0].model_ref.model_id == GLM      # free hosted leads
+    req, chain = resolve_chain(
+        [], profile="deep_code", max_tokens=1, snapshot=snap,
+        overrides=RequirementOverrides(exclude_leaders=2, level_delta=1),
+    )
+    # Pass 1 drops the free leader; pass 2 meets a funded leader and stops.
+    assert req.exclude_models == frozenset({GLM})
+    assert chain.candidates[0].model_ref.model_id == B
+    assert chain.candidates[0].cost_class == "funded"
+
+
+def test_rungs_differing_only_in_level_delta_have_distinct_selection_and_cache_keys() -> None:
+    from dataclasses import replace
+
+    from llmxive.convergence.review_cache import compose_key
+    from llmxive.model_selection.policy import SELECTION_POLICY_VERSION
+    from llmxive.model_selection.profiles import selection_identity
+
+    def key(ov: object) -> str:
+        return compose_key(
+            user="u", system="s", lens="l", stage="research_review", profile="deep_review",
+            selection_policy_version=SELECTION_POLICY_VERSION, overrides=ov,  # type: ignore[arg-type]
+            temperature=0.0, max_tokens=100,
+        )
+
+    ladder = es.model_tier_ladder()
+    # Same exclusion fields as each rung, only level_delta varying 0/1/2.
+    for rung in ladder[:3]:
+        variants = [replace(rung, level_delta=d).to_overrides() for d in (0, 1, 2)]
+        idents = {selection_identity("deep_review", v) for v in variants}
+        keys = {key(v) for v in variants}
+        assert len(idents) == 3 and len(keys) == 3
+    # And the real rungs 0, 1, 2 are three distinct selections / cache keys.
+    real = [c.to_overrides() for c in ladder[:3]]
+    assert len({selection_identity("deep_review", o) for o in real}) == 3
+    assert len({key(o) for o in real}) == 3

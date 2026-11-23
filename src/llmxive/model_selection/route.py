@@ -324,7 +324,8 @@ def resolve_chain(
         # paid) leader. The funded group is already ranked by level and cost, so
         # dropping its leader could remove the only model that qualifies at the
         # raised level; for funded models a rung's escalation is ``level_delta``
-        # (spec 027 section 5.10).
+        # (spec 027 section 5.10). ANY non-free leader stops exclusion, a paid one
+        # included; no ladder rung combines leader exclusion with paid today.
         for _ in range(max(int(overrides.exclude_leader), overrides.exclude_leaders)):
             leader = _select_audited(
                 requirement, snap, route_audit, route_id, funded_policy=funded_policy
